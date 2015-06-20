@@ -1,0 +1,69 @@
+{% load endless %}
+{% paginate question_list %}
+
+{% if question_list %}
+
+	<div class="panel-group">
+	{% for question in question_list %}
+	<div class="panel panel-info">
+		<div class="panel-heading">
+		<h5>{{question.question.title}}</h5>
+		
+		<br/>
+		<div class="dropdown">
+			<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Privacy
+				<span class="caret"></span></button>
+			<ul class="dropdown-menu">
+			<li><a  data-newid="private" data-id="{{question.question.id}}">private</a></li>
+			<li><a  data-newid="public" data-id="{{question.question.id}}">public</a></li>
+			
+			</ul>
+		</div>
+		</div>
+		<div class="panel-body">
+		{% if question.is_answer %}
+		
+		
+		{% for answer in question.answers %}
+		<div class="container-fluid">
+		<div class="col-sm-2">
+			{% if answer.from_doctor.doctor_image %}
+			<img width="30" height="30" class="img-responsive" src="/media/{{answer.from_doctor.doctor_image}}"/>
+		
+			{% endif %}
+		</div>
+		<div class="col-sm-5">
+		<a href="/icare/profile/doctor/{{answer.from_doctor.user.id}}/">{{answer.from_doctor.name}}</a> has answered
+		</div>
+		
+		</div>
+		
+		<br/>
+	
+		<div class="row-fluid">
+		In brief:<br/>	
+	
+		<p>{{answer.detail}}</p>
+		</div>
+		<hr/>
+	{% endfor %}
+	
+	{% else %}
+	<strong>No answer present </strong>
+	
+	{% endif %}
+	</div>
+	<br/>
+	</div>
+	
+	{% endfor %}
+	
+	</div>
+
+
+{% else %}
+<strong>No question present </strong>
+
+{% endif %}
+
+{% show_more %}

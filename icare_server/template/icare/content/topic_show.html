@@ -1,0 +1,208 @@
+{% extends 'icare/base_main.html' %}
+{% load bootstrap_toolkit %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    $.endlessPaginate({paginateOnScroll: true});
+  </script>
+{% endblock %}
+
+
+{% block body_block %}
+<div class="container-fluid">
+	<h5>Topic</h5>
+		{% if is_follow %}
+			<button type="button" class="btn btn-info">Followed</button>
+		{% else %}
+			<button type="button" class="btn btn-default" data-topicid="{{topic.id}}" id="topic_follow_button">Follow</button>
+		{% endif %}
+		
+			
+	<div class="panel panel-info">
+	<div class="panel-heading">
+		<div class="container-fluid">
+		
+		<h6>{{topic.title}}</h6>
+		
+		
+	
+		</div>
+	</div>
+	<div class="panel-body">
+	<div class="container-fluid">
+		<p>{{topic.definition}}</p><br/>
+		{% if topic.image %}
+			<img src="/media/{{topic.image}}" style="width:304px;height:228px">
+		{% endif %}
+	</div>
+	</div>
+</div>
+
+
+{% if is_patient %}
+	
+	<div class ="panel panel-default">
+		<div class="panel-body">
+			<h4>Post a Question</h4>
+			<form role="form" method="post" action="/icare/question/post/topic/{{topic.id}}/"
+			enctype="multipart/form-data">
+			
+			{% csrf_token %}
+					{{question_form.errors}}
+					{{question_form|as_bootstrap}}
+					
+			
+				<input class="btn btn-primary" type="submit" type="submit" name="submit" value="Post">
+				
+			</form>
+		</div>
+	</div>
+	
+{% endif %}
+
+
+{% include page_template %}
+</div>
+{% endblock %}
+
+{% block related_block %}
+
+<div class="container-fluid">
+{% if not is_patient %}
+<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#topic_add">Add related topic</button>
+
+					<!-- Modal -->
+					<div id="topic_add" class="modal fade" role="dialog">
+							<div class="modal-dialog">
+
+					<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+										<h4 class="modal-title">Add topic form</h4>
+								</div>
+								<div class="modal-body">
+									<div>
+									<form id="topic_form" method="post" action="/icare/topic/add/related_topic/{{topic.id}}/"
+									enctype="multipart/form-data">
+
+										{% csrf_token %}
+
+										{{topic_form|as_bootstrap}}
+										<label>Select topic categories</label>
+										<select class="form-control" name="select_category">
+											<option value="condition">condition</option>
+											<option value="medication">medication</option>
+											<option value="symptom">symptom</option>
+											<option value="procedure">procedure</option>
+										</select>
+										<br/>
+										<input class="btn btn-primary" type="submit" name="submit" value="Submit" />
+
+									</form>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
+								</div>
+							</div>
+
+							</div>
+					</div>
+{% endif %}					
+<h5>Related Topics</h5>
+	
+	<div class="panel-group">
+	{% if condition_list %}
+	<div class="pane-group">
+	<div class="panel panel-info">
+	<div class="panel-heading">
+	<h6 data-toggle="collapse" data-parent="#accordion" href="#Condition">Condition</h6>
+	</div>
+	<div id="Condition" class="panel-collapse collapse">
+	<div class="panel-body">
+	{% for condition in condition_list %}
+		<a href="/icare/topic/show/{{condition.id}}/">{{condition.title}}</a>
+	<br/>
+	{% endfor%}
+	</div><br />
+	</div>
+	</div>
+	</div>
+	{% endif %}
+	<br/>
+	{% if symptom_list %}
+	<div class="panel-group">
+	<div class="panel panel-info">
+	<div class="panel-heading">
+	<h6 data-toggle="collapse" data-parent="#accordion" href="#Symptom">Symptom</h6>
+	</div>
+	<div id="Symptom" class="panel-collapse collapse">
+	<div class="panel-body">
+	{% for symptom in symptom_list %}
+		<a href="/icare/topic/show/{{symptom.id}}/">{{symptom.title}}</a>
+	<br/>
+	{% endfor%}
+	</div><br />
+	</div>
+	</div>
+	</div>
+	{% endif %}
+	
+	{% if medication_list %}
+	<div class="panel-group">
+	<div class="panel panel-info">
+	<div class="panel-heading">
+	<h6 data-toggle="collapse" data-parent="#accordion" href="#Medication" >Medication</h6>
+	</div>
+	<div id="Medication" class="panel-collapse collapse">
+	<div class="panel-body">
+	{% for medication in medication_list %}
+		<a href="/icare/topic/show/{{medication.id}}/">{{medication.title}}</a>
+	<br/>
+	{% endfor%}
+	</div><br/>
+	</div>
+	</div>
+	</div>
+	{% endif %}
+	
+	{% if procedure_list %}
+	<div class="panel-group">
+	<div class="panel panel-info">
+	<div class="panel-heading">
+	<h6 data-toggle="collapse" data-parent="#accordion" href="#Procedure">Procedure</h6>
+	</div>
+	<div id="Procedure" class="panel-collapse collapse">
+	<div class="panel-body">
+	{% for procedure in procedure_list %}
+		<a href="/icare/topic/show/{{procedure.id}}/">{{procedure.title}}</a>
+	<br>
+	{% endfor%}
+	</div><br />
+	</div>
+	</div>
+	{% endif%}
+	<br/>
+	{% if other_topic_list %}
+	<div class="panel-group">
+	<div class="panel panel-info">
+	<div class="panel-heading">
+	<h6 data-toggle="collapse" data-parent="#accordion" href="#Other_Topic">Other Topic</h6>
+	</div>
+	<div id="Other_Topic" class="panel-collapse collapse">
+	<div class="panel-body">
+	{% for other_topic in other_topic_list %}
+		<a href="/icare/topic/show/{{other_topic.id}}/">{{other_topic.title}}</a>
+	<br/>
+	{% endfor%}
+	</div><br/>
+	</div>
+	</div>
+	</div>
+	{% endif%}
+	</div>
+</div>
+</div>
+{% endblock %}

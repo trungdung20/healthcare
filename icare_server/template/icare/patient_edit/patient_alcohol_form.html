@@ -1,0 +1,13 @@
+{% load bootstrap_toolkit %}
+<form  id="alcohol_submit" method="post" action="/icare/patient/alcohol/edit_submit/{{patient_record_id}}/"
+	enctype="multipart/form-data">
+	{% csrf_token%}
+	<div class="row-fluid">
+		<div class="col-sm-10">
+			{{patient_record_form|as_bootstrap}}
+		</div>
+		<div class="col-sm-2">
+		<input class="btn btn-primary"  type="submit" value="Save" />
+		</div>
+	</div>
+</form>

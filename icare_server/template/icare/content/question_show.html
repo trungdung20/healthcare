@@ -1,0 +1,47 @@
+{% extends 'icare/base_main.html' %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    $.endlessPaginate({paginateOnScroll: true});
+  </script>
+{% endblock %}
+
+{% block body_block %}
+<div class="row-fluid">
+	<div class="panel panel-default">
+	<div class="panel-heading">
+	<h4>{{question.title}}</h4>
+	</div>
+	</div>
+</div>
+{% if can_answer %}
+	<div class="row-fluid">
+	<div class="panel panel-default">
+	<div class="panel-body">
+			<form role="form" id="answer_post" method="POST" action="/icare/question/answer/{{question.id}}/"
+				enctype="multipart/form-data">
+			{% csrf_token %}
+			<div class="form-group">
+			
+				
+					{{answer_form.detail.errors}}
+					{{answer_form.detail}}
+			</div>
+			
+			<div>
+			<input class="btn btn-primary" type="submit" name="submit" value="Answer"/>
+			</form>
+		</div>
+	</div>
+</div>
+{% endif %}
+
+{% include page_template %}
+
+
+{% endblock %}
+
+{% block related_block %}
+
+{% endblock %}

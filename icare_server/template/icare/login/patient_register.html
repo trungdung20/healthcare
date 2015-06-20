@@ -1,0 +1,40 @@
+{% extends 'icare/base_login.html' %}
+{% load bootstrap_toolkit %}
+	{% block body_block %}
+	<div class="container-fluid">
+	<div class="col-md-5 col-md-offset-5">
+	<div class="panel panel-default">
+	<div class="panel-body">
+		<h2>Patient Registration Form</h2>
+		
+			<div class="container">
+				<div class="col-sm-8">
+			{% if registered %}
+				<strong>Thank you for registering!</strong>
+				<a href="/icare/home">Go to home page.</a><br/>
+			
+			{% else %}
+				
+				<form  role="form" id="user_form" method="post" action="/icare/register/patient/" 
+				enctype="multipart/form-data">
+				<h2 class="form-signin-heading" >Sign up Here</h2>
+				{% csrf_token %}
+				<b>Login details</b>
+				<hr/>
+				
+				{{ user_form|as_bootstrap}}
+				
+				<br/>
+				<b>Patient Details</b>
+				{{patient_form|as_bootstrap}}
+				<br/>
+				<input class="btn btn-primary"  type="submit" name="submit" value="Register"/>
+				</form>
+			{% endif %}
+			</div>
+			</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	{% endblock %}

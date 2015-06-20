@@ -1,0 +1,143 @@
+{% load endless %}
+{% paginate list %}
+{% if list %}
+
+<div class="panel-group">
+{% for notification in list %}
+	
+	{% if notification.is_question %}
+	{% if not notification.is_private %}
+	<div class="panel panel-info">
+		<div class="panel-heading">
+			
+			<h5>
+			{{notification.question_object.title}} 
+			</h5>
+			<h6>
+			<a>{{notification.answer_count}}</a> answers
+			</h6>
+			
+		</div>
+		
+		
+		<div class="panel-body">
+        {% if notification.is_answer %}
+		
+		
+		
+		<div class="container-fluid">
+		<div class="col-sm-2">
+		<h5>
+		
+		{% if notification.hero.from_doctor.doctor_image %}
+		<img class="img-responsive" width="60" height="60" src="/media/{{notification.hero.from_doctor.doctor_image}}"/>
+		{% endif %}
+		</h5>
+		</div>
+		<div class="col-sm-10">
+		<h5>
+		Doctor
+		<a>{{notification.hero.from_doctor.name}}</a> answer: 	
+		</h5> <br />
+		</div>
+		</div>
+		
+		<p>{{notification.hero.detail|truncatewords:40}}</p>.... <a href="/icare/question/show/{{notification.question_object.id}}">Read more</a>
+		
+		
+		
+        {% else %}
+        <div class="container-fluid">
+            <a href="/icare/question/show/{{notification.question_object.id}}">Read more</a>
+        </div>
+		
+        {% endif %}
+		</div>
+	
+	</div > 
+	{% endif %}
+	{% endif %}	
+	<br/>
+	{% if notification.is_topic %}
+	<div class="panel panel-info">
+	<div class="panel-heading">
+		{% if notification.topic_object.related_doctor %}
+		<div class="container-fluid">
+			<div class="col-sm-2">
+			{% if notification.topic_object.related_doctor.doctor_image %}
+			<img src="/media/{{notification.topic_object.related_doctor.doctor_image}}/" class="img-responsive" width="60" height="60">
+			
+			{% endif %}
+			</div>
+			<div class="col-sm-4">
+			{% if  notification.topic_object.related_doctor%}
+			<a href="/icare/profile/doctor/{{notification.topic_object.related_doctor.user.id}}/">{{notification.topic_object.related_doctor.name}}</a> has created
+			{% endif %}
+			</div>
+			
+		</div>
+		{% endif %}
+		<div class="container-fluid">
+		<h5>
+		<a href="/icare/topic/show/{{notification.topic_object.id}}/">{{notification.topic_object.title}}</a>
+		</h5>
+		</div>
+	</div>
+	<br/>
+	<div class="panel-body">
+		<a>In Brief</a>
+		<br/>
+		<p>{{notification.topic_object.definition}}</p>
+	</div>
+	</div>
+	{% endif %}
+	<br/>
+	{% if notification.is_checklist %}
+		<div class="panel panel-info">
+		<div class="panel-heading">
+			<div class="container-fluid">
+			<div class="col-sm-3">
+			<img src="/media/{{notification.checklist_object.related_doctor.doctor_image}}/" class="img-responsive" width="60" height="60" >
+			</div>
+			<div class="col-sm-5">
+			<a href="/icare/profile/doctor/{{notification.checklist_object.related_doctor.user.id}}/">{{notification.checklist_object.related_doctor.name}}</a>'s CheckList on <h4>{{notification.checklist_object.related_goal.title}}</h4>
+			<a data-toggle="collapse" data-parent="#accordion" href="#{{notification.checklist_object.id}}">Show</a>
+			</div>
+			
+			<div class="col-sm-4">
+				<a>{{notification.checklist_object.use}}</a> usages
+				
+				<br/>
+				<a>{{notification.checklist_object.likes}}</a> thanks
+				<br/>
+				
+				
+				<a>{{notification.checklist_object.agree}}</a> doctor agree
+			</div>
+			</div>
+		
+		</div>
+		<div id="{{notification.checklist_object.id}}" class="panel-collapse collapse">
+		<div class="panel-body">
+		<div class="container-fluid">
+		<ul>
+		{% for item in notification.items %}
+			<li > <h5>{{ item.title }} </h5> <hr/> <h5><small><p class="text-muted" >{{item.frequency}}    Priority:{{item.priority}}</p></small></h5></li>
+			<br/>
+		{% endfor %}
+		</ul> 
+		</div>
+		</div>
+		</div>
+		</div>
+	{% endif %}
+	
+{% endfor %}
+
+
+</div>
+{% else %}
+	<strong>There are no feed present </strong>
+{% endif %}
+
+{% show_more %}

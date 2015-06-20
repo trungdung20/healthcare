@@ -1,0 +1,30 @@
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="row-fluid">
+		<p>By:{{new_answer.created_doctor.doctor.name}}</p><br/>
+		<p>{{new_answer.detail}}</p><br/>
+		{% if answer.image %}
+			<img src="/media/{{answer.image}}" style="width:256;height=256"/>
+		{% endif %}
+		</div>
+		<div class="row-fluid">
+		<div class="col-sm-6">
+		<a id="answer_agree_count{{new_answer.id}}">{{new_answer.agree}}</a>
+		</div>
+		<div class="col-sm-6">
+		<a id="answer_thanks_count{{new_answer.id}}">{{new_answer.thanks}}</a>
+		</div>
+		</div>
+		
+		<div class="row-fluid">
+		{% if is_doctor%}
+		<a class="btn btn-mini btn-primary" type="button" id ="new_answer_agree" data-answerid="{{new_answer.id}}">Agree</a>
+		{% endif %}
+		
+		{% if is_patient %}
+		<a class="btn btn-mini btn-primary" type="button" id="new_answer_thanks" data-answerid="{{new_answer.id}}">Thanks</a>
+		{% endif %}
+		
+		</div>
+	</div>
+</div><br />

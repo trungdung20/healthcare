@@ -1,0 +1,85 @@
+{% load endless %}
+{% paginate checklist_list%}
+
+{% if checklist_list %}
+	
+<div class="container-fluid ">	
+	<div class="col-sm-10 col-sm-offset-1">
+	<div class="panel-group">
+	{% for checklist in checklist_list %}
+	<div class="panel panel-info">
+		<div class="panel-heading">
+			<div class="container-fluid">
+			
+			<div class="col-sm-3">
+			<img src="/media/{{checklist.checklist_object.related_doctor.doctor_image}}/" class="img-responsive" width="50" height="50" >
+			</div>
+			
+			<div class="col-sm-5">
+			<a href="/icare/profile/doctor/{{checklist.checklist_object.related_doctor.user.id}}/">{{checklist.checklist_object.related_doctor.name}}</a>'s CheckList
+			<br/>
+			<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{checklist.checklist_object.id}}">Show</a>
+			</div>
+			
+			<div class="col-sm-4">
+				<a id="checklist_uses_count{{checklist.checklist_object.id}}" >{{checklist.checklist_object.use}}</a> usages
+				
+				<br/>
+				<a id="checklist_thanks_count{{checklist.checklist_object.id}}" >{{checklist.checklist_object.likes}}</a> thanks
+				<br/>
+				
+				
+				<a id="checklist_agree_count{{checklist.checklist_object.id}}">{{checklist.checklist_object.agree}}</a> doctor agree
+				
+			</div>
+			
+			</div>
+		
+		</div>
+		<div id="collapse{{checklist.checklist_object.id}}" class="panel-collapse collapse">
+		<div class="panel-body">
+		<div class="container-fluid">
+		<ul>
+		{% for item in checklist.items %}
+			<li> <h5>{{ item.title }} </h5> <hr/> <h5><small><p class="text-muted" >{{item.frequency}} Priority:{{item.priority}}</p></small></h5></li>
+			<br/>
+		{% endfor %}
+		</ul> 
+		</div>
+		
+		
+		{% if checklist.is_doctor_creator %}
+		
+			<a class="btn btn-sm btn-primary" type="button" href="/icare/item/edit/{{checklist.checklist_object.id}}/">Edit</a>
+		
+		{% endif %}
+		
+		{% if doctor and not checklist.is_doctor_creator %}
+			<a id="agree_checklist" data-listid ="{{checklist.checklist_object.id}}" {% if checklist.is_agreed %}class="btn btn-sm btn-success"{% else %}class="btn btn-sm btn-primary"{% endif%} type="button">{% if checklist.is_agreed %} Agreed {% else %}Agree{% endif%}</a>
+		{% endif%}
+	
+		{% if patient %}
+			{% if not  checklist.is_used %}
+			<a id ="add_checklist" data-listid="{{checklist.checklist_object.id}}" class="btn btn-sm btn-primary" type="button">Add</a>
+			{% endif %}
+			<a id="thanks_checklist" data-listid="{{checklist.checklist_object.id}}" {% if checklist.is_thanked %}class="btn btn-sm btn-success"{% else %}class="btn btn-sm btn-primary"{% endif%} type="button">{% if checklist.is_thanked %}Thanked{% else%}Thanks{% endif%}</a>
+		{% endif %}
+		</div>
+		</div>
+	</div>
+	<br/>
+	{% endfor %} 
+		</div>
+		</div>
+	</div>
+	
+	
+{% else %}
+<div class="panel panel-default">
+<div class="panel-body">
+<strong>There are no checklists in current goal </strong>
+</div>
+</div>
+{% endif %}
+
+{% show_more %}

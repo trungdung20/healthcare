@@ -1,0 +1,43 @@
+{% extends 'icare/base_main.html' %}
+{% load bootstrap_toolkit %}
+
+{% block body_block%}
+<div class="container-fluid">
+	{% if can_ask %}
+	<div class ="panel panel-default">
+		<div class="panel-body">
+			<h4>Post a Question</h4>
+			<form role="form" id="question_post" method="post" action="/icare/question/post/"
+			enctype="multipart/form-data">
+			<div class="form-group">
+			{% csrf_token %}
+					{{ask_form.title.errors}}
+					{{ask_form|as_bootstrap}}
+					
+			<div class="container-fluid">
+			<div class="col-sm-3 col-sm-offset-10">
+				<input class="btn btn-primary" type="submit" type="submit" name="submit" value="Post">
+			</div>
+			</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	{% endif %}
+    <div class="row-fluid" id="new_question">
+    
+    </div>
+	
+
+
+
+{% include page_template %}
+</div>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    $.endlessPaginate({paginateOnScroll: true});
+  </script>
+{% endblock %}

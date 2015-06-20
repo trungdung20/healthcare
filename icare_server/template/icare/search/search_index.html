@@ -1,0 +1,67 @@
+{% extends 'icare/base_main.html' %}
+
+{% block body_block %}
+<div class="container-fluid">
+
+	<div class="panel panel-default">
+		<div class="panel-body">
+		
+			<a href="/icare/search/condition/">Find Health Condition</a>
+		
+	</div>
+	</div>
+
+
+	<div class="panel panel-default">
+	<div class="panel-body">
+		
+			<a href="/icare/search/symptom"/>Find Health Symptom</a>
+		
+	</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-body">
+		
+			<a href="/icare/search/medication/">Find Medication</a>
+		
+		</div>
+	</div>
+
+
+
+	<div class="panel panel-default">
+		
+		<div class="panel-body">
+		<a href="/icare/search/procedure/">Find Procedure</a>
+	
+		</div>
+	</div>
+
+{% if is_patient %}
+
+	<div class="panel panel-default">
+	<div class="panel-body">
+		
+		<a href="/icare/search/doctor/">Find Doctor</a>
+		
+	</div>
+	</div>
+
+{% endif %}
+
+{% if is_doctor %}
+
+	<div class="panel panel-default">
+	<div class="panel-body">
+		
+		<a href="/icare/search/patient/">Find Patient</a>
+		
+		</div>
+	</div>
+	
+
+{% endif %}
+
+</div>
+{% endblock %}

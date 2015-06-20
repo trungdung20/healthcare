@@ -1,0 +1,81 @@
+{% extends 'icare/base_main.html' %}
+{% load bootstrap_toolkit %}
+{% block body_block %}
+{% if has_advisor %}
+<div class="container-fluid">
+		
+		<div class="panel panel-info">
+		<div class="panel-heading">
+		<a class="btn btn-sm btn-primary" type="button" id="patient_reject_advisor" data-id="{{patient.id}}">Reject Advisor </a>
+		<h4>Doctor Advisor</h4> Rating:<span>{{doctor_record.star}}</span>
+		
+		
+		</div>
+		<div class="panel-body">
+			<div class="container-fluid">
+			<div class="col-sm-8">
+			<h5>Doctor name: {{advisor.name}}</h5>
+			<h5>Specialty: {{advisor.specialty}}</h5>
+			<h5>Active Year: {{advisor.year}}</h5>
+			
+			</div>
+			
+			<div class="col-sm-4">
+				{% if advisor.doctor_image %}
+						<img class="img-responsive" src="/media/{{advisor.doctor_image}}"/>
+					{% else %}
+						<img width="256" height="152" src="http://lorempixel.com/256/128/people/" />
+				{% endif %}
+				
+			</div>
+			</div>
+			
+		</div>
+		</div>
+	<div class="container-fluid">
+	<div class ="panel panel-default">
+		<div class="panel-body">
+			<h4>Ask a Question</h4>
+			<form role="form" id="question_advisor_form" method="post" action="/icare/question/patient/post/advisor/{{advisor.id}}/"
+				enctype="multipart/form-data">
+			<div class="form-group">
+			{% csrf_token %}
+					{{consult_question.title.errors}}
+					{{consult_question|as_bootstrap}}
+				<input class="btn btn-primary" type="submit" type="submit" name="submit" value="Post">
+			</div>
+			</form>
+		</div>
+	</div>
+	</div>
+		
+		
+		
+		
+	
+</div>	
+{% else %}
+<div class="cotainer-fluid">
+<strong>You have no advisor</strong>
+<br/>
+</div>
+{% endif %}
+<div class="container-fluid">
+	
+	<div class="panel panel-default">
+		<div class="panel-heading">
+				<h3>Question Log</h3>
+		</div>
+	</div>
+		
+		{% include page_template %}
+	
+</div>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    $.endlessPaginate({paginateOnScroll: true});
+  </script>
+{% endblock %}

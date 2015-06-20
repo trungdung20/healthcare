@@ -1,0 +1,18 @@
+
+<ul class="nav nav-list">
+	{% if is_navbar_doctor %}
+	<li><a href="/icare/notification/doctor/">Notification</a></li>
+	{% else %}
+	<li><a href="/icare/notification/patient/">Notification</a></li>
+	{% endif%}
+	<li><a href ="/icare/account_setting/{{curruserid}}/">Account Setting</a></li>
+	<li><a href="/icare/category/">To Do List</a></li>
+	{% if is_navbar_doctor %}
+		<li><a href="/icare/health_care_list/patient_list/">Patient Care List</a></li>
+		<li><a href="/icare/profile/doctor/{{curruserid}}/">Profile</a></li>
+	{% else %}
+		<li><a href="/icare/health_care_list/doctor_list/">Doctor Care List</a></li>
+		<li><a href="/icare/profile/patient/{{curruserid}}/">Profile</a></li>
+		<li><a href="/icare/checklist/my_checklist/{{curruserid}}/">My Health Plan</a></li>
+	{% endif %}
+</ul>

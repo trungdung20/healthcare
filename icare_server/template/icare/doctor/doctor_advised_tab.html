@@ -1,0 +1,48 @@
+{% extends 'icare/base_main.html' %}
+{% load bootstrap_toolkit %}
+{% block body_block %}
+
+{% if has_patient %}
+	<div class="container-fluid">
+	<div class="panel-group">	
+		{% for patient in patient_list %}
+		<div class="panel panel-info">
+		<div class="panel-heading">
+		<a class="btn btn-sm btn-primary" type="button" href="/icare/doctor/advised/patient/profile/{{patient.id}}/">Go To Patient </a>
+		<h4>Advised Patient </h4> 
+		</div>
+		<div class="panel-body">
+			<div class="container-fluid">
+			<div class="col-sm-8">
+			<h5>Patient name: {{patient.name}}</h5>
+			<h5>Day of Birth: {{patient.birthday}}</h5>
+			<h5>Address : {{patient.address}}</h5>
+			
+			</div>
+			
+			<div class="col-sm-4">
+				{% if patient.patient_image %}
+						<img class="img-responsive" src="/media/{{patient.patient_image}}"/>
+				{% else %}
+						<img width="256" height="152" src="http://lorempixel.com/256/128/people/" />
+				{% endif %}
+				
+			</div>
+			
+			
+		</div>
+		</div>
+		</div>
+		{% endfor %}
+	</div>
+	</div>
+	
+{% else %}
+<div class="container-fluid">
+<div class="panel-panel default">
+<strong>No Patient Present </strong>
+</div>
+</div>
+{% endif %}
+{% endblock %}
+

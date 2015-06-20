@@ -1,0 +1,30 @@
+{% extends 'icare/base_login.html' %}
+
+{% block body_block %}
+<div class="container">
+<div class="col-sm-3 col-sm-offset-5">
+	
+	<h2>Login</h2>
+	
+		<div class="panel panel-default">
+			<div class="panel-body">
+				
+					<form class="form-group" id="login_form" method="post" action="/icare/login/">
+					{% csrf_token %}
+					
+						Username: <input type="text" class="form-control" placeholder="Username" name="username" value=""
+                             size="50"/>
+							<br/>
+						Password: <input type="password" class="form-control" placeholder="Password" name="password" value=""
+                             size="50"/>
+						<br/>
+
+					<button class="btn btn-primary" type="submit">Sign in</button>
+					</form>
+			
+				</div>
+		</div>
+	
+	</div>
+</div>
+{% endblock %}

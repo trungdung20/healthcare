@@ -1,0 +1,12 @@
+{% extends 'icare/base_main.html'%}
+{% load bootstrap_toolkit %}
+{% block body_block %}
+	<form role="form" id="edit_topic" method="POST" action="/icare/topic/edit/{{topic_id}}/" 
+		enctype="multipart/form-data">
+		{% csrf_token %}
+		
+		{{topic_form|as_bootstrap}}
+		<br/>
+		 <input class="btn btn-primary" type="submit" name="submit" value="Submit" />
+	</form>
+{% endblock%}

@@ -1,0 +1,71 @@
+{% extends 'icare/base_main.html' %}
+{% load bootstrap_toolkit %}
+
+{% block body_block %}
+
+
+<div class="container-fluid">
+
+<h4> Patient {{patient.name}} </h4>
+{% if has_question %}
+	
+	<div class="panel-group">	
+	
+		{% for question in question_list %}
+		<div class="panel panel-info">
+		
+		<div class="panel-heading">
+		{{question.question.title}}
+		</div>
+		
+		{% if question.is_answer %}
+		<div class="panel-body">
+			<div class="container-fluid">
+			<p>I have answered </p>
+			<br/>
+			<p>{{question.answer.detail}}</p>
+			
+			</div>
+		</div>
+		
+		{% else %}
+		<div class="panel-body">
+			<div class="container-fluid">
+			
+		
+				<form " id="answer_post" method="POST" action="/icare/doctor/advisor/question/answer/{{question.question.id}}/"
+				enctype="multipart/form-data">
+				{% csrf_token %}
+				<div class="form-group">
+			
+				
+					{{answer_form.detail.errors}}
+					{{answer_form.detail|as_bootstrap}}
+				</div>
+			
+				<div>
+				<input class="btn btn-primary" type="submit" name="submit" value="Answer"/>
+				
+				</form>
+		
+				</div>
+			
+			</div>	
+		</div>	
+		{% endif%}
+		</div>
+		{% endfor %}
+	</div>
+	
+{% else %}
+
+<div class="panel panel-default">
+<div class="panel-body">
+<strong>No Question Present </strong>
+</div>
+
+</div>
+{% endif%}
+</div>
+{% endblock %}
+

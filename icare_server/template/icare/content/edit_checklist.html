@@ -1,0 +1,62 @@
+{% extends 'icare/base_main.html' %}
+
+{% block body_block %}
+<div class="container-fluid" id="item_save_alert">
+
+
+</div>
+
+<div class="container-fluid">
+	<div class="panel panel-info">
+		<div class="panel-heading">
+		<div class="container-fluid">
+			<div class="col-sm-3">
+				<img src="/media/{{doctor.doctor_image}}/" class="img-responsive" width="60" height="60">
+			</div>
+			
+			<div class="col-sm-5">
+			<a href="/icare/profile/doctor/{{checklist.checklist_object.related_doctor.user.id}}/">{{doctor.name}}</a>'s CheckList
+			<br/>
+			
+			</div>
+			
+			<div class="col-sm-4">
+				<a >{{checklist.use}}</a> usages
+				
+				<br/>
+				<a >{{checklist.likes}}</a> thanks
+				<br/>
+				
+				
+				<a>{{checklist.agree}}</a> doctor agree
+				
+			</div>
+			
+			
+		</div>
+		</div>
+		
+		<div class="panel-body">
+		
+		<div class="container-fluid">
+		<ul id="new_item_content">
+		{% for item in items %}
+			<div id="item_delete{{item.id}}">
+			<li> <h5>{{ item.title }} </h5> <hr/> <h5><small><p class="text-muted" >{{item.frequency}} Priority:{{item.priority}}</p></small></h5></li>
+			
+			<a class="btn btn-sm btn-primary" type="button" id="delete_select_item" data-itemid="{{item.id}}">Delete</a>
+			</div>
+			<br/>
+		{% endfor %}
+		</ul> 
+		</div>
+		
+		<div class="container-fluid" id="new_item_form">
+		
+		</div>
+		
+			<a class="btn btn-sm btn-primary" type="button" id="add_new_item" data-checklistid="{{checklist.id}}">Add</a>
+		</div>
+	</div>
+</div>
+{% endblock%}

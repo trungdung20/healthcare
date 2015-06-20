@@ -1,0 +1,39 @@
+{% load endless %}
+
+{% paginate result_list %} 
+
+{% if result_list %}
+<div class="row-fluid"> 
+<div class="panel-group">
+	{% for result in result_list %}
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="col-sm-2">
+				
+				{% if result.doctor_image %}
+					<img width="40" height="40" class="img-responsive" src="/media/{{result.doctor_image}}"/>
+				{% else %}
+					<img width="40" height="40" class="img-responsive" src="http://lorempixel.com/97/97/abstract/" />
+				{% endif %}
+			</div>
+			<div class="col-sm-10">
+				<a href="/icare/profile/doctor/{{result.user.id}}/">{{result.name}}</a>
+				<h5><small>{{result.specialty}}</small></h5>
+				<span class="stars">{{result.doctorrecord.star}}</span>
+			</div>
+		</div>
+	</div><hr />
+	{% endfor %}
+	</div>
+</div>
+{% else %}
+<div class="row-fluid">
+<div class="panel panel-default">
+<div class="panel-body">
+<strong>There are no results </strong>
+</div>
+</div>
+</div>
+{% endif %}
+
+{% show_more %}

@@ -1,0 +1,34 @@
+{% extends 'icare/base_main.html' %}
+
+{% block body_block %}
+   <div class="container-fluid">
+	<div class="panel panel-default">
+		<div class="panel-body">
+		{% if errors %}
+			<div class="alert alert-success fade in">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<strong>{{errors}} </strong> 
+			</div>
+		{% endif %}
+		
+		<form id="search_form" method="POST" action="/icare/account_setting/"
+				enctype="multipart/form-data">
+				{%csrf_token%}
+			<div class="form-group">
+			<div class="container-fluid">
+			<class="col-sm-6">
+			<input class="form-control" type="text" placeholder="Enter new user name" name='user_name' id="condition"/>
+			<br/>
+			<input class="form-control" type="password" placeholder="Enter new password" name='new_password' id="condition"/>
+			<br/>
+			<input class="form-control" type="password" placeholder="Enter confirm password" name='confirm_password' id="condition"/>
+			<br/>
+			<input class="btn btn-info" type="submit" value="submit">
+			</div>
+			</div>
+		</form>
+		</div>
+	</div>
+	</div>
+
+{% endblock %}

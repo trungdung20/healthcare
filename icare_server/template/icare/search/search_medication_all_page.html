@@ -1,0 +1,24 @@
+{% load endless %}
+{% paginate result_list %}
+
+{% if result_list %}
+<div class="row-fluid">
+	
+	{% for result in result_list %}
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<a href="/icare/topic/show/{{result.topic.id}}/">{{result.topic.title}}</a>
+			</div>
+		</div><br />
+	{% endfor %}
+</div>
+{% else %}
+<div class="row-fluid">
+	<div class="panel panel-default">
+	<div class="panel-body">
+	<strong>There are no result.</strong>
+	</div>
+	</div>
+</div>
+{% endif %}
+{% show_more %}

@@ -1,0 +1,31 @@
+{% extends 'icare/base_main.html' %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    $.endlessPaginate({paginateOnScroll: true});
+  </script>
+{% endblock %}
+
+{% block body_block %}
+<div class="container-fluid">
+
+{% if doctor %}
+	<div class="panel panel-default">
+	<div class="panel-body">
+	<a class="btn btn-sm btn-lg" type="button" href="/icare/checklist/doctor_add_checklist/{{goal.id}}/">Add Checklist</a>
+	</div>
+	</div>
+{% endif %}
+</div>
+
+<div class="container-fluid">
+<div class="panel panel-default">	
+	<div class="panel-body">
+	<strong> {% if goal %} <p class="text-primary">{{goal.title}}</p> {% endif %} </strong>
+	</div>
+</div>
+</div>
+	{% include page_template %}
+
+{% endblock %}

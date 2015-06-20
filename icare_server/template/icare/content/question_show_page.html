@@ -1,0 +1,61 @@
+{% load endless %}
+{% paginate answers %}
+{% if answers %}
+<div class="row-fluid">
+<div class="panel-group">
+{% for answer in answers %}
+	<div class="panel panel-default">
+		<div class="panel-heading">
+		<div class="container-fluid">
+		<div class="col-sm-2">
+		{% if answer.answer.from_doctor.doctor_image %}
+		<img src="/media/{{answer.answer.from_doctor.doctor_image}}/" width="50" height="50" class="img-responsive">
+		{% endif %}
+		</div>
+		<div class="col-sm-10">
+		<p>doctor <a>{{answer.answer.from_doctor.name}}</a> has answered</p>
+		</div>
+		</div>
+		</div>
+		
+		<div class="panel-body">
+		
+		<a>in brief: </a>
+		<br/>
+		<p>{{answer.answer.detail}}</p><br/>
+		
+		{% if answer.answer.image %}
+			<img src="/media/{{answer.answer.image}}" class="img-responsive"/>
+		{% endif %}
+		
+		
+		<div class="row-fluid">
+			<div class="col-sm-2">
+				<p ><a id="answer_agree_count{{answer.answer.id}}">{{answer.answer.agree}}</a> agreed </p>
+			</div>
+			<div class="col-sm-2">
+				<p ><a id="answer_thanks_count{{answer.answer.id}}">{{answer.answer.thanks}}</a> thanks</p>
+			</div>
+		</div>
+		<div class="row-fluid">
+		{% if is_doctor%}
+		<a {% if answer.is_agreed %}class="btn btn-sm btn-success"{% else %}class="btn btn-sm btn-primary"{% endif%} type="button" id ="answer_agree" data-answeragreeid="{{answer.answer.id}}"> {% if answer.is_agreed %}Agreed {% else %}Agree {% endif%}</a>
+		{% endif %}
+		
+		{% if is_patient %}
+		<a {% if answer.is_thanked %}class="btn btn-sm btn-success"{% else %}class="btn btn-sm btn-primary "{% endif%} type="button" id="answer_thanks" data-answerthankid="{{answer.answer.id}}">{% if answer.is_thanked%} Thanked{% else %}Thanks{% endif%}</a>
+		{% endif %}
+		
+		</div>
+		</div>
+	</div><br/>
+	{% endfor %}
+</div>
+</div >
+    <div class="row-fluid" id="new_answer">
+    
+    </div>
+
+{% endif %}
+
+{% show_more %}

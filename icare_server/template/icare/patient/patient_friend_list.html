@@ -1,0 +1,46 @@
+{% extends 'icare/base_main.html' %}
+
+{% block body_block %}
+	<div class="container-fluid">
+	<div class="panel-group">
+		<h4>{{patient.name}}'s care list:</h4>
+		{% for user in user_friend_list %}
+		<div class="panel panel-default">
+		<div class="panel-body">
+		<div class="container">
+			<div class="col-sm-8">
+				<div class ="">
+					<div class="row-fluid">
+						<div class="col-sm-4">
+							
+							{% if user.doctor.doctor_image %}
+								<img src="/media/{{user.doctor.doctor_image}}" width="60" height="70" class="img-responsive" alt="{{user.doctor.name}}" />
+							{% else %}
+								<img width="196" height="196" src="http://lorempixel.com/196/{{demo.id|add:196}}/abstract/" />
+							{% endif %}
+							
+						</div>
+						
+						<div class="col-sm-8">
+							<h5>
+							Doctor
+							<a href="/icare/profile/doctor/{{user.id}}/"> {{user.doctor.name}}</a>
+							
+							</h5>
+							
+							<h5>
+							<small>{{user.doctor.specialty}}</small>
+							</h5>
+							
+							<a class="btn btn-primary" href="/icare/profile/doctor/{{user.id}}/">View</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		</div>
+		</div >
+		{% endfor %}
+	</div>
+</div>	
+{% endblock %}

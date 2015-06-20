@@ -1,0 +1,131 @@
+{% extends 'icare/base_main.html' %}
+
+{% block body_block %}
+<div class="container-fluid">
+	
+		{% for list_item in list %}
+		{% if list_item.is_unrejected_request %}
+		<div class="alert alert-success" id="patient_friend_request{{list_item.unrejected_request.id}}" >
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				
+                    {% if list_item.unrejected_request.patient_image %}
+                        <img width="30" height="30" class="img-responsive" src="/media/{{list_item.unrejected_request.patient_image}}" alt="{{doctor_user.doctor.name}}" />
+                   
+				    {% endif %}
+                  
+				</div>
+				<div class="col-sm-7">
+				<h4><a href="/icare/profile/patient/{{list_item.unrejected_request.id}}/">{{list_item.unrejected_request.name}}</a> has sent care patient request</h4>
+				</div>
+				
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="patient_accept" data-id="{{list_item.unrejected_request.id}}">Accept</a>
+				
+				<a class="btn btn-sm btn-danger" type="button" id="patient_reject" data-id="{{list_item.unrejected_request.id}}">Reject</a>
+				</div>
+			</div>
+		</div><hr/>
+		{% endif %}
+		
+		{% if list_item.is_rejected_request %}
+		<div class="alert alert-danger" id="patient_friend_reject{{list_item.rejected_request.id}}">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				
+                    {% if list_item.rejected_request.patient_image %}
+                        <img  width="30" height="30" class="img-responsive" src="/media/{{list_item.rejected_request.patient_image}}" />
+                
+				    {% endif %}
+                  
+				</div>
+				<div class="col-sm-7">
+				<h4><a href="/icare/profile/doctor/{{list_item.rejected_request.id}}/">{{list_item.rejected_request.name}}</a> has rejected care doctor request</h4>
+				</div>
+				
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="patient_view_rejected" data-id="{{list_item.rejected_request.id}}">View</a>
+				
+				</div>
+			</div>
+		</div><hr/>
+		{% endif %}
+		
+		{% if list_item.is_accepted_request %}
+		<div class="alert alert-success" id="patient_friend_accept{{list_item.accepted_request.id}}">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				
+                    {% if list_item.accepted_request.patient_image %}
+                        <img   width="30" height="30" class="img-responsive" src="/media/{{list_item.accepted_request.patient_image}}"/>
+                
+				    {% endif %}
+                  
+				</div>
+				<div class="col-sm-7">
+				<h4><a href="/icare/profile/patient/{{list_item.accepted_request.id}}/">{{list_item.accepted_request.name}}</a> has accepted care doctor request</h4>
+				</div>
+				
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="patient_view_accepted" data-id="{{list_item.accepted_request.id}}">View</a>
+				
+				</div>
+			</div>
+		</div><hr/>
+		{% endif %}
+		
+		{% if list_item.is_advisor_request %}
+		<div class="alert alert-success" id="patient_advisor_request{{list_item.advisor_request.id}}">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				
+                    {% if list_item.advisor_request.patient_image %}
+                        <img   width="30" height="30" class="img-responsive" src="/media/{{list_item.advisor_request.patient_image}}"/>
+                  
+				    {% endif %}
+                </div>
+				<div class="col-sm-7">
+				<h4><a href="/icare/profile/patient/{{doctor_user.id}}/">{{list_item.advisor_request.name}}</a> has send advisor request</h4>
+				</div>
+				
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="patient_advisor_accept" data-id="{{list_item.advisor_request.id}}">Accept</a>
+				<a class="btn btn-sm btn-danger" type="button" id="patient_advisor_reject" data-id="{{list_item.advisor_request.id}}">Reject</a>
+				</div>
+			</div>
+		</div><hr/>
+		{% endif %}
+		
+		{% if list_item.is_question_alert %}
+		<div class="alert alert-success" id="patient_question_alert{{list_item.question_alert.id}}">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				
+                    {% if list_item.question_alert.from_patient.patient_image %}
+                        <img  width="30" height="30" class="img-responsive" src="/media/{{list_item.question_alert.from_patient.patient_image}}" />
+                   
+				    {% endif %}
+                </div>
+				
+				<div class="col-sm-7">
+				<h4><a href="/icare/profile/patient/{{list_item.question_alert.from_patient.id}}/">{{list_item.question_alert.from_patient.name}}</a> has send a question</h4>
+				</div>
+				
+				
+				<div class="col-sm-3">
+				
+				<a class="btn btn-sm btn-info" type="button" id="patient_question_alert" data-id="{{list_item.question_alert.id}}">View</a>
+				
+				</div>
+			</div>
+		</div><hr/>
+		{% endif %}
+		
+		{% endfor %}
+	
+	</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% load static %}
+<!doctype html>
+<html>
+  <head>
+    <meta charset= "utf-8"/>
+	<meta name = "viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>Icare</title>
+	<link href="{% static 'css/bootstrap-fluid-adj.css'%} " rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css'%} " rel="stylesheet" media="screen">
+    <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet">
+  </head> 	
+  <style>
+   body { background:#F0F0F0;}
+  </style>
+  
+ <body>
+  
+  <div class="navbar navbar-inverse">
+    
+	<div class="navbar-inner">
+		<div class="container">
+			<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+			<a class="brand" href="/rango/">The Internet Health Care Project</a>
+	  
+	  <div class="nav-collapse collapse">
+	  <!-- Right Nav Section -->
+	  <ul class = "nav pull -right">
+		<li><a href= "/icare/login/">Login</a></li>
+		<li><a href= "/icare/register/">Register</a></li>
+	
+	  </ul>
+	</div>
+	 </div>
+	 </div>
+  </div>
+  
+  
+	<div class="container-fluid"> 
+	<div class="col-sm-3">
+		{% block de1 %}
+		{% endblock %}
+	</div>
+	  <div class="col-sm-10 main">
+        {% block body_block %}
+		{% endblock %}
+	  </div>
+	  <div class="col-sm-3">
+		{% block de2 %}
+		{% endblock %}
+	  </div>
+	</div>
+  
+  <hr>
+
+<footer>
+    <div class="container">
+        <p>&copy; Online Healthcare project: Alpha build version</p>
+    </div>
+</footer>
+
+
+<hr/>
+  <script src="{% static 'js/jquery-2.0.3.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  
+  </body>
+  
+  </html>

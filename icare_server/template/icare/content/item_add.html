@@ -1,0 +1,21 @@
+
+{% load bootstrap_toolkit %}
+
+
+
+	<form id="new_item_submit" class="form-signin" method="post" action="/icare/item/submit/{{checklist_id}}/" enctype="multipart/form-data">
+		{% csrf_token%}
+		
+		<div class="container-fluid">
+			<div class="col-sm-10">
+			{{item_form|as_bootstrap}}
+			</div>
+			<div class="col-sm-2">
+				<input class="btn btn-primary" type="submit" name="submit" value="Save"/>
+			</div>
+		</div>
+		
+	</form>
+
+<br />
+

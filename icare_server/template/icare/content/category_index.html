@@ -1,0 +1,49 @@
+{% extends 'icare/base_main.html' %}
+
+{% block body_block %}
+	<div class = "container-fluid">
+		
+			
+				{% if category_list %}
+				<div class="panel-group">
+					{% for category in category_list %}
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<div class="row-fluid">
+								<a data-toggle="collapse" data-parent="#accordion" href="#{{category.category.id}}">{{category.category.title}}</a>
+							</div>
+						</div>
+						
+						<div id="{{category.category.id}}" class="panel-collapse collapse">
+							<div class="panel-body">
+								
+								{% for goal in category.goals %}
+								<div class="container-fluid">
+									<div class="col-sm-3">
+										
+										{% if goal.image %}
+											<img width="96" height="96" src="/media/{{goal.image}}/" alt="{{goal.image}}"/>
+										
+										{% endif %}
+										
+									</div>
+									<div class="col-sm-9">
+										<a href="/icare/{{goal.id}}/check_lists/">{{goal.title}}</a><br/>
+										<small><p class="text-muted">{{goal.count_checklist}} checklist</p></small>
+										<hr/>
+									</div>
+								</div>
+								{% endfor %}
+								
+							</div>
+						</div>
+					</div>
+					{% endfor %}
+					</div>
+				{% else%}
+					<strong>There are no category here </strong>
+				{% endif %}
+				
+			
+	</div>
+{% endblock%}
