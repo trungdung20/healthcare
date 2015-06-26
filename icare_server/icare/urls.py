@@ -37,10 +37,11 @@ urlpatterns = patterns('',
 		url(r'^patient_checklist/delete/$', views.checklist_delete, name="checklist_delete"),
 		#user follow topic 
 		url(r'^user/topic/follow/$',views.topic_follow,name="topic_follow"),
-		
+		#doctor agree topic 
+		url(r'^doctor/agree_topic/$',views.agree_topic,name="agree_topic"),
 		#link for topics 
 		url(r'topic/show/(?P<topic_id>\w+)/$',page_template('icare/content/topic_show_page.html')(views.topic_show),{'template':'icare/content/topic_show.html'},name='topic_show'),
-		url(r'topic/add/$',views.topic_add, name='topic_add'),
+		url(r'topic/add/new/$',views.topic_add, name='topic_add'),
 		url(r'topic/add/related_topic/(?P<topic_id>\w+)/$',views.add_related_topic,name="add_related_topic"),
 		url(r'topic/edit/(?P<topic_id>\w+)/$', views.topic_edit,name='topic_edit'),
 		#link for seach index 
@@ -84,6 +85,7 @@ urlpatterns = patterns('',
 		url(r'^notification/doctor/$', views.doctor_notification_request, name='doctor_notification_request'),
 		url(r'^notification/patient/$', views.patient_notification_request, name='patient_notification_request'),
 		
+		
 		url(r'^request/patient/send/advisor_request/$',views.handle_patient_advisor_request,name='handle_patient_advisor_request'),
 		url(r'^request/accept/doctor/$',views.doctor_friend_accept, name='doctor_friend_accept'), # handles friend request made by doctor accept
 		url(r'^request/accept/patient/$', views.patient_friend_accept, name='patient_friend_accept'), # handles friend request made by patient accept 
@@ -95,6 +97,25 @@ urlpatterns = patterns('',
 		url(r'^patient/doctor_advisor_rejected/$',views.patient_rejected_advisor_request,name='patient_rejected_advisor'),
 		url(r'^patient/doctor_answer_alert/$',views.patient_doctor_answer_alert,name='patient_doctor_answer_alert'),
 		url(r'^patient/reject_current_advisor/$',views.patient_reject_current_advisor,name="patient_reject_current_advisor"),
+		url(r'^patient/answer_follow_handles/$',views.answer_follow_handles,name="answer_follow_handle"),
+		url(r'^patient/view_add_topic_handles/$',views.add_topic_handles,name="add_topic_handles"),
+		url(r'^patient/view_edit_topic_handles/$',views.edit_topic_handles,name="edit_topic_handles"),
+		url(r'^patient/view_add_checklist_handles/$',views.add_checklist_handles,name="add_checklist_handles"),
+		#patient view notification topic follow 
+		url(r'^patient/view_edit_checklist_handles/$',views.edit_checklist_handles,name="edit_checklist_handles"),
+		url(r'^patient/add_related_topic_follow/$',views.patient_view_add_topic_to_topic_follow,name="patient_add_topic_to_topic_follow"),
+		url(r'^patient/edit_topic_follow/$',views.patient_view_edit_topic_follow,name="patient_view_edit_topic_follow"),
+		url(r'^patient/add_answer_topic_follow/$',views.patient_view_add_answer_topic_follow,name="patient_view_add_answer_topic_follow"),
+		url(r'^patient/add_question_topic_follow/$',views.patient_view_add_question_topic_follow,name="patient_view_add_question_topic_follow"),
+		#DOCTOR VIEW NOTIFICATION 
+		url(r'^doctor/thanks_answer_follow/$',views.doctor_view_thanks_answer_follow,name="doctor_view_thanks_answer_follow"),
+		url(r'^doctor/agree_answer_follow/$',views.doctor_view_agree_answer_follow,name="doctor_view_agree_answer_follow"),
+		url(r'^doctor/agree_checklist_follow/$',views.doctor_view_agree_checklist_follow,name="doctor_view_agree_checklist_follow"),
+		url(r'^doctor/thanks_checklist_follow/$',views.doctor_view_thanks_checklist_follow,name="doctor_view_thanks_checklist_follow"),
+		url(r'^doctor/add_related_topic_follow/$',views.doctor_view_add_topic_to_topic_follow,name="doctor_add_topic_to_topic_follow"),
+		url(r'^doctor/edit_topic_follow/$',views.doctor_view_edit_topic_follow,name="doctor_edit_topic_follow"),
+		url(r'^doctor/add_answer_topic_follow/$',views.doctor_view_add_answer_topic_follow,name="doctor_view_add_answer_topic_follow"),
+		url(r'^doctor/add_question_topic_follow/$',views.doctor_view_add_question_topic_follow,name="doctor_view_add_question_topic_follow"),
 		
 		url(r'^doctor/view_accepted_request/$',views.doctor_view_accepted_request,name="doctor_view_accepted_request"),
 		url(r'^doctor/view_rejected_request/$',views.doctor_view_rejected_request,name="doctor_view_accepted_request"),
@@ -106,6 +127,8 @@ urlpatterns = patterns('',
 		url(r'^doctor/patient/advised/(?P<doctor_id>\w+)/$',views.doctor_advisor_tab_manage,name="doctor_Advisor_tab_manage"),
 		url(r'^doctor/advised/patient/profile/(?P<patient_id>\w+)/$',views.doctor_manage_advised_patient,name="doctor_manage_advised_patient"),
 		url(r'^doctor/advisor/question/answer/(?P<question_id>\w+)/$',views.doctor_answer_to_advisor,name="doctor_answer_to_advisor"),
+		url(r'^question/unanswer/$',page_template('icare/content/unanswer_question_page.html')(views.unanswer_question),{'template':'icare/content/unanswer_question.html'},name="unanswer_question"),
+		url(r'^question/answer_unanswer_question/(?P<question_id>\w+)/$',views.answer_first_time,name="answer_first_time"),
 		
 		url(r'^patient/weight/edit/$', views.patient_edit_weight, name='patient_edit_weight'), # pull out weight edit form 
 		url(r'^patient/weight/edit_submit/(?P<patient_record_id>\w+)/$', views.patient_edit_submit_weight, name='patient_edit_submit_weight'), # submit weight patient form 
@@ -125,4 +148,5 @@ urlpatterns = patterns('',
 		url(r'^patient/sex/edit_submit/(?P<patient_record_id>\w+)/$',views.patient_edit_submit_sex,name="sex"),
 		url(r'^patient/recreational_drug/edit/$',views.patient_edit_drug, name="patient_edit_drug"),
 		url(r'^patient/recreational_drug/edit_submit/(?P<patient_record_id>\w+)/$',views.patient_edit_submit_drug, name='patient_edit_submit_drug'),
+		url(r'^about/$',views.feedback,name="feedback"),
 	)

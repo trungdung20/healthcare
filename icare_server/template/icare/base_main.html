@@ -8,6 +8,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
     <link href="{% static 'css/bootstrap.min.css'%} " rel="stylesheet" media="screen">
+	<link href="{% static 'css/dashboard.css'%} " rel="stylesheet" media="screen">
     <title>Internet healthcare</title>
 	<style type="text/css">
 		span.stars, span.stars span {
@@ -16,39 +17,80 @@
 			width: 80px;
 			height: 16px;
 		}
-	
+		
 		span.stars span {
 			background-position: 0 0;
 		}
+	</style>	
+	<style type="text/css">
+	.background-condition {
+     background: url(https://www.google.hu/images/srpr/logo4w.png) no-repeat center center fixed;
+    background-size: cover;
+}
+
+.checkmark {
+    display:inline-block;
+    width: 22px;
+    height:22px;
+    -ms-transform: rotate(45deg); /* IE 9 */
+    -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+    transform: rotate(45deg);
+}
+
+.checkmark_circle {
+    position: absolute;
+    width:22px;
+    height:22px;
+    background-color: green;
+    border-radius:11px;
+    left:0;
+    top:0;
+}
+
+.checkmark_stem {
+    position: absolute;
+    width:3px;
+    height:9px;
+    background-color:#fff;
+    left:11px;
+    top:6px;
+}
+
+.checkmark_kick {
+    position: absolute;
+    width:3px;
+    height:3px;
+    background-color:#fff;
+    left:8px;
+    top:12px;
+}
+	
 	</style>
 	<style type="text/css">
    body { background:#F0F0F0;}
-</style>
+	</style>
 
 <style>
-hr { 
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-    margin-left: auto;
-    margin-right: auto;
-    border-style: inset;
-    border-width: 1px;
-} 
-body { padding-top: 70px; }
-
+body { padding-top: 55px; }
+hr {
+    border: 0;
+    height: 1px;
+    background: #333;
+    background-image: linear-gradient(to right, #ccc, #333, #ccc);
+}
 div {
     
     word-wrap: break-word;
 }
 .alert {
-   height:60px;    
+   height:80px;    
 }
 </style>
 </head>
 	
 <body>
 
-  <div class="navbar navbar-inverse navbar-fixed-top">
+  <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
     <div class="navbar-inner">
         
@@ -69,7 +111,12 @@ div {
 	  <div class="nav-collapse collapse">
       <!-- Right Nav Section -->
       <ul class="nav pull-left">
-
+			
+<footer>
+    <div class="container">
+        <p>&copy; Online Healthcare project: Alpha build version</p>
+    </div>
+</footer>
 				{% if user.is_authenticated %}
                     
                     
@@ -80,72 +127,73 @@ div {
 					<li><a href="/icare/logout/">Sign Out</a></li>
 				{% endif %}
                        
-        <li><a href="/showcase/about/">About</a></li>
+        <li><a href="/icare/about/">About</a></li>
       </ul>
 
     </div>
 		</div>
      </div>
- </div>
+ </nav>
     <div class="row-fluid">
 		
-			<div class="col-sm-3 col-md-3 sidebar">
-				<div class="container-fluid">
-				<div class="well sidebar-nav">
-				<ul class="nav nav-list">
+			<div div class="col-sm-3 col-md-2 sidebar">
+				
+			<div id="menu">	 
+				<ul class="nav nav-sidebar">
+				
 				
 					{% if is_navbar_doctor %}
 					
-					<li><a href="/icare/notification/doctor/">Notification</a></li>
-					
+					<li id="active_toggle"><a href="/icare/notification/doctor/">Notification {% if unread_notification %}<span class="label label-danger">{{unread_notification}}</span>{% else %}{% endif %}</a></li>
+					<br/>
 					{% else %}
-					<li ><a href="/icare/notification/patient/">Notification</a></li>
-					
+					<li id="active_toggle"><a href="/icare/notification/patient/">Notification{% if unread_notification %}<span class="label label-danger">{{unread_notification}}</span>{% else %}{% endif %}</a></li>
+					<br/>
 					{% endif%}
-					<li ><a href ="/icare/account_setting/">Account Setting</a></li>
+					<li id="active_toggle"><a href ="/icare/account_setting/">Account Setting</a></li>
+					<br/>
 					{% if is_navbar_doctor %}
-					<li><a href="/icare/doctor/patient/advised/{{curruserid}}/">Advised Patient</li>
-					<li><a href="/icare/health_care_list/patient_list/">Patient Care List</a></li>
-					<li><a href="/icare/profile/doctor/{{curruserid}}/">Profile</a></li>
+					<li id="active_toggle"><a href="/icare/doctor/patient/advised/{{curruserid}}/">Advised Patient</a></li>
+					<br/>
+					<li id="active_toggle"><a href="/icare/health_care_list/patient_list/">Patient Care List</a></li>
+					<br/>
+					<li id="active_toggle"><a href="/icare/question/unanswer/">Unanswer Question</a></li>
+					<br/>
+					<li id="active_toggle"><a href="/icare/profile/doctor/{{curruserid}}/">Profile</a></li>
+					<br/>
 					{% else %}
-					<li><a href="/icare/patient/doctor/advisor/{{curruserid}}/">Advisor Doctor </li>
-					<li><a href="/icare/health_care_list/doctor_list/">Doctor Care List</a></li>
-					<li><a href="/icare/profile/patient/{{curruserid}}/">Profile</a></li>
-					<li><a href="/icare/checklist/my_checklist/{{curruserid}}/">My Health Plan</a></li>
+					<li id="active_toggle"><a href="/icare/patient/doctor/advisor/{{curruserid}}/">Advisor Doctor</a> </li>
+					<br/>
+					<li id="active_toggle"><a href="/icare/health_care_list/doctor_list/">Doctor Care List</a></li>
+					<br/>
+					<li id="active_toggle"><a href="/icare/profile/patient/{{curruserid}}/">Profile</a></li>
+					<br/>
+					<li id="active_toggle"><a href="/icare/checklist/my_checklist/{{curruserid}}/">My Health Plan</a></li>
+					
 					{% endif %}
 					
-				</ul>
 				
-				</div>
+				</ul>
+			</div>	
 			</div>
-			</div>
-
-       <div class="col-sm-6">
-	  
+		
+		
+		<div id="content">
+       <div class="col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 main">
 			{% block body_block %}
 			{% endblock %}
 		</div>
-	   <div class="col-sm-3">
+	   <div class="col-sm-3 main">
 	   
 			{% block related_block %}
 			{% endblock%}
 	   </div>
-	   
-    </div>
+	   </div>
+		
 	{% block js %}
 	{% endblock %}
-	<hr/>
-	
-<hr>
+		</div>
 
-<footer>
-    <div class="container">
-        <p>&copy; Online Healthcare project: Alpha build version</p>
-    </div>
-</footer>
-
-
-<hr/>
     <script src="{% static 'js/jquery-2.0.3.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
 	<script src="{% static 'js/endless-pagination.js'%}"></script>
@@ -154,6 +202,14 @@ div {
  </body>
  <script>
  //patient weight submit handle
+var url = window.location;
+// Will only work if string in href matches with location
+$('ul.nav a[href="'+ url +'"]').parent().addClass('active');
+
+// Will also work for relative and absolute hrefs
+$('ul.nav a').filter(function() {
+    return this.href == url;
+}).parent().addClass('active');
 
 </script>
 

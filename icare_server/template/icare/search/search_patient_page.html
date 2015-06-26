@@ -9,20 +9,20 @@
 	<div class="panel panel-default">
 		<div class="panel panel-body">
 		<div class="row">
-			<div class="span2">
+			<div class="col-sm-2">
 				
 				{% if result.patient_image %}
-					<img width="20" height="20" src="/media/{{result.patient_image}"/>
+					<img width="20" height="20"  class="img-responsive" src="/media/{{result.patient_image}"/>
 				{% else %}
-					<img width="20" height="20" src="http://lorempixel.com/97/97/abstract/" />
+					<img width="20" height="20" class="img-responsive"   src="http://lorempixel.com/97/97/abstract/" />
 				{% endif %}
 			</div>
-			<div class="span10">
+			<div class="col-sm-10">
 				<a href="/icare/profile/patient/{{result.user.id}}/">{{result.name}}</a>
 			</div>
 			</div>
 		</div>
-	</div><hr />
+	</div>
 	{% endfor %}
 	</div>
 </div>

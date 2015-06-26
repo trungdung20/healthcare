@@ -11,6 +11,12 @@
   </head> 	
   <style>
    body { background:#F0F0F0;}
+ hr {
+    border: 0;
+    height: 1px;
+    background: #333;
+    background-image: linear-gradient(to right, #ccc, #333, #ccc);
+}
   </style>
   
  <body>
@@ -24,7 +30,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-			<a class="brand" href="/rango/">The Internet Health Care Project</a>
+			<a class="brand" href="/icare/">Internet Health Care Project</a>
 	  
 	  <div class="nav-collapse collapse">
 	  <!-- Right Nav Section -->
@@ -40,33 +46,38 @@
   
   
 	<div class="container-fluid"> 
-	<div class="col-sm-3">
+		<div class="col-sm-3">
 		{% block de1 %}
 		{% endblock %}
-	</div>
-	  <div class="col-sm-10 main">
+		</div>
+		<div class="col-sm-10">
         {% block body_block %}
 		{% endblock %}
-	  </div>
+		</div>
 	  <div class="col-sm-3">
 		{% block de2 %}
 		{% endblock %}
 	  </div>
 	</div>
-  
-  <hr>
+		<br/>
+		<hr/>
+		
+  <div class="container-fluid">
+   <footer>
+    
+        <p>&copy; Online Healthcare project. Alpha build version</p>
+    
+	</footer>
+</div>
 
-<footer>
-    <div class="container">
-        <p>&copy; Online Healthcare project: Alpha build version</p>
-    </div>
-</footer>
+
+  <script src="{% static 'js/jquery-2.0.3.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+ 
+ 
 
 
 <hr/>
-  <script src="{% static 'js/jquery-2.0.3.min.js' %}"></script>
-  <script src="{% static 'js/bootstrap.min.js' %}"></script>
-  
   </body>
   
   </html>

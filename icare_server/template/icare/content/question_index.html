@@ -13,16 +13,16 @@
 			{% csrf_token %}
 					{{ask_form.title.errors}}
 					{{ask_form|as_bootstrap}}
-					
+			<br/>		
 			<div class="container-fluid">
 			<div class="col-sm-3 col-sm-offset-10">
 				<input class="btn btn-primary" type="submit" type="submit" name="submit" value="Post">
 			</div>
 			</div>
-				</div>
+			</div>
 			</form>
 		</div>
-	</div>
+	</div><hr/>
 	{% endif %}
     <div class="row-fluid" id="new_question">
     

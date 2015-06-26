@@ -1,6 +1,5 @@
 //patient ethnicity 
 
-	
 $(document).ready(function() { 
 
 $('#ethnicity_update').click(function() {
@@ -237,10 +236,151 @@ $('a').click(function() {
 				$("#patient_reject_advisor").fadeOut();
 			});
 		}
+		//doctor view thanks answer 
+		if(id=="doctor_thanks_answer_alert"){
+			var doctor_thanks_answer_follow_id = $(this).attr("data-id");
+			$.get("/icare/doctor/thanks_answer_follow/",{doctor_thanks_answer_follow_id:doctor_thanks_answer_follow_id},function(data){
+				$("#doctor_thanks_answer"+doctor_thanks_answer_follow_id).fadeOut();
+			});
+			
+		}
+		//dcotor view agree answer 
+		
+		if(id=="doctor_agree_answer_alert"){
+			var doctor_agree_answer_follow_id = $(this).attr("data-id");
+			$.get("/icare/doctor/agree_answer_follow/",{doctor_agree_answer_follow_id:doctor_agree_answer_follow_id},function(data){
+				$("#doctor_agree_answer"+doctor_agree_answer_follow_id).fadeOut();
+			});
+			
+		}
+		//doctor view agrre checklist 
+		
+		if(id=="doctor_agree_checklist_alert"){
+			var doctor_agree_checklist_follow_id = $(this).attr("data-id");
+			$.get("/icare/doctor/agree_checklist_follow/",{doctor_agree_checklist_follow_id:doctor_agree_checklist_follow_id},function(data){
+				$("#doctor_agree_checklist"+doctor_agree_checklist_follow_id).fadeOut();
+			});
+			
+		}
+		//doctor thanks checklist 
+			if(id=="doctor_thanks_checklist_alert"){
+			var doctor_thanks_checklist_follow_id = $(this).attr("data-id");
+			$.get("/icare/doctor/thanks_checklist_follow/",{doctor_thanks_checklist_follow_id:doctor_thanks_checklist_follow_id},function(data){
+				$("#doctor_thanks_checklist"+doctor_thanks_checklist_follow_id).fadeOut();
+			});
+			
+		}
+		//doctor view add related topic to topic follow
+		if(id=="doctor_add_related_topic_follow_alert"){
+			var doctor_add_related_topic_follow_id = $(this).attr("data-id");
+			$.get("/icare/doctor/add_related_topic_follow/",{doctor_add_related_topic_follow_id:doctor_add_related_topic_follow_id},function(data) {
+				$("#doctor_add_related_topic_follow"+doctor_add_related_topic_follow_id).fadeOut();
+			});
+		}
+		//doctor view edit topic follow 
+		if(id=="doctor_edit_topic_follow_alert"){
+			var doctor_edit_topic_follow_id = $(this).attr("data-id");
+			$.get("/icare/doctor/edit_topic_follow/",{doctor_edit_topic_follow_id:doctor_edit_topic_follow_id},function(data) {
+				$("#doctor_edit_topic_follow"+doctor_edit_topic_follow_id).fadeOut();
+			});
+		}
+		//doctor view add answer follow 
+		if(id=="doctor_add_answer_topic_follow_alert"){
+			var doctor_add_answer_topic_follow_id = $(this).attr("data-id");
+			$.get("/icare/doctor/add_answer_topic_follow/",{doctor_add_answer_topic_follow_id:doctor_add_answer_topic_follow_id},function(data) {
+				$("#doctor_add_answer_topic_follow"+doctor_add_answer_topic_follow_id).fadeOut();
+			});
+		}
+		//doctor view add question follow 
+		if(id=="doctor_add_question_topic_follow_alert"){
+			var doctor_add_question_topic_follow_id = $(this).attr("data-id");
+			$.get("/icare/doctor/add_question_topic_follow/",{doctor_add_question_topic_follow_id:doctor_add_question_topic_follow_id},function(data) {
+				$("#doctor_add_question_topic_follow"+doctor_add_question_topic_follow_id).fadeOut();
+			});
+		}
+		//patient view add topic follow 
+		if(id=="patient_add_related_topic_follow_alert"){
+			var patient_add_related_topic_follow_id = $(this).attr("data-id");
+			$.get("/icare/patient/add_related_topic_follow/",{patient_add_related_topic_follow_id:patient_add_related_topic_follow_id},function(data) {
+				$("#patient_add_related_topic_follow"+patient_add_related_topic_follow_id).fadeOut();
+			});
+		}
+		//patient view edit topic follow 
+		if(id=="patient_edit_topic_follow_alert"){
+			var patient_edit_topic_follow_id = $(this).attr("data-id");
+			$.get("/icare/patient/edit_topic_follow/",{patient_edit_topic_follow_id:patient_edit_topic_follow_id},function(data) {
+				$("#patient_edit_topic_follow"+patient_edit_topic_follow_id).fadeOut();
+			});
+		}
+		//patient view  add answer follow 
+		if(id=="patient_add_answer_topic_follow_alert"){
+			var patient_add_answer_topic_follow_id = $(this).attr("data-id");
+			$.get("/icare/patient/add_answer_topic_follow/",{patient_add_answer_topic_follow_id:patient_add_answer_topic_follow_id},function(data) {
+				$("#patient_add_answer_topic_follow"+patient_add_answer_topic_follow_id).fadeOut();
+			});
+		}
+		//patient view add question follow 
+		if(id=="patient_add_question_topic_follow_alert"){
+			var patient_add_question_topic_follow_id = $(this).attr("data-id");
+			$.get("/icare/patient/add_question_topic_follow/",{patient_add_question_topic_follow_id:patient_add_question_topic_follow_id},function(data) {
+				$("#patient_add_question_topic_follow"+patient_add_question_topic_follow_id).fadeOut();
+			});
+		}
+		
+		
 		return;
 		
-	});	
+});	
 
+$('#topic_agree').click(function() {
+	var topic_id = $(this).attr("data-id");
+	$.get('/icare/doctor/agree_topic/',{topic_id:topic_id},function(data){
+				$("#topic_agree").hide();
+			});
+	
+});
+
+$('a').click(function() { 
+	var id = $(this).attr('id');
+	//patient view answer post by doctor 
+		if(id == "doctor_answer_follow"){
+			var answer_follow_id = $(this).attr("data-id");
+			$.get('/icare/patient/answer_follow_handles/',{answer_follow_id:answer_follow_id},function(data){
+				$("#doctor_answer_follow"+answer_follow_id).fadeOut();
+			});
+		}
+		//patient view new add topic 
+		if(id =="doctor_add_topic"){
+			var add_topic_id = $(this).attr("data-id");
+			$.get("/icare/patient/view_add_topic_handles/",{add_topic_id:add_topic_id},function(data){ 
+				$("#doctor_add_topic"+add_topic_id).fadeOut();
+			});
+		}
+		
+		//patient view new edit topic 
+		if(id =="doctor_edit_topic"){
+			var edit_topic_id = $(this).attr("data-id");
+			$.get("/icare/patient/view_edit_topic_handles/",{edit_topic_id:edit_topic_id},function(data){ 
+				$("#doctor_edit_topic"+edit_topic_id).fadeOut();
+			});
+		}
+		// patient view new add checklist 
+		if(id == "doctor_add_checklist"){
+			var add_checklist_id = $(this).attr("data-id");
+			$.get("/icare/patient/view_add_checklist_handles/",{add_checklist_id:add_checklist_id},function(data){ 
+				$("#doctor_add_checklist"+add_checklist_id).fadeOut();
+			});
+		}
+		//patient view new add checklsit
+		if(id == "doctor_edit_checklist"){
+			var edit_checklist_id = $(this).attr("data-id");
+			$.get("/icare/patient/view_edit_checklist_handles",{edit_checklist_id:edit_checklist_id},function(data){
+				$("#doctor_edit_checklist"+edit_checklist_id).fadeOut();
+				
+			});
+		}
+		return;
+});
 //handle checklist 	
 $('a').click(function() {
 		

@@ -2,11 +2,11 @@
 {% load bootstrap_toolkit %}
 {% block body_block %}
 <div class="container-fluid">	
-	<div class="col-md-5 col-md-offset-5">
+	<div class="col-sm-5 col-sm-offset-5">
 	<h2>Doctor registration form</h2>
 	<div class="panel panel-default">
 	<div class="panel-body">
-		<div class="container">
+		<div class="container-fluid">
 			<div class ="col-sm-8">
 			{% if registered %}
 				<strong> thank you for registering!</strong>
@@ -19,7 +19,7 @@
 					<div class="form-group">
 					{% csrf_token %}
 					<b>Login details</b>
-					
+					<hr/>
 					
 					
 					<div>
@@ -33,7 +33,7 @@
 					{{doctor_form|as_bootstrap}}
 					</div>
 					<br/>
-				<input class="btn btn-primary" type="submit" name="submit" value="register"/>
+					<input class="btn btn-primary" type="submit" name="submit" value="register"/>
 					</div>
 			</form>
 			{% endif %}

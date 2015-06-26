@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 import os 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE','icare_server.settings')
+import django 
+django.setup()
+
+from django.contrib.auth.models import User
+from icare.models import Category, Goal, Topic, Medication, Vaccination, Condition , Symptom , Procedure, Riskfactor, Doctor ,ListItem, CheckList,Notification,DoctorRecord ,Question,Answer
 
 def populate():
 	#add category 
@@ -1075,7 +1081,7 @@ def add_checklist(related_goal,related_doctor):
 	
 def add_question(related_topic,title):
 	question = Question.objects.get_or_create(title=title)[0]
-	question.related_topic.add(related_topic)
+	question.related_topic=related_topic
 	question.save()
 	notification = Notification.objects.get_or_create(question=question)
 	return question 
@@ -1087,9 +1093,4 @@ def add_answer(related_question,from_doctor,detail):
 	
 if __name__ == '__main__':
 	print "starting population script...."
-	
-	
-	os.environ.setdefault('DJANGO_SETTINGS_MODULE','icare_server.settings')
-	from django.contrib.auth.models import User
-	from icare.models import Category, Goal, Topic, Medication, Vaccination, Condition , Symptom , Procedure, Riskfactor, Doctor ,ListItem, CheckList,Notification,DoctorRecord ,Question,Answer
 	populate() 

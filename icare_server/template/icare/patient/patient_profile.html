@@ -224,10 +224,10 @@
 
 {% block related_block%}
 {% if myaccount %}
-	<div class="row-fluid">
+<div class="container-fluid">
 	<div class="panel panel-default">
 		<div class="panel-heading">
-		<h5>Related Topic</h5>
+		<h5>Topic Follow</h5>
 		</div>
 		<div class="panel-body">
 		{% for topic_follow in topics_follow %}
@@ -236,6 +236,18 @@
 		</div>
 		{% endfor %}
 		
+		
+		
+		</div>
+	</div>
+	
+	<div class="panel panel-default">
+	<div class="panel-heading">
+	<h5>Related Topic</h5>
+	
+	</div>
+	
+	<div class="panel-body">
 		{% for vaccination in vaccinations%}
 		<div class="row-fluid">
 		<a href="/icare/topic/show/{{vaccination.medication.topic.id}}/">{{vaccination.medication.topic.title}}</a>
@@ -247,7 +259,9 @@
 		<a href="/icare/topic/show/{{checklist.related_topic.id}}/">{{checklist.related_topic.title}}</a>
 		</div>
 		{% endfor %}
-		</div>
+		
+	</div>
+	</div>
 	</div>
 {% endif %}
 {% endblock %}

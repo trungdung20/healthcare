@@ -2,12 +2,12 @@
 {% load bootstrap_toolkit %}
 	{% block body_block %}
 	<div class="container-fluid">
-	<div class="col-md-5 col-md-offset-5">
+	<div class="col-sm-5 col-sm-offset-5">
 	<div class="panel panel-default">
 	<div class="panel-body">
 		<h2>Patient Registration Form</h2>
 		
-			<div class="container">
+			<div class="container-fluid">
 				<div class="col-sm-8">
 			{% if registered %}
 				<strong>Thank you for registering!</strong>
@@ -15,20 +15,28 @@
 			
 			{% else %}
 				
-				<form  role="form" id="user_form" method="post" action="/icare/register/patient/" 
+			<form  role="form" id="user_form" method="POST" action="/icare/register/patient/" 
 				enctype="multipart/form-data">
-				<h2 class="form-signin-heading" >Sign up Here</h2>
-				{% csrf_token %}
+				
+				<div class="form-group">
+				<h3>Sign up Here</h3>
+				
 				<b>Login details</b>
+				{% csrf_token %}
 				<hr/>
 				
 				{{ user_form|as_bootstrap}}
 				
 				<br/>
+				
 				<b>Patient Details</b>
+				
 				{{patient_form|as_bootstrap}}
+				
 				<br/>
+				
 				<input class="btn btn-primary"  type="submit" name="submit" value="Register"/>
+				</div>
 				</form>
 			{% endif %}
 			</div>

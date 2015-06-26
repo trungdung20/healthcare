@@ -3,11 +3,12 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidde
 from django.template import RequestContext ,loader, Context
 from django.shortcuts import render_to_response, get_object_or_404, render 
 from django.contrib.auth import authenticate, login, logout 
-from models import Patient, Doctor, PatientRecord, DoctorRecord, FriendShipRequest, Friend, Category, Goal, CheckList,ThanksChecklist, AgreeChecklist, ListItem, UserCheckList, UserListItem, Topic, Vaccination, Condition, Riskfactor, Symptom, Procedure,Medication,Question,Answer, ThanksAnswer, AgreeAnswer,AnswerAlert,QuestionAlert,AdvisorRequest,Notification,UserChecklistIndex,TopicFollow
-from forms import UserForm, PatientForm,  PatientRecordWeightForm, PatientRecordHeightForm, PatientRecordEthnicityForm,PatientRecordVaccinationForm, PatientRecordDietaryForm, PatientRecordAlcoholForm, PatientRecordTobaccoForm, PatientRecordSexForm, PatientRecordDrugForm, DoctorForm, DoctorRecordForm, QuestionForm, AnswerForm, TopicForm, ItemListForm,DoctorImageForm
+from models import Patient, Doctor, PatientRecord, DoctorRecord, FriendShipRequest, Friend, Category, Goal, CheckList,ThanksChecklist, AgreeChecklist, ListItem, UserCheckList, UserListItem, Topic, Vaccination, Condition, Riskfactor, Symptom, Procedure,Medication,Question,Answer, ThanksAnswer, AgreeAnswer,AnswerAlert,QuestionAlert,AdvisorRequest,Notification,UserChecklistIndex,TopicFollow, AnswerNotification, AddTopicNotification, EditTopicNotification, DoctorNotification, PatientNotification,AddChecklistNotification,EditChecklistNotification,AddTopicFollowNotification,EditTopicFollowNotification,AddAnswerTopicFollowNotification,AddQuestionTopicFollowNotification,ThankChecklistNotification,ThankAnswerNotification,AgreeAnswerNotification,AgreeChecklistNotification,Feedback,TopicAgree
+from forms import UserForm, PatientForm,  PatientRecordWeightForm, PatientRecordHeightForm, PatientRecordEthnicityForm,PatientRecordVaccinationForm, PatientRecordDietaryForm, PatientRecordAlcoholForm, PatientRecordTobaccoForm, PatientRecordSexForm, PatientRecordDrugForm, DoctorForm, DoctorRecordForm, QuestionForm, AnswerForm, TopicForm, ItemListForm,DoctorImageForm,FeedbackForm
 from endless_pagination.decorators import page_template 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Q
 #return list of parameter for navbar
 import itertools
 import time	
@@ -185,6 +186,7 @@ def index(request,extra_context=None, template=None):
 	print parameter_index['is_doctor']
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
+	
 	try:
 		doctor = get_doctor(user)
 	except:
@@ -193,8 +195,11 @@ def index(request,extra_context=None, template=None):
 		patient = get_patient(user)
 	except:
 		patient = None 
+	if patient: 	
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:	
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
 		
-	
 	notifications = Notification.objects.all().order_by('-date_time')
 	
 	list = []
@@ -260,6 +265,7 @@ def index(request,extra_context=None, template=None):
 		
 	context_dict['can_ask'] = can_ask
 	context_dict['list'] = list
+	context_dict['unread_notification'] = unread_notification 
 	#context_dict['page_template'] = page_template
 	if extra_context is not None:
 		context_dict.update(extra_context)
@@ -274,11 +280,17 @@ def question_post(request):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	print "Hello first"
+	
 	try:
 		patient = get_patient(request.user)
 	except:
 		patient= None
+		doctor = get_doctor(request.user)
+	if patient:
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count() 
+		
 	if patient: 
 		if request.method =='POST':
 			ask_form = QuestionForm(data = request.POST)
@@ -286,7 +298,8 @@ def question_post(request):
 				question = ask_form.save(commit=False)
 				question.created_patient = patient
 				question.save() 
-				print "Hello"
+				notification  = Notification(question=question)
+				notification.save()
 				new_template = loader.get_template('icare/content/new_question.html')
 				c = RequestContext(request,{'new_question':question})
 				html = new_template.render(c)
@@ -297,6 +310,7 @@ def question_post(request):
 		else:
 			ask_form = QuestionForm() 
 			context_dict['ask_form'] = ask_form 
+			context_dict['unread_notification'] = unread_notification 
 			return render_to_reponse('icare/content/question_index.html', context_dict, context)
 	
 @login_required 
@@ -318,21 +332,24 @@ def question_show(request, question_id, extra_context=None, template=None):
 		doctor = get_doctor(request.user)
 	except:
 		doctor = None 
+	if patient:
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count() 
+		
 	can_answer = False 
 	is_doctor = False
 	is_patient = False 
-	if doctor:
-		can_answer = True 
-		is_doctor = True
-	if patient:
-		is_patient = True
-		
+	already_answer = False 
 	question = Question.objects.get(id=question_id)
 	answers = Answer.objects.filter(related_question = question).order_by('-thanks','-agree')
+	
 	list = []
 	for answer in answers:
 		dict = {} 
 		dict['answer'] = answer 
+		if answer.from_doctor == doctor:
+			already_answer = True
 		if is_patient:
 			is_thanked = False
 			thank = ThanksAnswer.objects.filter(answer=answer,patient=patient)
@@ -347,12 +364,19 @@ def question_show(request, question_id, extra_context=None, template=None):
 			dict['is_agreed'] = is_agreed 	
 		list.append(dict)	
 		
+	if doctor:
+		if not already_answer:
+			can_answer = True 
+		is_doctor = True
+	if patient:
+		is_patient = True
+		
 	context_dict['can_answer'] = can_answer
 	context_dict['question']= question
 	context_dict['answers'] = list 
 	context_dict['is_doctor'] = is_doctor
 	context_dict['is_patient'] = is_patient
-	#context_dict['page_template'] = page_template
+	context_dict['unread_notification'] = unread_notification 
 	
 	if can_answer:
 		answer_form = AnswerForm()
@@ -364,8 +388,10 @@ def question_show(request, question_id, extra_context=None, template=None):
 	return render_to_response(template, context_dict, context)
 
 @login_required 
+#doctor answer normal question 
+
 def question_answer(request,question_id):
-	print "Hello"
+	
 	context = RequestContext(request)
 	context_dict = {}
 	
@@ -395,7 +421,31 @@ def question_answer(request,question_id):
 				answer.from_doctor = doctor
 				answer.related_question = question 
 				answer.save()
-				print "save"
+				#handles user follow topic 
+				related_topic = question.related_topic
+				users_topic_follow = TopicFollow.objects.filter(topic=related_topic)
+				for user_topic_follow in user_topic_follow:
+					user = user_topic_follow.user 
+					answer_topic_follow_notification = AddAnswerTopicFollowNotification(user=user,answer=answer,from_doctor=doctor,topic=related_topic)
+					answer_topic_follow_notification.save()
+					patient_follow_topic = get_patient(user)
+					if patient_follow_topic:
+						patient_notification = PatientNotification(patient=patient_follow_topic,add_answer_follow_topic=answer_topic_follow_notification)
+						patient_notification.save()
+					else:
+						doctor_follow_topic = get_doctor(user)
+						doctor_notification = DoctorNotification(doctor=doctor_follow_topic,add_answer_follow_topic=answer_topic_follow_notification)
+						doctor_notification.save()
+				answer_notification = AnswerNotification(doctor=doctor,answer=answer)
+				answer_notification.save()
+				friends = Friend.objects.filter(to_user=doctor.user)
+				#handles patient follow doctor
+				for friend in friends:
+					patient_friend = get_patient(friend.from_user)
+					patient_notification = AnswerNotification(doctor=doctor,to_patient=patient_friend,answer=answer_notification)
+					patient_notification.save()
+					patient_answer_follow_notification = PatientNotification(patient=patient_friend,answer_doctor_follow=patient_notification)
+					patient_answer_follow_notification.save()
 				doctor_record.number_answer = doctor_record.number_answer + 1
 				doctor_record.save()
 				
@@ -438,7 +488,12 @@ def answer_agree(request):
 		answer.agree = answer.agree + 1 
 		answer.save()
 		AgreeAnswer.objects.get_or_create(answer =answer,doctor=doctor)
+		
 		agree = answer.agree 
+		agree_answer_notification = AgreeAnswerNotification(from_doctor=doctor,to_doctor=created_doctor,answer=answer)
+		agree_answer_notification.save()
+		doctor_notification = DoctorNotification(doctor=created_doctor,agree_answer=agree_answer_notification)
+		doctor_notification.save()
 		created_doctor_record.doctor_recommendation = created_doctor_record.doctor_recommendation + 1 
 		created_doctor_record.save()
 		
@@ -474,7 +529,12 @@ def answer_thanks(request):
 		answer.thanks = answer.thanks + 1
 		answer.save()
 		ThanksAnswer.objects.get_or_create(answer=answer, patient=patient)
-		thanks = answer.thanks
+		
+		thanks_answer_notification = ThankAnswerNotification(from_patient=patient,to_doctor=created_doctor,answer=answer)
+		thanks_answer_notification.save()
+		
+		doctor_notification = DoctorNotification(doctor=created_doctor,thank_answer=thanks_answer_notification)
+		doctor_notification.save()
 		created_doctor_record.patient_recommendation = created_doctor_record.patient_recommendation + 1
 		created_doctor_record.save()
 	
@@ -488,7 +548,21 @@ def category_show(request):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	try: 
+		patient = get_patient(request.user)
+	except:
+		patient = None 
+		doctor = get_doctor(request.user)
+		
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+		
+	context_dict['unread_notification'] = unread_notification 
+		
 	category_list = []
 	
 	for category in Category.objects.all():
@@ -512,6 +586,13 @@ def checklist_index(request, goal_id,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	
 	try:
 		user_doctor = get_doctor(request.user)
@@ -534,7 +615,6 @@ def checklist_index(request, goal_id,extra_context=None, template=None):
 	checklists =  CheckList.objects.filter(related_goal = goal_id)
 	
 	checklist_list = [] 
-	
 	for checklist in checklists: 
 		checklist_dict = {} 
 		is_doctor_creator = False
@@ -594,6 +674,13 @@ def checklist_doctor_add(request,topic_id):
 		checklist.save()
 		notification = Notification(checklist = checklist)
 		notification.save()
+		friends = Friend.objects.filter(to_user=doctor.user)
+		for friend in friends:
+			patient_friend = get_patient(friend.from_user)
+			add_checklist_notification = AddChecklistNotification(to_patient=patient_friend,from_doctor=doctor,checklist=checklist)
+			add_checklist_notification.save()
+			patient_notification = PatientNotification(patient=patient_friend,add_checklist=add_checklist_notification)
+			patient_notification.save()
 	else:	
 		return HttpReponse('You need to be a doctor to add a new checklist')
 	
@@ -602,11 +689,26 @@ def checklist_doctor_add(request,topic_id):
 def doctor_edit_checklist(request,checklist_id):
 	context = RequestContext(request)
 	context_dict = {}
+	parameter_index = get_user_list(request.user)
+	context_dict['curruserid'] = parameter_index['curruserid']
+	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
+	
 	checklist = CheckList.objects.get(id=int(checklist_id))
 	items = ListItem.objects.filter(related_checklist=checklist)
 	doctor = checklist.related_doctor
-	context_dict = {'checklist':checklist,'items':items,'doctor':doctor}
+	friends = Friend.objects.filter(to_user=doctor.user)
+	unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	
+	for friend in friends: 
+		patient_friend = get_patient(friend.from_user)
+		edit_checklist_notification = EditChecklistNotification(to_patient=patient_friend,from_doctor=doctor,checklist=checklist)
+		edit_checklist_notification.save()
+		patient_notification = PatientNotification(patient=patient_friend,edit_checklist=edit_checklist_notification)
+		patient_notification.save()
+	context_dict['checklist'] =checklist
+	context_dict['items'] = items 
+	context_dict['doctor'] = doctor
 	return render_to_response('icare/content/edit_checklist.html',context_dict,context)
 	
 def item_add(request):
@@ -669,13 +771,14 @@ def thanks_checklist(request):
 		patient = get_patient(request.user)
 	except:
 		patient = None 
+		
 	checklist = CheckList.objects.get(id= int(checklist_thanks_id))
 	checklist_count = ThanksChecklist.objects.filter(checklist=checklist, patient= patient).count()
 	related_doctor = checklist.related_doctor 
 	related_doctor_record = DoctorRecord.objects.get(doctor = related_doctor)
 	likes = 0
 	
-	if checklist_count==1:
+	if checklist_count == 1:
 		checklist_old = ThanksChecklist.objects.get(checklist=checklist, patient=patient)
 		checklist.likes = checklist.likes - 1 
 		checklist_old.delete()
@@ -686,6 +789,12 @@ def thanks_checklist(request):
 		ThanksChecklist.objects.get_or_create(checklist=checklist, patient= patient)
 		checklist.likes = checklist.likes + 1 
 		checklist.save()
+		checklist_thank_notification = ThankChecklistNotification(from_patient=patient,to_doctor=related_doctor,checklist=checklist)
+		checklist_thank_notification.save()
+		print "checklist thank create"
+		doctor_notification = DoctorNotification(doctor= related_doctor,thank_checklist = checklist_thank_notification)
+		doctor_notification.save()
+		print "DOCTOR NOTIFICATION CREATE"
 		likes = checklist.likes 
 		related_doctor_record.patient_recommendation = related_doctor_record.patient_recommendation + 1 
 		related_doctor_record.save() 
@@ -708,7 +817,7 @@ def agree_checklist(request):
 	
 	agree = 0 
 	if checklist_count==1:
-		checklist_old = AgreeChecklist.objects.get(checklist=checklist, doctor= doctor).count()
+		checklist_old = AgreeChecklist.objects.get(checklist=checklist, doctor= doctor)
 		checklist.agree = checklist.agree - 1 
 		checklist.save()
 		checklist_old.delete()
@@ -718,6 +827,10 @@ def agree_checklist(request):
 		AgreeChecklist.objects.get_or_create(checklist= checklist, doctor= doctor)
 		checklist.agree = checklist.agree + 1 
 		checklist.save()
+		agree_checklist_notification = AgreeChecklistNotification(from_doctor=doctor,to_doctor=related_doctor,checklist=checklist)
+		agree_checklist_notification.save()
+		doctor_notification = DoctorNotification(doctor=related_doctor,agree_checklist=agree_checklist_notification)
+		doctor_notification.save()
 		agree = checklist.agree 
 		related_doctor_record.doctor_recommendation = related_doctor_record.doctor_recommendation + 1 
 		related_doctor_record.save()
@@ -772,7 +885,8 @@ def checklist_person(request, user_id,extra_context=None, template=None):
 		patient = get_patient(request.user)
 	except:
 		patient = None 
-		
+	unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	context_dict['unread_notification'] = unread_notification 
 	user_checklists = UserCheckList.objects.filter(related_patient=patient)
 	
 	user_checklist_list = [] 
@@ -834,6 +948,11 @@ def search_index(request):
 		patient = get_patient(user)
 	except:
 		patient = None 
+	if patient:
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification	
 	is_doctor = False 
 	is_patient = False 
 	
@@ -858,7 +977,13 @@ def search_condition(request,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	#page_template = all_template 
 	result_list = Condition.objects.all().order_by('topic__title')
 	
@@ -878,6 +1003,14 @@ def search_condition_result(request,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
+	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	
 	done = False
 	if request.method == 'GET':
@@ -904,7 +1037,13 @@ def search_symptom(request,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	result_list = Symptom.objects.all().order_by('-topic__title')
 	#context_dict['page_template'] = page_template 
 	context_dict['result_list'] = result_list 
@@ -921,7 +1060,13 @@ def search_symptom_result(request,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	done=False
 	if request.method == 'GET':
 		symptom = request.GET['symptom']
@@ -947,7 +1092,13 @@ def search_medication(request,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	result_list = Medication.objects.all().order_by('-topic__title')
 	
 	#context_dict['page_template'] = page_template 
@@ -965,7 +1116,13 @@ def search_medication_result(request,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	done=False
 	if request.method == 'GET':
 		medication = request.GET['medication']
@@ -991,7 +1148,13 @@ def search_procedure(request,template=None,extra_context=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	result_list = Medication.objects.all().order_by('topic__title')
 	
 		
@@ -1011,7 +1174,13 @@ def search_procedure_result(request,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	done=False
 	if request.method == 'GET':
 		procedure = request.GET['procedure']
@@ -1038,7 +1207,13 @@ def search_doctor(request, template=None, extra_context=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	result_list = Doctor.objects.all().order_by('name')
 	context_dict['result_list'] = result_list
 	
@@ -1054,14 +1229,20 @@ def search_doctor_result(request,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	done=False
 	if request.method == 'GET':
 		doctor = request.GET['doctor']
 		done = True 
 	if done: 
 		#page_template = result_template 
-		result_list = Doctor.objects.filter(name__icontains = doctor).order_by('name')
+		result_list = Doctor.objects.filter(Q(name__icontains=doctor) | Q(specialty__icontains=doctor)).order_by('name')
 	
 	context_dict['result_list'] = result_list 
 	
@@ -1081,7 +1262,13 @@ def search_patient(request, template=None, extra_context=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	result_list = Patient.objects.all().order_by('name')
 	context_dict['result_list'] = result_list
 	
@@ -1096,7 +1283,13 @@ def search_patient_result(request,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	done=False
 	if request.method == 'GET':
 		patient = request.GET['patient']
@@ -1115,16 +1308,27 @@ def search_patient_result(request,extra_context=None, template=None):
 def topic_show(request, topic_id , template=None, extra_context=None):
 	context = RequestContext(request)
 	context_dict = {} 
+	topic_id = int(topic_id)
+	topic_main = Topic.objects.get(id=topic_id)
 	
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	is_agreed = False 
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		doctor_agree_check = TopicAgree.objects.filter(doctor=doctor,topic=topic_main)
+		if doctor_agree_check:
+			is_agreed = True
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	#template = 'icare/content/topic_show.html'
 	#page_template ='icare/content/topic_show_page.html'
 	print type(topic_id)
-	topic_id = int(topic_id)
-	topic_main = Topic.objects.get(id=topic_id)
+	
 	related_questions = topic_main.topic_questions.all()
 	
 	question_list = [] 
@@ -1170,11 +1374,17 @@ def topic_show(request, topic_id , template=None, extra_context=None):
 	is_follow = False 
 	
 	topics_follow = TopicFollow.objects.filter(user=request.user,topic=topic_main)
+	number_user_follow = TopicFollow.objects.filter(user=request.user,topic=topic_main).count()
 	if topics_follow:
 		is_follow = True 
-	print "is_follow:",is_follow	
+	number_doctor_agree = TopicAgree.objects.filter(topic=topic_main).count() 	
+	doctor_agree_list = TopicAgree.objects.filter(topic=topic_main)
 	topic_form = TopicForm()			
 	question_form = QuestionForm()
+	context_dict['is_agreed'] = is_agreed 
+	context_dict['number_doctor_agree'] = number_doctor_agree
+	context_dict['doctor_agree_list'] = doctor_agree_list
+	context_dict['number_user_follow'] = number_user_follow
 	context_dict['is_follow'] = is_follow 
 	context_dict['is_patient'] = is_patient
 	context_dict['question_form'] = question_form 
@@ -1194,16 +1404,30 @@ def topic_show(request, topic_id , template=None, extra_context=None):
 def post_question_topic(request,topic_id):
 	context = RequestContext(request)
 	topic = Topic.objects.get(id=int(topic_id))
+	users_follow_topic = TopicFollow.objects.filter(topic=topic)
 	if request.method == 'POST':
 		question_form = QuestionForm(data=request.POST)
 		if question_form.is_valid():
 			question = question_form.save(commit=False)
 			question.save() 
-			question.related_topic.add(topic) 
+			question.related_topic=topic 
 			question.save() 
+			for user_follow_topic in users_follow_topic:
+				user = user_follow_topic.user 
+				question_topic_follow_notification = AddQuestionTopicFollowNotification(user=user,question=question,topic=topic)
+				question_topic_follow_notification.save()
+				patient_follow_topic = get_patient(user)
+				if patient_follow_topic:
+					patient_notification = PatientNotification(patient=patient_follow_topic,add_question_follow_topic=question_topic_follow_notification)
+					patient_notification.save()
+				else:
+					doctor_follow_topic = get_doctor(user)
+					doctor_notification = DoctorNotification(doctor=doctor_follow_topic,add_question_follow_topic=question_topic_follow_notification)
+					doctor_notification.save()
 			return HttpResponseRedirect('/icare/topic/show/'+str(topic_id)+'/')
 		else:
 			return HttpResponse(question_form.errors)
+			
 @login_required 
 def profile_doctor(request, doctor_id): 
 	context = RequestContext(request)
@@ -1211,10 +1435,16 @@ def profile_doctor(request, doctor_id):
 	
 	parameter_index = get_user_list(request.user)
 	
-	print parameter_index['is_doctor']
+	
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	curruser = request.user
 	currdoctor = get_doctor(request.user)
 	
@@ -1263,27 +1493,25 @@ def profile_doctor(request, doctor_id):
 	can_be_advisor = False
 	is_advisor = False 	
 	is_request_advisor = False 
-	
+	is_already_had_advisor = False
 	if is_patient:
 		patient_curr = get_patient(curruser)
 		
 		advisor_request = AdvisorRequest.objects.filter(from_patient=patient_curr)
 		if advisor_request:
 			is_request_advisor = True
-		
-		
+		if patient_curr.advisor:	
+			is_already_had_advisor = True
 		if patient_curr.advisor == doctor:
 			is_advisor = True 
 			
-	if is_patient and not myaccount and not is_advisor and not is_request_advisor:
+	if is_patient and not myaccount and not is_advisor and not is_request_advisor and not is_already_had_advisor:
 		can_be_advisor = True
 		
-	print "can_be_advisor",can_be_advisor	
-	
 	doctor_record_form = DoctorRecordForm(instance=doctor_record)
 	topic_form = TopicForm()
 	doctor_image_form = DoctorImageForm(instance=currdoctor)
-	context_dict = {'is_friend':is_friend,'is_advisor': is_advisor,'can_be_advisor':can_be_advisor,'doctor': doctor, 'doctor_record': doctor_record, 'myaccount': myaccount, 'can_request': can_request,'topic_list':topic_list,'doctor_record_form':doctor_record_form,'topic_form':topic_form,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor'],'doctor_image_form':doctor_image_form}
+	context_dict = {'is_friend':is_friend,'is_advisor': is_advisor,'can_be_advisor':can_be_advisor,'doctor': doctor, 'doctor_record': doctor_record, 'myaccount': myaccount, 'can_request': can_request,'topic_list':topic_list,'doctor_record_form':doctor_record_form,'topic_form':topic_form,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor'],'doctor_image_form':doctor_image_form,'unread_notification':unread_notification}
 	
 	return render_to_response('icare/doctor/doctor_profile.html',context_dict, context)
 	
@@ -1294,6 +1522,13 @@ def profile_patient(request, patient_id):
 	parameter_index = get_user_list(request.user)
 	currpatient = get_patient(request.user)
 	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	patient_user = User.objects.get(id = int(patient_id))
 	patient = Patient.objects.get(user = patient_user)
 	patient_record = PatientRecord.objects.get(patient=patient)
@@ -1323,7 +1558,7 @@ def profile_patient(request, patient_id):
 	can_request = False 
 	if is_doctor and not myaccount and not is_friend and not is_request: 
 		can_request = True
-
+	print "patient" ,can_request
 	vaccinations = patient_record.vaccination.all()
 	user_checklist = UserCheckList.objects.filter(related_patient=patient)
 	topics_follow = TopicFollow.objects.filter(user=patient.user)
@@ -1343,7 +1578,7 @@ def profile_patient(request, patient_id):
 	else: 
 		is_overweight = True 
 		
-	context_dict = {'patient':patient ,'is_underweight':is_underweight,'is_healthy':is_healthy,'is_slightly':is_slightly,'is_overweight':is_overweight ,'patient_record': patient_record, 'myaccount': myaccount, 'can_request' : can_request,'vaccinations':vaccinations,'user_checklist':user_checklist,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor']}
+	context_dict = {'topics_follow':topics_follow,'patient':patient ,'is_underweight':is_underweight,'is_healthy':is_healthy,'is_slightly':is_slightly,'is_overweight':is_overweight ,'patient_record': patient_record, 'myaccount': myaccount, 'can_request' : can_request,'vaccinations':vaccinations,'user_checklist':user_checklist,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor'],'unread_notification':unread_notification}
 	
 	return render_to_response('icare/patient/patient_profile.html', context_dict, context)
 
@@ -1358,7 +1593,10 @@ def patient_advisor_request(request):
 	requested_doctor = Doctor.objects.get(id = int(doctor_id))
 	request_patient = get_patient(request.user)
 	request_advisor = AdvisorRequest(from_patient=request_patient,to_doctor = requested_doctor)
+	
 	request_advisor.save() 
+	doctor_notification = DoctorNotification(doctor=requested_doctor,advisor_request=request_advisor)
+	doctor_notification.save()
 	return HttpResponse('success')
 	
 def patient_send_request(request): # doctor send request to specific patient
@@ -1371,8 +1609,9 @@ def patient_send_request(request): # doctor send request to specific patient
 	requested_patient = Patient.objects.get(id = int(patient_id))
 	to_patient = requested_patient.user 
 	from_doctor = request.user 
-	Friend.objects.add_friend(from_doctor, to_patient) 
-	
+	f_request=Friend.objects.add_friend(from_doctor, to_patient) 
+	patient_friend_notification = PatientNotification(patient=requested_patient,friend_request=f_request)
+	patient_friend_notification.save()
 	return HttpResponse('success')
 
 def doctor_send_request(request): # patient send request to specific doctor 
@@ -1385,8 +1624,9 @@ def doctor_send_request(request): # patient send request to specific doctor
 	requested_doctor =  Doctor.objects.get(id = int(doctor_id))
 	to_doctor = requested_doctor.user 
 	from_patient = request.user 
-	Friend.objects.add_friend(from_patient, to_doctor)
-	
+	f_request=Friend.objects.add_friend(from_patient, to_doctor)
+	doctor_friend_notification = DoctorNotification(doctor=requested_doctor,friend_request=f_request)
+	doctor_friend_notification.save()
 	return HttpResponse('sucess')
 
 def patient_friend_list(request): #display friend list of patient 
@@ -1397,12 +1637,19 @@ def patient_friend_list(request): #display friend list of patient
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
 	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	user = request.user 
 	patient = Patient.objects.get(user = user)
 	
 	user_friend_list = Friend.objects.friends(user) 
 	
-	context_dict = {'patient': patient , 'user_friend_list': user_friend_list,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor']}
+	context_dict = {'patient': patient , 'user_friend_list': user_friend_list,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor'],"unread_notification":unread_notification}
 	
 	return render_to_response('icare/patient/patient_friend_list.html', context_dict, context)
 	
@@ -1413,13 +1660,19 @@ def doctor_friend_list(request): #display friend list of doctor
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	user = request.user 
 	doctor = Doctor.objects.get(user = user)
 
 	user_friend_list = Friend.objects.friends(user)
 
-	context_dict = {'doctor': doctor, 'user_friend_list':user_friend_list,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor']}
+	context_dict = {'doctor': doctor, 'user_friend_list':user_friend_list,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor'],"unread_notification":unread_notification}
 
 	return render_to_response('icare/doctor/doctor_friend_list.html',context_dict, context) 
 
@@ -1430,20 +1683,87 @@ def patient_notification_request(request): # display friend request from doctor 
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
+	
 	notification_list = [] 
 	
 	patient_user= request.user  # return patient user 
 	patient_account = get_patient(patient_user)
+	unread_notification = PatientNotification.objects.filter(patient=patient_account).count()
 	doctor_unrejected_request_list = FriendShipRequest.objects.filter(to_user=patient_user,rejected=False,viewed_by_patient= False).order_by('-created') # return a friend list of doctor
 	doctor_rejected_request_list = FriendShipRequest.objects.filter(from_user=patient_user,rejected=True,viewed_by_patient = False).order_by('-created')
 	doctor_accepted_request_list = FriendShipRequest.objects.filter(from_user=patient_user,accepted=True,viewed_by_patient=False).order_by('-created')
+	#view topic follow 
+	add_related_topic_follow_list = AddTopicFollowNotification.objects.filter(user=patient_user,viewed=False).order_by("-created")
+	edit_topic_follow_list= EditTopicFollowNotification.objects.filter(user=patient_user,viewed=False).order_by("-created")
+	add_answer_topic_follow_list = AddAnswerTopicFollowNotification.objects.filter(user=patient_user,viewed=False).order_by("-created")
+	add_question_topic_follow_list = AddQuestionTopicFollowNotification.objects.filter(user=patient_user,viewed=False).order_by("-created")
 	
 	advisor_accepted_list = AdvisorRequest.objects.filter(from_patient = patient_account,accepted=True, viewed_by_patient = False).order_by('-created')
 	advisor_rejected_list = AdvisorRequest.objects.filter(from_patient = patient_account,rejected=True,viewed_by_patient=False).order_by('-created')
 	answer_alert_list = AnswerAlert.objects.filter(to_patient=patient_account , viewed_by_patient=False).order_by('-created')
+	patient_answer_follow_list = AnswerNotification.objects.filter(to_patient=patient_account,viewed_by_patient=False).order_by('-created')
+	patient_doctor_add_topic_list = AddTopicNotification.objects.filter(to_patient=patient_account,viewed_by_patient=False).order_by('-created')
+	patient_doctor_edit_topic_list = EditTopicNotification.objects.filter(to_patient=patient_account,viewed_by_patient=False).order_by('-created')
+	patient_doctor_add_checklist_list = AddChecklistNotification.objects.filter(to_patient=patient_account,viewed_by_patient=False).order_by('-created')
+	patient_doctor_edit_checklist_list = EditChecklistNotification.objects.filter(to_patient=patient_account,viewed_by_patient=False).order_by('-created')
 	list = []
-	for doctor_unrejected_request, doctor_rejected_request, doctor_accepted_request, advisor_accepted,advisor_rejected, answer_alert in itertools.izip_longest(doctor_unrejected_request_list,doctor_rejected_request_list,doctor_accepted_request_list,advisor_accepted_list,advisor_rejected_list,answer_alert_list):
+	for doctor_unrejected_request, doctor_rejected_request, doctor_accepted_request, advisor_accepted,advisor_rejected, answer_alert,patient_answer_follow,patient_doctor_add_topic,patient_doctor_edit_topic,patient_doctor_add_checklist,patient_doctor_edit_checklist,add_related_topic_follow,edit_topic_follow,add_answer_topic_follow,add_question_topic_follow in itertools.izip_longest(doctor_unrejected_request_list,doctor_rejected_request_list,doctor_accepted_request_list,advisor_accepted_list,advisor_rejected_list,answer_alert_list,patient_answer_follow_list, patient_doctor_add_topic_list, patient_doctor_edit_topic_list, patient_doctor_add_checklist_list , patient_doctor_edit_checklist_list,add_related_topic_follow_list,edit_topic_follow_list,add_answer_topic_follow_list,add_question_topic_follow_list):
 		dict = {}
+		
+		is_add_related_topic_follow = False 
+		if add_related_topic_follow:
+			is_add_related_topic_follo = True 
+			dict['add_related_topic_follow'] = add_related_topic_follow
+		dict["is_add_related_topic_follow"] = is_add_related_topic_follow 
+		
+		is_edit_topic_follow = False 
+		if edit_topic_follow:
+			is_edit_topic_follow = True 
+			dict['edit_topic_follow'] = edit_topic_follow 
+		dict["is_edit_topic_follow"] = is_edit_topic_follow 
+		
+		is_add_answer_topic_follow = False 
+		if add_answer_topic_follow:
+			is_add_answer_topic_follow = True 
+			dict["add_answer_topic_follow"] = add_answer_topic_follow 
+		dict["is_add_answer_topic_follow"] = is_add_answer_topic_follow 
+		
+		is_add_question_topic_follow = False 
+		if add_question_topic_follow:
+			is_add_question_topic_follow = True 
+			dict["add_question_topic_follow"] = add_question_topic_follow 
+		dict["is_add_question_topic_follow"] = is_add_question_topic_follow 
+		
+		is_answer_follow = False 
+		if patient_answer_follow:
+			is_answer_follow = True 
+			dict['answer_follow'] = patient_answer_follow
+		dict['is_answer_follow'] = is_answer_follow
+		
+		is_add_topic = False 
+		if patient_doctor_add_topic:
+			is_add_topic = True 
+			dict['add_topic'] = patient_doctor_add_topic 
+		dict['is_add_topic'] = is_add_topic
+		
+		is_edit_topic = False 
+		if patient_doctor_edit_topic:
+			is_edit_topic =True 
+			dict['edit_topic'] = patient_doctor_edit_topic 
+		dict['is_edit_topic'] = is_edit_topic 
+		
+		is_add_checklist = False 
+		if patient_doctor_add_checklist:
+			is_add_checklist = True 
+			dict['add_checklist'] = patient_doctor_add_checklist 
+		dict['is_add_checklist'] = is_add_checklist
+		
+		is_edit_checklist = False 
+		if patient_doctor_edit_checklist:
+			is_edit_checklist = True
+			dict['edit_checklist'] = patient_doctor_edit_checklist 
+		dict['is_edit_checklist'] = is_edit_checklist
+		
 		is_unrejected_request = False 
 		if doctor_unrejected_request:
 			is_unrejected_request = True 
@@ -1483,6 +1803,7 @@ def patient_notification_request(request): # display friend request from doctor 
 		list.append(dict)
 	
 	context_dict['list'] = list 
+	context_dict['unread_notification'] = unread_notification 
 	#context_dict = {'patient_user': to_user , 'doctor_request_users': from_user,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor']}
 	
 	return render_to_response('icare/patient/notification_patient.html', context_dict, context)
@@ -1497,16 +1818,77 @@ def doctor_notification_request(request):# display friend request from patient t
 	
 	doctor_user = request.user # return doctor user 
 	doctor_account = get_doctor(doctor_user)
+	unread_notification = DoctorNotification.objects.filter(doctor=doctor_account).count()
 	patient_unrejected_request_list = FriendShipRequest.objects.filter(to_user=doctor_user,rejected=False,viewed_by_doctor= False).order_by('-created') # return a friend list of doctor
 	patient_rejected_request_list = FriendShipRequest.objects.filter(from_user=doctor_user,rejected=True,viewed_by_doctor= False).order_by('-created')
 	patient_accepted_request_list = FriendShipRequest.objects.filter(from_user=doctor_user,accepted=True,viewed_by_doctor=False).order_by('-created')
+	#view topic follow notification 
+	add_related_topic_follow_list = AddTopicFollowNotification.objects.filter(user=doctor_user,viewed=False).order_by("-created")
+	edit_topic_follow_list= EditTopicFollowNotification.objects.filter(user=doctor_user,viewed=False).order_by("-created")
+	add_answer_topic_follow_list = AddAnswerTopicFollowNotification.objects.filter(user=doctor_user,viewed=False).order_by("-created")
+	add_question_topic_follow_list = AddQuestionTopicFollowNotification.objects.filter(user=doctor_user,viewed=False).order_by("-created")
+	#handels thanks, agree 
+	thanks_answer_list = ThankAnswerNotification.objects.filter(to_doctor=doctor_account,viewed_by_doctor=False).order_by("-created")
+	agree_answer_list = AgreeAnswerNotification.objects.filter(to_doctor=doctor_account,viewed_by_doctor=False).order_by("-created")
+	thanks_checklist_list = ThankChecklistNotification.objects.filter(to_doctor=doctor_account,viewed_by_doctor=False).order_by("-created")
+	agree_checklist_list = AgreeChecklistNotification.objects.filter(to_doctor=doctor_account,viewed_by_doctor=False).order_by("-created")
 	
 	advisor_request_list = AdvisorRequest.objects.filter(to_doctor = doctor_account,accepted=False,viewed_by_doctor = False).order_by('-created')
 	question_alert_list = QuestionAlert.objects.filter(to_doctor=doctor_account, view_by_doctor=False).order_by('-create')
 	
 	list = []
-	for patient_unrejected_request, patient_rejected_request, patient_accepted_request, advisor_request, question_alert in itertools.izip_longest(patient_unrejected_request_list,patient_rejected_request_list,patient_accepted_request_list,advisor_request_list,question_alert_list):
+	for patient_unrejected_request, patient_rejected_request, patient_accepted_request, advisor_request, question_alert,add_related_topic_follow,edit_topic_follow,add_answer_topic_follow,add_question_topic_follow,thanks_answer,agree_answer,thanks_checklist,agree_checklist in itertools.izip_longest(patient_unrejected_request_list,patient_rejected_request_list,patient_accepted_request_list,advisor_request_list,question_alert_list,add_related_topic_follow_list,edit_topic_follow_list,add_answer_topic_follow_list,add_question_topic_follow_list,thanks_answer_list,agree_answer_list,thanks_checklist_list,agree_checklist_list):
 		dict = {}
+		is_thanks_answer = False 
+		if thanks_answer:
+			is_thanks_answer = True 
+			dict["thanks_answer"] = thanks_answer 
+		dict["is_thanks_answer"] = is_thanks_answer 
+		
+		is_agree_answer = False 
+		if agree_answer:
+			is_agree_answer = True 
+			dict["agree_answer"] = agree_answer 
+		dict["is_agree_answer"] = is_agree_answer 
+		
+		is_thanks_checklist = False 
+		if thanks_checklist:
+			is_thanks_checklist = True 
+			dict["thanks_checklist"] = thanks_checklist 
+		dict["is_thanks_checklist"] = is_thanks_checklist 
+		
+		is_agree_checklist = False 
+		if agree_checklist:
+			
+			is_agree_checklist = True 
+			dict["agree_checklist"] = agree_checklist 
+		dict["is_agree_checklist"] = is_agree_checklist 
+		
+		is_add_related_topic_follow = False 
+		if add_related_topic_follow:
+			is_add_related_topic_follow = True 
+			
+			dict['add_related_topic_follow'] = add_related_topic_follow
+		dict["is_add_related_topic_follow"] = is_add_related_topic_follow 
+		
+		is_edit_topic_follow = False 
+		if edit_topic_follow:
+			is_edit_topic_follow = True 
+			dict['edit_topic_follow'] = edit_topic_follow 
+		dict["is_edit_topic_follow"] = is_edit_topic_follow 
+		
+		is_add_answer_topic_follow = False 
+		if add_answer_topic_follow:
+			is_add_answer_topic_follow = True 
+			dict["add_answer_topic_follow"] = add_answer_topic_follow 
+		dict["is_add_answer_topic_follow"] = is_add_answer_topic_follow 
+		
+		is_add_question_topic_follow = False 
+		if add_question_topic_follow:
+			is_add_question_topic_follow = True 
+			dict["add_question_topic_follow"] = add_question_topic_follow 
+		dict["is_add_question_topic_follow"] = is_add_question_topic_follow 
+		
 		is_unrejected_request = False 
 		if patient_unrejected_request:
 			is_unrejected_request = True 
@@ -1548,6 +1930,7 @@ def doctor_notification_request(request):# display friend request from patient t
 		list.append(dict)
 	
 	context_dict['list'] = list 
+	context_dict['unread_notification'] = unread_notification 
 	#context_dict = {'doctor_user':to_user, 'patient_request_users': from_user,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor']}
 	
 	return render_to_response('icare/doctor/notification_doctor.html', context_dict, context)
@@ -1565,17 +1948,22 @@ def doctor_friend_accept(request): #  patient accept friend request from doctor
 	f_request.accepted = True 
 	f_request.viewed_by_patient = True
 	f_request.save() 
-	
+	doctor_friend_accept_notification = DoctorNotification(doctor=doctor_user,friend_accept=f_request)
+	doctor_friend_accept_notification.save()
+	patient_friend_request_notification = PatientNotification.objects.get(patient=patient_user,friend_request=f_request)
+	patient_friend_request_notification.delete()
 	if f_request.viewed_by_doctor:
 		f_request.delete()
-	
-	relation1 = Friend.objects.get_or_create(to_user= patient_user,from_user= doctor_user.user)
-	relation2 = Friend.objects.get_or_create(to_user = doctor_user.user,from_user = patient_user)
+		#doctor_friend_accept_notification.delete()
+	relation1 = Friend(to_user= patient_user,from_user= doctor_user.user)
+	relation1.save()
+	relation2 = Friend(to_user = doctor_user.user,from_user = patient_user)
+	relation2.save()
 	
 	return HttpResponse('success')
 	
 	
-#patient viewd their accepted request 
+#patient viewed their accepted request 
 def patient_view_accepted_request(request):
 	context = RequestContext(request)
 	doctorid = None 
@@ -1588,9 +1976,12 @@ def patient_view_accepted_request(request):
 	f_request = FriendShipRequest.objects.get(from_user = patient_user, to_user = doctor_user.user)
 	f_request.viewed_by_patient = True 
 	f_request.save()
+	patient = get_patient(patient_user)
+	patient_friend_accept_notification = PatientNotification.objects.get(patient=patient,friend_accept=f_request)
+	patient_friend_accept_notification.delete()
 	if f_request.viewed_by_doctor:
 		f_request.delete()
-	
+		
 	return HttpResponse('success')
 
  
@@ -1608,6 +1999,9 @@ def patient_view_rejected_request(request):
 	f_request = FriendShipRequest.objects.get(from_user = patient_user, to_user = doctor_user.user)
 	f_request.viewed_by_patient = True 
 	f_request.save()
+	patient = get_patient(patient_user)
+	patient_friend_reject_notification = PatientNotification.objects.get(patient=patient,friend_reject=f_request)
+	patient_friend_reject_notification.delete()
 	
 	if f_request.viewed_by_doctor:
 		f_request.delete() 
@@ -1626,6 +2020,9 @@ def patient_accepted_advisor_request(request):
 	a_request = AdvisorRequest.objects.get(from_patient=patient, to_doctor=doctor)
 	a_request.viewed_by_patient = True
 	a_request.save()
+	
+	patient_advisor_accept_notification = PatientNotification.objects.get(patient=patient,advisor_accept=a_request)
+	patient_advisor_accept_notification.delete()
 	if a_request.viewed_by_doctor:
 		a_request.delete()
 	return HttpResponse('success')
@@ -1644,13 +2041,16 @@ def patient_rejected_advisor_request(request):
 	a_request = AdvisorRequest.objects.get(from_patient=patient, to_doctor=doctor)
 	a_request.viewed_by_patient = True
 	a_request.save()
+
+	patient_advisor_reject_notification = PatientNotification.objects.get(patient=patient,advisor_reject=a_request)
+	patient_advisor_reject_notification.delete()
 	if a_request.viewed_by_doctor:
 		a_request.delete()
 		
 	return HttpResponse('success')
 
 	
-#patinet view advisor answer 
+#patient view advisor answer 
 
 def patient_doctor_answer_alert(request):
 	context = RequestContext(request)
@@ -1662,6 +2062,9 @@ def patient_doctor_answer_alert(request):
 	a_answer.viewed_by_patient = True 
 	a_answer.save() 
 	
+	patient = get_patient(request.user)
+	patient_answer_alert_notification = PatientNotification.objects.get(patient=patient,answer_alert=a_answer)
+	patient_answer_alert_notification.delete()
 	
 	return HttpResponse('success')
 	
@@ -1692,6 +2095,10 @@ def doctor_friend_reject(request): # patient reject friend request from doctor
 	f_request.rejected = True 
 	f_request.viewed_by_doctor = True
 	f_request.save() 
+	doctor_friend_reject_notification = DoctorNotification(doctor=doctor_user,friend_reject=f_request)
+	doctor_friend_reject_notification.save()
+	patient_friend_request_notification = PatientNotification.objects.get(patient=patient_user,friend_request=f_request)
+	patient_friend_request_notification.delete()
 	
 	if f_request.viewed_by_patient:
 		f_request.delete()
@@ -1712,11 +2119,17 @@ def patient_friend_accept(request): # doctor accept friend request from patient
 	f_request.viewed_by_doctor = True
 	
 	f_request.save() 
+	patient_friend_accept_notification = PatientNotification(patient=patient_user,friend_accept=f_request)
+	patient_friend_accept_notification.save()
+	doctor_friend_request_notification = DoctorNotification.objects.get(doctor=doctor_user,friend_request=f_request)
+	doctor_friend_request_notification.delete()
 	if f_request.viewed_by_patient:
 		f_request.delete()
 		
-	relation1 = Friend.objects.get_or_create(to_user= patient_user.user,from_user= doctor_user.user)
-	relation2 = Friend.objects.get_or_create(to_user = doctor_user.user,from_user = patient_user.user)
+	relation1 = Friend(to_user= patient_user.user,from_user= doctor_user.user)
+	relation1.save()
+	relation2 = Friend(to_user = doctor_user.user,from_user = patient_user.user)
+	relation2.save()
 	
 	return HttpResponse('success') 
 	
@@ -1733,6 +2146,10 @@ def patient_friend_reject(request): # doctor reject friend request from patient
 	f_request.rejected = True
 	f_request.viewed_by_doctor = True 
 	f_request.save() 
+	patient_friend_reject_notification = PatientNotification(patient=patient_user,friend_reject=f_request)
+	patient_friend_reject_notification.save()
+	doctor_friend_request_notification = DoctorNotification.objects.get(doctor=doctor_user,friend_request=f_request)
+	doctor_friend_request_notification.delete()
 	if f_request.viewed_by_patient:
 		f_request.delete()
 		
@@ -1751,6 +2168,9 @@ def doctor_view_accepted_request(request):
 	f_request = FriendShipRequest.objects.get(to_user = patient_user.user, from_user = doctor_user)
 	f_request.viewed_by_doctor = True
 	f_request.save() 
+	doctor = get_doctor(doctor_user)
+	doctor_friend_accept_notification = DoctorNotification.objects.get(doctor=doctor,friend_accept=f_request)
+	doctor_friend_accept_notification.delete()
 	if f_request.viewed_by_patient:
 		f_request.delete()
 	return HttpReponse('success ')
@@ -1768,6 +2188,10 @@ def doctor_view_rejected_request(request):
 	f_request = FriendShipRequest.objects.get(to_user = patient_user.user, from_user = doctor_user)
 	f_request.viewed_by_doctor = True
 	f_request.save() 
+	
+	doctor = get_doctor(doctor_user)
+	doctor_friend_reject_notification = DoctorNotification.objects.get(doctor=doctor,friend_reject=f_request)
+	doctor_friend_reject_notification.delete()
 	if f_request.viewed_by_patient:
 		f_request.delete()
 		
@@ -1788,6 +2212,10 @@ def doctor_view_advisor_accept(request):
 	a_request.viewed_by_doctor = True
 	a_request.accepted = True
 	a_request.save() 
+	doctor_advisor_request_notification = DoctorNotification.objects.get(doctor=doctor,advisor_request=a_request)
+	doctor_advisor_request_notification.delete()
+	patient_advisor_accept_notification = PatientNotification(patient=patient,advisor_accept=a_request)
+	patient_advisor_accept_notification.save()
 	patient.advisor = doctor
 	patient.save()
 	
@@ -1808,12 +2236,17 @@ def doctor_view_advisor_reject(request):
 	a_request.viewed_by_doctor = True
 	a_request.rejected = True
 	a_request.save() 
+	doctor_advisor_request_notification = DoctorNotification.objects.get(doctor=doctor,advisor_request=a_request)
+	doctor_advisor_request_notification.delete()
+	patient_advisor_reject_notification = PatientNotification(patient=patient,advisor_reject= a_request)
+	patient_advisor_reject_notification.save()
 	
 	return HttpResponse('success')	
-	
+#doctor view question send by patient	
 def doctor_view_question_alert(request):
 	context = RequestContext(request)
 	questionid = None 
+	doctor = get_doctor(request.user)
 	if request.method == 'GET':
 		questionid = request.GET['questionid']
 		
@@ -1821,7 +2254,8 @@ def doctor_view_question_alert(request):
 	a_question = QuestionAlert.objects.get(id=questionid)
 	a_question.viewed_by_doctor = True 
 	a_question.save() 
-	
+	doctor_question_alert_notification = DoctorNotification.objects.get(doctor=doctor,question_alert=a_question)
+	doctor_question_alert_notification.delete()
 	return HttpResponse('success')
 		
 def user_changepass(request):
@@ -1831,6 +2265,13 @@ def user_changepass(request):
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
 	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	if request.method == 'POST':
 	
 		new_username = request.POST['user_name']
@@ -1871,7 +2312,7 @@ def patient_edit_weight(request):
 def patient_edit_submit_weight(request, patient_record_id):
 	context = RequestContext(request)
 	context_dict = {}
-	print "helo"
+	
 	patient_record = get_object_or_404(PatientRecord, pk=patient_record_id)
 	
 	if patient_record.patient.user != request.user:
@@ -2203,7 +2644,7 @@ def topic_add(request):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	print "Hello"
 	if doctor:
 		doctor_record = DoctorRecord.objects.get(doctor=doctor)
 		if request.method == 'POST':
@@ -2217,6 +2658,7 @@ def topic_add(request):
 					topic.image = request.FILES['image']
 				
 				topic.save() 
+				print "Topic Create"
 				if category == "condition":
 					condition = Condition(topic=topic) 
 					condition.save()
@@ -2232,10 +2674,20 @@ def topic_add(request):
 					
 				notification = Notification(topic = topic)
 				notification.save()
+				friends = Friend.objects.filter(to_user=doctor.user)
+				for friend in friends:
+					patient = get_patient(friend.from_user)
+					add_topic_notification = AddTopicNotification(to_patient=patient,from_doctor=doctor,topic=topic)
+					add_topic_notification.save() 
+					patient_add_topic_notification = PatientNotification(patient=patient,add_topic=add_topic_notification)
+					patient_add_topic_notification.save()
 				doctor_record.number_create_topic = doctor_record.number_create_topic + 1 
-				return HttpResponseRedirect('/icare/profile/doctor/'+str(request.user.id)+'/')
+				
+				return HttpResponseRedirect('/icare/topic/show/'+str(topic.id)+'/')
 			else:
 				print topic_form.errors 
+				
+				return HttpResponseRedirect('/icare/topic/show/'+str(topic.id)+'/')
 		else:
 			topic_form = TopicForm()
 			context_dict['topic_form']=topic_form 
@@ -2249,6 +2701,7 @@ def add_related_topic(request,topic_id):
 	context_dict = {} 
 	doctor = get_doctor(request.user)
 	related_topic = Topic.objects.get(id=int(topic_id))
+	users_topic_follow = TopicFollow.objects.filter(topic=related_topic)
 	
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
@@ -2283,8 +2736,30 @@ def add_related_topic(request,topic_id):
 					
 				notification = Notification(topic = topic)
 				notification.save()
+				friends = Friend.objects.filter(to_user=doctor.user)
+				#follow by doctor
+				for friend in friends:
+					patient = get_patient(friend.from_user)
+					edit_topic_notification = EditTopicNotification(to_patient=patient,from_doctor=doctor,topic=topic)
+					edit_topic_notification.save()
+					patient_edit_topic_notification = PatientNotification(patient=patient,edit_topic=edit_topic_notification)
+					patient_edit_topic_notification.save()
+				#follow by topic 
+				for user_topic_follow in users_topic_follow:
+					user = user_topic_follow.user 
+					add_topic_related_notification = AddTopicFollowNotification(user=user,from_doctor=doctor,topic=topic,related_topic=related_topic)
+					add_topic_related_notification.save()
+					patient_follow_topic = get_patient(user)
+					if patient_follow_topic:
+						patient_notification = PatientNotification(add_topic_follow_topic=add_topic_related_notification,patient=patient_follow_topic)
+						patient_notification.save()
+					else:
+						doctor_follow_topic = get_doctor(user)
+						doctor_notification = DoctorNotification(add_topic_follow_topic=add_topic_related_notification,doctor=doctor_follow_topic)
+						doctor_notification.save()
 				doctor_record.number_create_topic = doctor_record.number_create_topic + 1 
-				return HttpResponseRedirect('/icare/topic/show/'+str(topic.id)+'/')
+				
+				return HttpResponseRedirect('/icare/topic/show/'+str(related_topic.id)+'/')
 			else:
 				print topic_form.errors 
 		else:
@@ -2307,15 +2782,37 @@ def topic_edit(request,topic_id):
 	
 	if doctor: 
 		topic = Topic.objects.get(id=int(topic_id))
+		users_topic_follow = TopicFollow.objects.filter(topic=topic)
 		if topic.created_doctor != doctor:
 			return HttpResponseForbidden() 
 		if request.method == 'POST':
-			topic_form = TopicForm(request.post, request.FILES, instance=topic) 
+			topic_form = TopicForm(request.POST, request.FILES, instance=topic) 
 			if topic_form.is_valid():
 				if 'image' in request.FILES:	
 					topic.image = request.FILES['image']
-				topic_form.save() 
-				return HttpResponseRedirect('/icare/topic/'+str(topic_id)+'/')
+				topic = topic_form.save()
+				friends = Friend.objects.filter(to_user=doctor.user)
+				#handle patient follow doctor
+				for friend in friends:
+					patient = get_patient(friend.from_user)
+					edit_topic_notification = EditTopicNotification(to_patient=patient,from_doctor=doctor,topic=topic)
+					edit_topic_notification.save()
+					patient_edit_topic_notification = PatientNotification(patient=patient,edit_topic=edit_topic_notification)
+					patient_edit_topic_notification.save()
+				#handles user follow topic 
+				for user_topic_follow in users_topic_follow:
+					user = user_topic_follow.user 
+					edit_topic_follow_notification = EditTopicFollowNotification(user=user,from_doctor=doctor,topic=topic)
+					edit_topic_follow_notification.save()
+					patient_topic_follow = get_patient(user)
+					if patient_topic_follow:
+						patient_notification = PatientNotification(patient=patient_topic_follow,edit_topic_follow_topic=edit_topic_follow_notification)
+						patient_notification.save()
+					else:	
+						doctor_topic_follow = get_doctor(user)
+						doctor_notification = DoctorNotification(doctor=doctor_topic_follow,edit_topic_follow_topic=edit_topic_follow_notification)
+						doctor_notification.save()
+				return HttpResponseRedirect('/icare/topic/show/'+str(topic_id)+'/')
 			else:	
 				print topic_form.errors
 		else:	
@@ -2324,7 +2821,7 @@ def topic_edit(request,topic_id):
 		return render_to_response('icare/content/topic_edit.html',{'topic_form':topic_form,'topic_id':topic_id,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor']},context)
 	else:	
 		return HttpResponse('You need to be a doctor to edit')
-#delete userchecklist 
+
 
 #doctor edit profile 
 
@@ -2366,11 +2863,12 @@ def get_user_list(curruser):
 	if doctor:
 		is_doctor = True
 		userid = doctor.user.id
-		
 	if patient:
 		is_doctor = False
 		userid = patient.user.id
-	return{'curruserid':userid, 'is_doctor': is_doctor}
+	
+	
+	return {'curruserid':userid, 'is_doctor': is_doctor}
 	
 #view advisor doctor 
 def patient_view_advisor(request,patient_id,template=None, extra_context=None):
@@ -2381,6 +2879,13 @@ def patient_view_advisor(request,patient_id,template=None, extra_context=None):
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
 	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	currpatient = get_patient(request.user)
 	patient_user = User.objects.get(id=patient_id)
 	
@@ -2428,7 +2933,7 @@ def patient_view_advisor(request,patient_id,template=None, extra_context=None):
 		context_dict.update(extra_context)
 		
 	return render_to_response(template,context_dict,context)
-	
+#post question to advisor 	
 def question_post_to_advisor(request,doctor_id):
 	context = RequestContext(request)
 	context_dict = {}
@@ -2447,6 +2952,9 @@ def question_post_to_advisor(request,doctor_id):
 			notification.save()
 			question_alert = QuestionAlert(to_doctor=doctor,from_patient=patient)
 			question_alert.save() 
+			doctor_question_notification = DoctorNotification(doctor=doctor,question_alert=question_alert)
+			doctor_question_notification.save()
+			
 			return HttpResponseRedirect('/icare/patient/doctor/advisor/'+str(patient.user.id)+'/')
 		else:
 			print question_form.errors
@@ -2461,7 +2969,13 @@ def doctor_advisor_tab_manage(request,doctor_id):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
-	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	doctor_user = User.objects.get(id=int(doctor_id))
 	doctor = Doctor.objects.get(user=doctor_user)
 	patient_list = Patient.objects.filter(advisor=doctor)
@@ -2484,7 +2998,15 @@ def doctor_manage_advised_patient(request,patient_id):
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
 	
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
 	doctor = get_doctor(request.user)
+	
 	patient = Patient.objects.get(id=int(patient_id))
 	has_question = False 
 	
@@ -2535,7 +3057,8 @@ def doctor_answer_to_advisor(request,question_id):
 			answer.save() 
 			answer_noti = AnswerAlert(from_doctor=doctor, to_patient=patient)
 			answer_noti.save() 
-			
+			patient_answer_notification = PatientNotification(patient=patient,answer_alert=answer_noti)
+			patient_answer_notification.save()
 			return HttpResponseRedirect('/icare/doctor/advised/patient/profile/'+str(patient.id)+'/')
 			
 		else:
@@ -2555,7 +3078,8 @@ def handle_patient_advisor_request(request):
 	
 	a_request = AdvisorRequest(from_patient=patient, to_doctor=doctor)
 	a_request.save()
-	
+	doctor_advisor_request_notification = DoctorNotification(doctor=doctor,advisor_request=a_request)
+	doctor_advisor_request_notification.save()
 	return HttpResponse('success')
 	
 #change question privacy 
@@ -2592,7 +3116,367 @@ def topic_follow(request):
 	user = request.user
 	topic = Topic.objects.get(id=int(topic_id))	
 	
-	topic_follow = TopicFollow.objects.get_or_create(user=user,topic=topic)
+	topic_follow = TopicFollow(user=user,topic=topic)
+	topic_follow.save()
 
-	
 	return HttpResponse('Success')
+	
+def answer_follow_handles(request):
+	context = RequestContext(request)
+	answer_follow_id = None 
+	if request.method =='GET':
+		answer_follow_id = request.GET['answer_follow_id']
+	answer_follow = AnswerNotification.objects.get(id=int(answer_follow_id))
+	answer_follow.viewed_by_patient = True 
+	answer_follow.save() 
+	patient = get_patient(request.user)
+	patient_answer_follow_notification = PatientNotification.objects.get(answer_doctor_follow=answer_follow,patient=patient)
+	patient_answer_follow_notification.delete() 
+	
+	return HttpResponse("Success")
+	
+def add_topic_handles(request):
+	context = RequestContext(request)
+	add_topic_id = None 
+	if request.method == 'GET':
+		add_topic_id = request.GET['add_topic_id']
+		
+	add_topic = AddTopicNotification.objects.get(id=int(add_topic_id))
+	add_topic.viewed_by_patient = True 
+	add_topic.save()
+	patient = get_patient(request.user)
+	add_topic_notification = PatientNotification.objects.get(patient=patient,add_topic=add_topic)
+	add_topic_notification.delete()
+	
+	return HttpResponse("success")
+	
+def edit_topic_handles(request):
+	context = RequestContext(request)
+	edit_topic_id = None 
+	if request.method == 'GET':
+		edit_topic_id = request.GET['edit_topic_id']
+		
+	edit_topic = EditTopicNotification.objects.get(id=int(edit_topic_id))
+	edit_topic.viewed_by_patient = True 
+	edit_topic.save()
+	patient = get_patient(request.user)
+	edit_topic_notification = PatientNotification.objects.get(patient=patient,edit_topic=edit_topic)
+	edit_topic_notification.delete()
+	
+	return HttpResponse("success")
+	
+def add_checklist_handles(request):
+	context = RequestContext(request)
+	add_checklist_id = None 
+	if request.method == 'GET':
+		add_checklist_id = request.GET['add_checklist_id']
+		
+	add_checklist = AddChecklistNotification.objects.get(id=int(add_checklist_id))
+	add_checklist.viewed_by_patient = True 
+	add_checklist.save()
+	patient = get_patient(request.user)
+	add_checklist_notification = PatientNotification.objects.get(patient=patient,add_checklist=add_checklist)
+	add_checklist_notification.delete()
+	
+	return HttpResponse("success")
+	
+def edit_checklist_handles(request):
+	context = RequestContext(request)
+	edit_checklist_id = None 
+	if request.method == 'GET':
+		edit_checklist_id = request.GET['edit_checklist_id']
+		
+	edit_checklist =EditChecklistNotification.objects.get(id=int(edit_checklist_id))
+	edit_checklist.viewed_by_patient = True 
+	edit_checklist.save()
+	patient = get_patient(request.user)
+	edit_checklist_notification = PatientNotification.objects.get(patient=patient,edit_checklist=edit_checklist)
+	edit_checklist_notification.delete()
+	
+	return HttpResponse("success")
+	
+def unanswer_question(request,extra_context=None,template=None):
+	context = RequestContext(request)
+	context_dict  = {} 
+	
+	parameter_index = get_user_list(request.user)
+	context_dict['curruserid'] = parameter_index['curruserid']
+	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
+	
+	questions = Question.objects.filter(privacy=False).order_by('-created_time')
+	list = []
+	for question in questions:
+		dict = {}
+		answered = Answer.objects.filter(related_question=question)
+		if not answered: 
+			print question.title
+			dict['question'] = question 
+			list.append(dict)
+		
+	context_dict['question_index'] = list 
+	answer_form = AnswerForm()
+	context_dict['answer_form'] = answer_form 
+	
+	if extra_context is not None:
+		context_dict.update(extra_context)
+		
+	return render_to_response(template,context_dict,context)
+	
+def answer_first_time(request,question_id):
+	context = RequestContext(request)
+	question = Question.objects.get(id=int(question_id))
+	doctor = get_doctor(request.user)
+	
+	if request.method == 'POST':
+		answer_form = AnswerForm(data=request.POST)
+		if answer_form.is_valid():
+			answer = answer_form.save(commit = False)
+			answer.from_doctor = doctor 
+			answer.related_question = question 
+			answer.save()
+			return HttpResponseRedirect('/icare/question/unanswer_question/')
+		
+		else:
+			print answer_form.errors 
+	else:		
+		return HttpResponseRedirect('/icare/question/unanswer_question/')
+
+def doctor_view_thanks_answer_follow(request):
+	context = RequestContext(request)
+	doctor_thanks_answer_follow_id = None 
+	
+	
+	if request.method == "GET":
+		doctor_thanks_answer_follow_id = request.GET['doctor_thanks_answer_follow_id']
+		
+	thanks_answer = ThankAnswerNotification.objects.get(id=int(doctor_thanks_answer_follow_id))
+	thanks_answer.viewed_by_doctor = True 
+	thanks_answer.save()
+	
+	doctor = get_doctor(request.user)
+	doctor_notification = DoctorNotification.objects.get(doctor=doctor,thank_answer=thanks_answer)
+	doctor_notification.delete()
+	
+	return HttpResponse('success')
+
+def doctor_view_agree_answer_follow(request):
+	context = RequestContext(request)
+	doctor_agree_answer_follow_id = None 
+	
+	
+	if request.method == "GET":
+		doctor_agree_answer_follow_id = request.GET['doctor_agree_answer_follow_id']
+		
+	agree_answer = AgreeAnswerNotification.objects.get(id=int(doctor_agree_answer_follow_id))
+	agree_answer.viewed_by_doctor = True 
+	agree_answer.save()
+	
+	doctor = get_doctor(request.user)
+	doctor_notification = DoctorNotification.objects.get(doctor=doctor,agree_answer=agree_answer)
+	doctor_notification.delete()
+	
+	return HttpResponse('success')
+
+def doctor_view_thanks_checklist_follow(request):
+	context = RequestContext(request)
+	doctor_thanks_checklist_follow_id = None 
+	
+	
+	if request.method == "GET":
+		doctor_thanks_checklist_follow_id = request.GET['doctor_thanks_checklist_follow_id']
+		
+	thanks_checklist = ThankChecklistNotification.objects.get(id=int(doctor_thanks_checklist_follow_id))
+	thanks_checklist.viewed_by_doctor = True 
+	thanks_checklist.save()
+	
+	doctor = get_doctor(request.user)
+	doctor_notification = DoctorNotification.objects.get(doctor=doctor,thank_checklist=thanks_checklist)
+	doctor_notification.delete()
+	
+	return HttpResponse('success')
+
+def doctor_view_agree_checklist_follow(request):
+	context = RequestContext(request)
+	doctor_agree_checklist_follow_id = None 
+	
+	
+	if request.method == "GET":
+		doctor_agree_checklist_follow_id = request.GET['doctor_agree_checklist_follow_id']
+		
+	agree_checklist = AgreeChecklistNotification.objects.get(id=int(doctor_agree_checklist_follow_id))
+	agree_checklist.viewed_by_doctor = True 
+	agree_checklist.save()
+	
+	doctor = get_doctor(request.user)
+	doctor_notification = DoctorNotification.objects.get(doctor=doctor,agree_checklist=agree_checklist)
+	doctor_notification.delete()
+	return HttpResponse('success')
+
+def doctor_view_add_topic_to_topic_follow(request):
+	context = RequestContext(request)
+	doctor_add_related_topic_follow_id = None 
+	if request.method == "GET":
+		doctor_add_related_topic_follow_id = request.GET['doctor_add_related_topic_follow_id']
+	add_topic_follow = AddTopicFollowNotification.objects.get(id=int(doctor_add_related_topic_follow_id))	
+	add_topic_follow.viewed = True 
+	add_topic_follow.save()
+	
+	doctor = get_doctor(request.user)
+	doctor_notification = DoctorNotification.objects.get(doctor=doctor,add_topic_follow_topic=add_topic_follow)
+	doctor_notification.delete()
+	
+	return HttpResponse("success")
+	
+def doctor_view_edit_topic_follow(request):
+	context = RequestContext(request)
+	doctor_edit_topic_follow_id = None 
+	if request.method =="GET":
+		doctor_edit_topic_follow_id = request.GET["doctor_edit_topic_follow_id"]
+	edit_topic_follow = EditTopicFollowNotification.objects.get(id=int(doctor_edit_topic_follow_id))
+	edit_topic_follow.viewed = True 
+	edit_topic_follow.save()
+	doctor = get_doctor(request.user)
+	doctor_notification = DoctorNotification.objects.get(doctor=doctor,edit_topic_follow_topic=edit_topic_follow)
+	doctor_notification.delete()
+	
+	
+	return HttpResponse("Success")
+	
+def doctor_view_add_answer_topic_follow(request):
+	context = RequestContext(request)
+	doctor_add_answer_topic_follow_id = None 
+	if request.method == "GET":
+		doctor_add_answer_topic_follow_id = request.GET["doctor_add_answer_topic_follow_id"]
+	add_answer_topic_follow = AddAnswerTopicFollowNotification.objects.get(id=int(doctor_add_answer_topic_follow_id))
+	add_answer_topic_follow.viewed = True 
+	add_answer_topic_follow.save()
+	doctor = get_doctor(request.user)
+	doctor_notification = DoctorNotification.objects.get(doctor=doctor,add_answer_follow_topic=add_answer_topic_follow)
+	doctor_notification.delete()
+	
+	return HttpResponse("success")
+	
+def doctor_view_add_question_topic_follow(request):
+	context = RequestContext(request)
+	doctor_add_question_topic_follow_id = None 
+	if request.method=="GET":
+		doctor_add_question_topic_follow_id = request.GET["doctor_add_question_topic_follow_id"]
+	add_question_topic_follow = AddQuestionTopicFollowNotification.objects.get(id=int(doctor_add_question_topic_follow_id))
+	add_question_topic_follow.viewed =True 
+	add_question_topic_follow.save() 
+	doctor = get_doctor(request.user)
+	doctor_notification = DoctorNotification.objects.get(doctor=doctor,add_question_follow_topic=add_question_topic_follow)
+	doctor_notification.delete()
+	
+	return HttpResponse("Success")
+
+#hanlde patient topic follow notification 
+def patient_view_add_topic_to_topic_follow(request):
+	context = RequestContext(request)
+	patient_add_related_topic_follow_id = None 
+	if request.method == "GET":
+		patient_add_related_topic_follow_id = request.GET['patient_add_related_topic_follow_id']
+	add_topic_follow = AddTopicFollowNotification.objects.get(id=int(patient_add_related_topic_follow_id))	
+	add_topic_follow.viewed = True 
+	add_topic_follow.save()
+	
+	patient = get_patient(request.user)
+	patient_notification = PatientNotification.objects.get(patient=patient,add_topic_follow_topic=add_topic_follow)
+	patient_notification.delete()
+	
+	return HttpResponse("success")
+	
+def patient_view_edit_topic_follow(request):
+	context = RequestContext(request)
+	patient_edit_topic_follow_id = None 
+	if request.method =="GET":
+		patient_edit_topic_follow_id = request.GET["patient_edit_topic_follow_id"]
+	edit_topic_follow = EditTopicFollowNotification.objects.get(id=int(patient_edit_topic_follow_id))
+	edit_topic_follow.viewed = True 
+	edit_topic_follow.save()
+	patient = get_patient(request.user)
+	patient_notification = PatientNotification.objects.get(patient=patient,edit_topic_follow_topic=edit_topic_follow)
+	patient_notification.delete()
+	
+	
+	return HttpResponse("Success")
+	
+def patient_view_add_answer_topic_follow(request):
+	context = RequestContext(request)
+	patient_add_answer_topic_follow_id = None 
+	if request.method == "GET":
+		patient_add_answer_topic_follow_id = request.GET["patient_add_answer_topic_follow_id"]
+	add_answer_topic_follow = AddAnswerTopicFollowNotification.objects.get(id=int(patient_add_answer_topic_follow_id))
+	add_answer_topic_follow.viewed = True 
+	add_answer_topic_follow.save()
+	patient = get_patient(request.user)
+	patient_notification = PatientNotification.objects.get(patient=patient,add_answer_follow_topic=add_answer_topic_follow)
+	patient_notification.delete()
+	
+	return HttpResponse("success")
+	
+def patient_view_add_question_topic_follow(request):
+	context = RequestContext(request)
+	patient_add_question_topic_follow_id = None 
+	if request.method=="GET":
+		patient_add_question_topic_follow_id = request.GET["patient_add_question_topic_follow_id"]
+	add_question_topic_follow = AddQuestionTopicFollowNotification.objects.get(id=int(patient_add_question_topic_follow_id))
+	add_question_topic_follow.viewed =True 
+	add_question_topic_follow.save() 
+	patient = get_patient(request.user)
+	patient_notification = PatientNotification.objects.get(patient=patient,add_question_follow_topic=add_question_topic_follow)
+	patient_notification.delete()
+	
+	return HttpResponse("Success")
+
+def feedback(request):
+	context = RequestContext(request)
+	context_dict = {}
+	parameter_index = get_user_list(request.user)
+	context_dict['curruserid'] = parameter_index['curruserid']
+	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
+	if not parameter_index['is_doctor']:
+		patient = get_patient(request.user)
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		doctor = get_doctor(request.user)
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
+	context_dict['unread_notification'] = unread_notification 
+	if request.method == "POST":
+		feedback_form = FeedbackForm(data=request.POST)
+		if feedback_form.is_valid():
+			feedback_form.save()
+			return HttpResponseRedirect("/icare/about/")
+		else:
+			print feedback_form.errors 
+	else:
+		feedback_form = FeedbackForm() 
+		context_dict['feedback_form'] = feedback_form 
+		return render_to_response('icare/content/about.html',context_dict,context)
+		
+def agree_topic(request):	
+	topic_id = None 
+	if request.method == "GET":	
+		topic_id = request.GET['topic_id']
+	doctor = get_doctor(request.user)
+	topic = Topic.objects.get(id=topic_id)
+	topic_agree_check = TopicAgree.objects.filter(topic=topic,doctor=doctor).count()
+	
+	if topic_agree_check == 1:
+		topic_agree_old = TopicAgree.objects.get(topic=topic,doctor=doctor)
+		topic_agree_old.delete()
+		topic.agree = topic.agree - 1 
+		topic.save()
+	else:
+		topic.agree = topic.agree+1 
+		topic.save()
+		topic_agree = TopicAgree.objects.get_or_create(doctor=doctor,topic=topic)
+	
+	return HttpResponse("success")

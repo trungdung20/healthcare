@@ -1,0 +1,35 @@
+{% load endless %}
+{% paginate question_index %}
+{% if question_index %}
+<div class="container-fluid">
+<div class="panel-group">
+{% for question in question_index %}
+	<div class="panel panel-default">
+	<div class="panel-heading">
+	
+	<h5>{{question.question.title}}</h5>
+	</div>
+	<div class="panel-body">
+			<form role="form" id="answer_post" method="POST" action="/icare/question/answer_unanswer_question/{{question.question.id}}/"
+				enctype="multipart/form-data">
+			{% csrf_token %}
+			<div class="form-group">
+			
+				
+					{{answer_form.detail.errors}}
+					{{answer_form.detail}}
+			</div>
+			
+			<div>
+			<input class="btn btn-primary" type="submit" name="submit" value="Answer"/>
+			</form>
+		</div>
+	</div>
+	</div>
+{% endfor %}
+</div>
+</div>
+{% else %}
+<h5>No question present</h5>
+{% endif%}
+{% show_more %}

@@ -2,10 +2,11 @@
 
 {% block body_block %}
 <div class="container-fluid">
-	
+<div class="panel-group">
 		{% for list_item in list %}
 		{% if list_item.is_unrejected_request %}
-		<div class="alert alert-success" id="patient_friend_request{{list_item.unrejected_request.id}}" >
+		<div class="panel panel-default" id="patient_friend_request{{list_item.unrejected_request.id}}" >
+		<div class="panel panel-body">
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				
@@ -16,7 +17,7 @@
                   
 				</div>
 				<div class="col-sm-7">
-				<h4><a href="/icare/profile/patient/{{list_item.unrejected_request.id}}/">{{list_item.unrejected_request.name}}</a> has sent care patient request</h4>
+				<p><a href="/icare/profile/patient/{{list_item.unrejected_request.id}}/">{{list_item.unrejected_request.name}}</a> has sent care patient request</p>
 				</div>
 				
 				
@@ -26,11 +27,13 @@
 				<a class="btn btn-sm btn-danger" type="button" id="patient_reject" data-id="{{list_item.unrejected_request.id}}">Reject</a>
 				</div>
 			</div>
-		</div><hr/>
+		</div>
+		</div><br/>
 		{% endif %}
 		
 		{% if list_item.is_rejected_request %}
-		<div class="alert alert-danger" id="patient_friend_reject{{list_item.rejected_request.id}}">
+		<div class="panel panel-default" id="patient_friend_reject{{list_item.rejected_request.id}}">
+		<div class="panel-body">
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				
@@ -41,20 +44,22 @@
                   
 				</div>
 				<div class="col-sm-7">
-				<h4><a href="/icare/profile/doctor/{{list_item.rejected_request.id}}/">{{list_item.rejected_request.name}}</a> has rejected care doctor request</h4>
+				<p><a href="/icare/profile/doctor/{{list_item.rejected_request.id}}/">{{list_item.rejected_request.name}}</a> has rejected care doctor request</p>
 				</div>
 				
 				
 				<div class="col-sm-3">
-				<a class="btn btn-sm btn-info" type="button" id="patient_view_rejected" data-id="{{list_item.rejected_request.id}}">View</a>
+				<a class="btn btn-sm btn-info" type="button" id="patient_view_rejected" data-id="{{list_item.rejected_request.id}}">Mark as read</a>
 				
 				</div>
 			</div>
-		</div><hr/>
+			</div>
+		</div><br/>
 		{% endif %}
 		
 		{% if list_item.is_accepted_request %}
-		<div class="alert alert-success" id="patient_friend_accept{{list_item.accepted_request.id}}">
+		<div class="panel panel-default" id="patient_friend_accept{{list_item.accepted_request.id}}">
+		<div class="panel-body">
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				
@@ -65,20 +70,22 @@
                   
 				</div>
 				<div class="col-sm-7">
-				<h4><a href="/icare/profile/patient/{{list_item.accepted_request.id}}/">{{list_item.accepted_request.name}}</a> has accepted care doctor request</h4>
+				<p><a href="/icare/profile/patient/{{list_item.accepted_request.id}}/">{{list_item.accepted_request.name}}</a> has accepted care doctor request</p>
 				</div>
 				
 				
 				<div class="col-sm-3">
-				<a class="btn btn-sm btn-info" type="button" id="patient_view_accepted" data-id="{{list_item.accepted_request.id}}">View</a>
+				<a class="btn btn-sm btn-info" type="button" id="patient_view_accepted" data-id="{{list_item.accepted_request.id}}">Mark as read</a>
 				
 				</div>
 			</div>
-		</div><hr/>
+		</div>
+		</div><br/>
 		{% endif %}
 		
 		{% if list_item.is_advisor_request %}
-		<div class="alert alert-success" id="patient_advisor_request{{list_item.advisor_request.id}}">
+		<div class="panel panel-default" id="patient_advisor_request{{list_item.advisor_request.id}}">
+		<div class="panel-body">
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				
@@ -88,7 +95,7 @@
 				    {% endif %}
                 </div>
 				<div class="col-sm-7">
-				<h4><a href="/icare/profile/patient/{{doctor_user.id}}/">{{list_item.advisor_request.name}}</a> has send advisor request</h4>
+				<p><a href="/icare/profile/patient/{{doctor_user.id}}/">{{list_item.advisor_request.name}}</a> has send advisor request</p>
 				</div>
 				
 				
@@ -97,11 +104,14 @@
 				<a class="btn btn-sm btn-danger" type="button" id="patient_advisor_reject" data-id="{{list_item.advisor_request.id}}">Reject</a>
 				</div>
 			</div>
-		</div><hr/>
+			</div>
+			
+		</div><br/>
 		{% endif %}
 		
 		{% if list_item.is_question_alert %}
-		<div class="alert alert-success" id="patient_question_alert{{list_item.question_alert.id}}">
+		<div class="panel panel-default" id="patient_question_alert{{list_item.question_alert.id}}">
+		<div class="panel-body">
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				
@@ -112,20 +122,185 @@
                 </div>
 				
 				<div class="col-sm-7">
-				<h4><a href="/icare/profile/patient/{{list_item.question_alert.from_patient.id}}/">{{list_item.question_alert.from_patient.name}}</a> has send a question</h4>
+				<p><a href="/icare/profile/patient/{{list_item.question_alert.from_patient.user.id}}/">{{list_item.question_alert.from_patient.name}}</a> has send a question</p>
 				</div>
 				
 				
 				<div class="col-sm-3">
 				
-				<a class="btn btn-sm btn-info" type="button" id="patient_question_alert" data-id="{{list_item.question_alert.id}}">View</a>
+				<a class="btn btn-sm btn-info" type="button" id="patient_question_alert" data-id="{{list_item.question_alert.id}}">Mark as read</a>
 				
 				</div>
 			</div>
+			</div>
+		</div><br/>
+		{% endif %}
+		
+		{% if list_item.is_thanks_answer %}
+		<div class="panel panel-default" id="doctor_thanks_answer{{list_item.thanks_answer.id}}">
+		<div class="panel-body">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				{% if list_item.thanks_answer.from_patient.patient_image %}
+					<img width="30" height="30" class="img-responsive" src="/media/{{list_item.thanks_answer.from_patient.patient_image}}"/>
+				{% endif %}
+				</div>
+				<div class="col-sm-7">
+				<p><a href="/icare/profile/patient/{{list_item.thanks_answer.from_patient.user.id}}/">{{list_item.thanks_answer.from_patient.name}}</a> has thanks your answer in <a href="/icare/question/show/{{list_item.thanks_answer.answer.related_question.id}}/">{{list_item.thanks_answer.answer.related_question.title|truncatewords:5}}</p>
+				</div>
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="doctor_thanks_answer_alert" data-id="{{list_item.thanks_answer.id}}">Mark as read</a>
+				</div>
+			</div>
+		</div>
+		</div><br/>
+		{% endif %}
+		
+		{% if list_item.is_agree_answer %}
+		<div class="panel panel-default" id="doctor_agree_answer{{list_item.agree_answer.id}}">
+		<div class="panel-body">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				{% if list_item.agree_answer.from_doctor.doctor_image %}
+					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.agree_answer.from_doctor.doctor_image}}"/>
+				{% endif %}
+				</div>
+				<div class="col-sm-7">
+				<p><a href="/icare/profile/doctor/{{list_item.agree_answer.from_doctor.user.id}}/">{{list_item.agree_answer.from_doctor.name}}</a> has agree your answer in <a href="/icare/question/show/{{list_item.agree_answer.answer.related_question.id}}/">{{list_item.agree_answer.answer.related_question.title|truncatewords:5}}</p>
+				</div>
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="doctor_agree_answer_alert" data-id="{{list_item.agree_answer.id}}">Mark as read</a>
+				</div>
+			</div>
+		</div>
+		</div><br/>
+		{% endif%}
+		
+		{% if list_item.is_agree_checklist %}
+		<div class="panel panel-default" id="doctor_agree_checklist{{list_item.agree_checklist.id}}">
+		<div class="panel-body">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				{% if list_item.agree_checklist.from_doctor.doctor_image %}
+					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.agree_checklist.from_doctor.doctor_image}}"/>
+				{% endif %}
+				</div>
+				<div class="col-sm-7">
+				<p><a href="/icare/profile/doctor/{{list_item.agree_checklist.from_doctor.user.id}}/">{{list_item.agree_checklist.from_doctor.name}}</a> has agree your health checklist in <a href="/icare/{{list_item.agree_checklist.checklist.related_goal.id}}/check_lists/">{{list_item.agree_checklist.checklist.related_goal.title|truncatewords:5}}</p>
+				</div>
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="doctor_agree_checklist_alert" data-id="{{list_item.agree_checklist.id}}">Mark as read</a>
+				</div>
+			</div>
+		</div>
+		</div><br/>
+		{% endif %}
+		
+		{% if list_item.is_thanks_checklist %}
+		<div class="panel panel-default" id="doctor_thanks_checklist{{list_item.thanks_checklist.id}}">
+		<div class="panel-body">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				{% if list_item.thanks_checklist.from_patient.patient_image %}
+					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.thanks_checklist.from_patient.patient_image}}"/>
+				{% endif %}
+				</div>
+				<div class="col-sm-7">
+				<p><a href="/icare/profile/patient/{{list_item.thanks_checklist.from_doctor.user.id}}/">{{list_item.thanks_checklist.from_patient.name}}</a> has thanks your health checklist in <a href="/icare/{{list_item.thanks_checklist.checklist.related_goal.id}}/check_lists/">{{list_item.thanks_checklist.checklist.related_goal.title|truncatewords:5}}</p>
+				</div>
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="doctor_thanks_checklist_alert" data-id="{{list_item.thanks_checklist.id}}">Mark as read</a>
+				</div>
+			</div>
+		</div>
+		</div><br/>
+		{% endif %}
+		
+		{% if list_item.is_add_related_topic_follow %}
+		<div class="panel panel-default" id="doctor_add_related_topic_follow{{list_item.add_related_topic_follow.id}}">
+		<div class="panel-body">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				{% if list_item.add_related_topic_follow.from_doctor.doctor_image %}
+					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.add_related_topic_follow.from_doctor.doctor_image}}"/>
+				{% endif %}
+				</div>
+				<div class="col-sm-7">
+				<p><a href="/icare/profile/doctor/{{list_item.add_related_topic_follow.from_doctor.user.id}}/">{{list_item.add_related_topic_follow.from_doctor.name}}</a> has add <a href="/icare/topic/show/{{list_item.add_related_topic_follow.topic.id}}/">{{list_item.add_related_topic_follow.topic.title|truncatewords:5}}</a> topic that related to <a href="/icare/topic/show/{{list_item.add_related_topic_follow.related_topic.id}}/">{{list_item.add_related_topic_follow.related_topic.title|truncatewords:5}}</p>
+				</div>
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="doctor_add_related_topic_follow_alert" data-id="{{list_item.add_related_topic_follow.id}}">Mark as read</a>
+				</div>
+			</div>
+		</div>
 		</div><hr/>
 		{% endif %}
 		
+		
+		{% if list_item.is_edit_topic_follow %}
+		<div class="panel panel-default" id="doctor_edit_topic_follow{{list_item.edit_topic_follow.id}}">
+		<div class="panel-body">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				{% if list_item.edit_topic_follow.from_doctor.doctor_image %}
+					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.edit_topic_follow.from_doctor.doctor_image}}"/>
+				{% endif %}
+				</div>
+				<div class="col-sm-7">
+				<p><a href="/icare/profile/doctor/{{list_item.edit_topic_follow.from_doctor.user.id}}/">{{list_item.edit_topic_follow.from_doctor.name}}</a> has edit <a href="/icare/topic/show/{{list_item.edit_topic_follow.topic.id}}/">{{list_item.edit_topic_follow.topic.title|truncatewords:5}} topic</p>
+				</div>
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="doctor_edit_topic_follow_alert" data-id="{{list_item.edit_topic_follow.id}}">Mark as read</a>
+				</div>
+			</div>
+		</div>
+		</div><hr/>
+		{% endif %}
+		
+		{% if list_item.is_add_answer_topic_follow %}
+		<div class="panel panel-default" id="doctor_add_answer_topic_follow{{list_item.add_answer_topic_follow.id}}">
+		<div class="panel-body">
+			<div class="row-fluid">
+				<div class="col-sm-2">
+				{% if list_item.add_answer_topic_follow.from_doctor.doctor_image %}
+					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.add_answer_topic_follow.from_doctor.doctor_image}}"/>
+				{% endif %}
+				</div>
+				<div class="col-sm-7">
+				<p><a href="/icare/profile/doctor/{{list_item.add_answer_topic_follow.from_doctor.user.id}}/">{{list_item.add_answer_topic_follow.from_doctor.name}}</a> has add a answer to <a href="/icare/question/show/{{list_item.add_answer_topic_follow.asnwer.related_question.id}}/">{{list_item.add_answer_topic_follow.answer.related_question.title|truncatewords:7}} that related to <a href="/icare/topic/show/{{list_item.add_answer_topic_follow.topic.id}}/">{{list_item.add_answer_topic_follow.topic.title|truncatewords:3}} topic your follow</p>
+				</div>
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="doctor_add_answer_topic_follow_alert" data-id="{{list_item.add_answer_topic_follow.id}}">Mark as read</a>
+				</div>
+			</div>
+		</div>
+		</div><br/>
+		{% endif %}
+		
+		{% if list_item.is_add_question_topic_follow %}
+		<div class="panel panel-default" id="doctor_add_question_topic_follow{{list_item.add_question_topic_follow.id}}">
+		<div class="panel-body">
+			<div class="row-fluid">
+				<div class="col-sm-9">
+				<p>A user has add question <a href="/icare/question/show/{{list_item.add_question_topic_follow.question.id}}/">{{list_item.add_question_topic_follow.question.title|truncatewords:5}}</a>that related to <a href="/icare/topic/show/{{list_item.add_question_topic_follow.topic.id}}/">{{list_item.add_quesiton_topic_follow.topic.title|truncatewords:3}} topic your follow</p>
+				</div>
+				
+				<div class="col-sm-3">
+				<a class="btn btn-sm btn-info" type="button" id="doctor_add_question_topic_follow_alert" data-id="{{list_item.add_question_topic_follow.id}}">Mark as read</a>
+				</div>
+			</div>
+		</div>
+		</div><br/>
+		{% endif %}
+		
 		{% endfor %}
-	
+</div>
 	</div>
 {% endblock %}

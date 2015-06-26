@@ -1,8 +1,9 @@
 {% extends 'icare/base_main.html' %}
 {% load bootstrap_toolkit %}
 {% block body_block %}
-{% if has_advisor %}
 <div class="container-fluid">
+{% if has_advisor %}
+
 		
 		<div class="panel panel-info">
 		<div class="panel-heading">
@@ -32,7 +33,7 @@
 			
 		</div>
 		</div>
-	<div class="container-fluid">
+	
 	<div class ="panel panel-default">
 		<div class="panel-body">
 			<h4>Ask a Question</h4>
@@ -47,20 +48,20 @@
 			</form>
 		</div>
 	</div>
-	</div>
+	
 		
 		
 		
 		
 	
-</div>	
+
 {% else %}
 <div class="cotainer-fluid">
 <strong>You have no advisor</strong>
 <br/>
 </div>
 {% endif %}
-<div class="container-fluid">
+
 	
 	<div class="panel panel-default">
 		<div class="panel-heading">
@@ -70,6 +71,7 @@
 		
 		{% include page_template %}
 	
+
 </div>
 {% endblock %}
 

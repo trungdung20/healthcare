@@ -167,8 +167,8 @@ $(document.body).on('submit','#new_item_submit',function(event){
 		url:$(this).attr('action'),
 		dataType: 'html',
 		success: function(response){
-			$("#new_item_submit").empty();
-			$("#item_save_alert").html(response);
+			$("#new_item_submit").remove();
+			$("#item_save_alert").append(response);
 				
 		}
 	});

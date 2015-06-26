@@ -43,7 +43,8 @@
 			<div class ="col-sm-10">
 			<li>
 				<h5>{{item.title}}</h5>
-				<h5><small><p class="text-muted"> {{item.frequency}}  <p>Priority {{item.priority}}</p>   {% if item.completed %}<p> Done</p> {% else %}<p id="complete_item{{item.id}}"> not complete </p>{% endif%}</p></small></h5>
+				<h5><small><p class="text-muted"> {{item.frequency}}  <p>Priority {{item.priority}}</p>   {% if item.completed %}<span class="checkmark"><div class="checkmark_circle"></div><div class="checkmark_stem"></div>
+    <div class="checkmark_kick"></div></span> {% else %}<p id="complete_item{{item.id}}"> not complete </p>{% endif%}</p></small></h5>
 			</div>
 			</li>
 			<div class="col-sm-2">

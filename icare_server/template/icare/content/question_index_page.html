@@ -7,16 +7,16 @@
 	
 	{% if notification.is_question %}
 	{% if not notification.is_private %}
-	<div class="panel panel-info">
+	<div class="panel panel-default">
 		<div class="panel-heading">
 			
-			<h5>
+			<h6>
 			{{notification.question_object.title}} 
-			</h5>
+			</h6>
 			<h6>
 			<a>{{notification.answer_count}}</a> answers
 			</h6>
-			
+			<hr/>
 		</div>
 		
 		
@@ -55,25 +55,27 @@
 		</div>
 	
 	</div > 
+	<br/>
 	{% endif %}
 	{% endif %}	
-	<br/>
+	
 	{% if notification.is_topic %}
-	<div class="panel panel-info">
+	<div class="panel panel-default">
 	<div class="panel-heading">
 		{% if notification.topic_object.related_doctor %}
 		<div class="container-fluid">
-			<div class="col-sm-2">
-			{% if notification.topic_object.related_doctor.doctor_image %}
-			<img src="/media/{{notification.topic_object.related_doctor.doctor_image}}/" class="img-responsive" width="60" height="60">
 			
-			{% endif %}
+			{% if notification.topic_object.related_doctor.doctor_image %}
+			<div class="col-sm-2">
+			<img src="/media/{{notification.topic_object.related_doctor.doctor_image}}/" class="img-responsive" width="60" height="60">
 			</div>
-			<div class="col-sm-4">
+			{% endif %}
 			{% if  notification.topic_object.related_doctor%}
+			<div class="col-sm-4">
 			<a href="/icare/profile/doctor/{{notification.topic_object.related_doctor.user.id}}/">{{notification.topic_object.related_doctor.name}}</a> has created
-			{% endif %}
 			</div>
+			{% endif %}
+			
 			
 		</div>
 		{% endif %}
@@ -82,16 +84,19 @@
 		<a href="/icare/topic/show/{{notification.topic_object.id}}/">{{notification.topic_object.title}}</a>
 		</h5>
 		</div>
+		<hr/>
 	</div>
-	<br/>
+	
 	<div class="panel-body">
-		<a>In Brief</a>
+		
+		<p>In Brief</p>
 		<br/>
 		<p>{{notification.topic_object.definition}}</p>
 	</div>
 	</div>
-	{% endif %}
 	<br/>
+	{% endif %}
+	
 	{% if notification.is_checklist %}
 		<div class="panel panel-info">
 		<div class="panel-heading">
@@ -130,6 +135,7 @@
 		</div>
 		</div>
 		</div>
+		<br/>
 	{% endif %}
 	
 {% endfor %}

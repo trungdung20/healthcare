@@ -193,7 +193,7 @@ class AdvisorRequest(models.Model):
 	viewed_by_doctor = models.BooleanField(default= False)
 	accepted = models.BooleanField(default = False)
 	def __unicode__(self):
-		return "patient %s advisor request %s "%(self.from_patient.id,self.to_doctor.id)
+		return "patient %s advisor request %s "%(self.from_patient.name,self.to_doctor.name)
 
 		
 class FriendShipRequest(models.Model):
@@ -212,7 +212,7 @@ class FriendShipRequest(models.Model):
 		unique_together = ('from_user','to_user')
 		
 	def __unicode__(self):
-		return "user %d friendship request %d"%(self.from_user.id, self.to_user.id)
+		return "user %s friendship request %s"%(self.from_user.username, self.to_user.username)
 	
 	def accept(self):
 		# accept this friendship request 
@@ -331,7 +331,7 @@ class Friend(models.Model):
 		unique_together = ('from_user','to_user')
 		
 	def __unicode__(self):
-		return "User #%d is friends with #%d"%(self.to_user.id,self.from_user.id)
+		return "User %s is friends with %s"%(self.to_user.username,self.from_user.username)
 		
 	def save(self, *args, **kwargs):
 		# Ensure users can't be friends with themselves 
@@ -368,23 +368,32 @@ class Goal(models.Model):
 		
 		
 class Topic(models.Model):
-	related_topic = models.ManyToManyField('self',related_name = 'topics')
+	related_topic = models.ManyToManyField('self',related_name = 'topics',blank=True)
 	title = models.CharField(max_length = 128,unique = True)
 	definition = models.TextField()
 	image = models.ImageField(null= True , blank = True, upload_to='topic_images')
-	image_description = models.CharField(max_length=500)
-	related_goal = models.ManyToManyField(Goal,null=True,blank=True)
+	image_description = models.CharField(max_length=500,null= True , blank = True)
+	related_goal = models.ManyToManyField(Goal,blank=True)
 	created_doctor = models.ForeignKey(Doctor,blank=True, null=True)
 	create_time = models.DateTimeField(auto_now_add=True)
+	agree = models.IntegerField(default=0)
 	def __unicode__(self):
 		return self.title 
 		
 class TopicFollow(models.Model):
 	user = models.ForeignKey(User)
 	topic = models.ForeignKey(Topic)
+	created = models.DateTimeField(auto_now_add=True)
+	def __unicode__(self):
+		return "user %s follow topic %s"%(self.user.username,self.topic.title)
+		
+class TopicAgree(models.Model):
+	doctor = models.ForeignKey(Doctor)
+	topic = models.ForeignKey(Topic)
 	
 	def __unicode__(self):
-		return "user %d follow topic %d"%(self.user.username,self.topic.title)
+		return "doctor %s has agree on %s"%(self.doctor.name,self.topic.title)
+		
 class CheckList(models.Model):
 	#title = models.CharField(max_length=128, unique=True)
 	use = models.IntegerField(default=0)
@@ -453,7 +462,7 @@ class UserChecklistIndex(models.Model):
 	checklist = models.ForeignKey(CheckList)
 	
 	def __unicode__(self):
-		return "Patient %d 's checlist %d"%(self.user.name,self.checklist.id)
+		return "Patient %s 's checlist %d"%(self.user.name,self.checklist.id)
 		
 class Medication(models.Model):
 	topic = models.OneToOneField(Topic, primary_key = True)
@@ -498,12 +507,13 @@ class Procedure(models.Model):
 class Question(models.Model):
 	title = models.CharField(max_length=800)
 	created_patient = models.ForeignKey(Patient,null=True,blank=True)
-	related_topic = models.ManyToManyField(Topic, related_name = 'topic_questions',null=True,blank=True)
+	related_topic = models.ForeignKey(Topic, related_name = 'topic_questions',null=True,blank=True)
 	related_goal = models.ForeignKey(Goal,related_name = 'goal_questions',null=True,blank=True)
 	created_time = models.DateTimeField(auto_now_add = True)
 	to_doctor = models.ForeignKey(Doctor,null=True,blank=True)
 	
 	privacy = models.BooleanField(default=False)
+	
 	def __unicode__(self):
 		return self.title
 		
@@ -517,7 +527,17 @@ class Answer(models.Model):
 	
 	def __unicode__(self):
 		return self.detail 
-        
+		
+class AnswerNotification(models.Model):
+	doctor = models.ForeignKey(Doctor)
+	to_patient = models.ForeignKey(Patient)
+	answer = models.ForeignKey(Answer)
+	created = models.DateTimeField(auto_now_add=False)
+	viewed_by_patient = models.BooleanField(default=False)
+	
+	def __unicode__(self):
+		return "doctor %s answer %d"%(self.doctor.name,self.answer.id)
+		
 class ThanksAnswer(models.Model):
     answer = models.ForeignKey(Answer)
     patient = models.ForeignKey(Patient)
@@ -562,3 +582,170 @@ class Notification(models.Model):
 	
 	def __unicode__(self):
 		return "Create on %d" % self.date_time
+#add related topic follow notification 
+class AddTopicFollowNotification(models.Model):
+	user = models.ForeignKey(User)
+	from_doctor = models.ForeignKey(Doctor)
+	topic = models.ForeignKey(Topic,related_name="origin_topic_follow")
+	related_topic = models.ForeignKey(Topic,related_name="related_topic_follow")
+	created = models.DateTimeField(auto_now_add=True)
+	viewed = models.BooleanField(default=False)
+	
+	def __unicode__(self):
+		return "doctor %s add topic %s to user %s"%(self.from_doctor.name,self.topic.title,self.user.username)
+
+class EditTopicFollowNotification(models.Model):
+	user = models.ForeignKey(User)
+	from_doctor = models.ForeignKey(Doctor)
+	topic = models.ForeignKey(Topic)
+	created = models.DateTimeField(auto_now_add=True)
+	viewed = models.BooleanField(default=False)
+	
+	def __unicode__(self):
+		return "doctor %s edit topic %s to user %s"%(self.from_doctor.name,self.topic.title,self.user.username)
+class AddAnswerTopicFollowNotification(models.Model):
+	user = models.ForeignKey(User)
+	from_doctor = models.ForeignKey(Doctor)
+	topic = models.ForeignKey(Topic)
+	answer = models.ForeignKey(Answer)
+	created = models.DateTimeField(auto_now_add=True)
+	viewed = models.BooleanField(default=False)
+	def __unicode__(self):
+		return "doctor %s answer %d to topic %s to user %s"%(self.from_doctor.name,self.answer.id,self.topic.title,self.user.username)
+		
+class AddQuestionTopicFollowNotification(models.Model):
+	user = models.ForeignKey(User)
+	question = models.ForeignKey(Question)
+	topic = models.ForeignKey(Topic)
+	created = models.DateTimeField(auto_now_add=True)
+	viewed = models.BooleanField(default=False)
+	
+	def __unicode__(self):
+		return "question %s add to topic %s to user %s"%(self.question.title,self.topic.title,self.user.username)		
+#handle checklist notification 
+class ThankChecklistNotification(models.Model):
+	from_patient = models.ForeignKey(Patient)
+	to_doctor = models.ForeignKey(Doctor)
+	checklist = models.ForeignKey(CheckList)
+	viewed_by_doctor = models.BooleanField(default=False)
+	created = models.DateTimeField(auto_now_add=True)
+	
+	def __unicode__(self):
+		return "patient %s has thank you on checklist %s"%(self.from_patient.name,self.checklist.related_goal.title)
+
+class AgreeChecklistNotification(models.Model):
+	from_doctor = models.ForeignKey(Doctor,related_name="from_doctor_agree")
+	to_doctor = models.ForeignKey(Doctor,related_name="to_doctor_view")
+	checklist = models.ForeignKey(CheckList)
+	viewed_by_doctor = models.BooleanField(default=False)
+	created = models.DateTimeField(auto_now_add=True)
+	
+	def __unicode__(self):
+		return "doctor %s has thank you on checklist %s"%(self.from_doctor.name,self.checklist.related_goal.title)
+#handle answer interact notification 
+class ThankAnswerNotification(models.Model):
+	from_patient = models.ForeignKey(Patient)
+	to_doctor = models.ForeignKey(Doctor)
+	answer = models.ForeignKey(Answer)
+	viewed_by_doctor = models.BooleanField(default=False)
+	created = models.DateTimeField(auto_now_add=True)
+	
+	def __unicode__(self):
+		return "patient %s has thank your on %d answer "%(self.from_patient.name,self.answer.id)
+
+class AgreeAnswerNotification(models.Model):
+	from_doctor = models.ForeignKey(Doctor,related_name="from_doctor_agree_answer")
+	to_doctor = models.ForeignKey(Doctor,related_name="to_doctor_view_asnwer")
+	answer = models.ForeignKey(Answer)
+	viewed_by_doctor = models.BooleanField(default=False)
+	created = models.DateTimeField(auto_now_add=True)
+	
+	def __unicode__(self):
+		return "doctor %s has agree your on %d answer "%(self.from_doctor.name,self.answer.id)
+# doctor add topic notification 		
+class AddTopicNotification(models.Model):
+	to_patient = models.ForeignKey(Patient)
+	from_doctor = models.ForeignKey(Doctor)
+	topic = models.ForeignKey(Topic)
+	created = models.DateTimeField(auto_now_add=True)
+	viewed_by_patient = models.BooleanField(default=False)
+	def __unicode__(self):
+		return "doctor %s topic %s add to patient %s"%(self.from_doctor.name,self.topic.title,self.to_patient.name)
+		
+class EditTopicNotification(models.Model):
+	to_patient = models.ForeignKey(Patient)
+	from_doctor = models.ForeignKey(Doctor)
+	topic = models.ForeignKey(Topic)
+	created = models.DateTimeField(auto_now_add=True)
+	viewed_by_patient = models.BooleanField(default=False)
+	def __unicode__(self):
+		return "doctor %s topic %s edit to patient %s"%(self.from_doctor.name,self.topic.title,self.to_patient.name)
+		
+class DoctorNotification(models.Model):
+	 doctor = models.ForeignKey(Doctor)
+	 
+	 thank_checklist = models.ForeignKey(ThankChecklistNotification,null=True,blank=True)
+	 agree_checklist = models.ForeignKey(AgreeChecklistNotification,null=True,blank=True)
+	 thank_answer = models.ForeignKey(ThankAnswerNotification,null=True,blank=True)
+	 agree_answer = models.ForeignKey(AgreeAnswerNotification,null=True,blank=True)
+	 add_topic_follow_topic = models.ForeignKey(AddTopicFollowNotification,null=True,blank=True)
+	 edit_topic_follow_topic = models.ForeignKey(EditTopicFollowNotification,null=True,blank=True)
+	 add_question_follow_topic = models.ForeignKey(AddQuestionTopicFollowNotification,null=True,blank=True)
+	 add_answer_follow_topic = models.ForeignKey(AddAnswerTopicFollowNotification,null=True,blank=True)
+	 question_alert = models.ForeignKey(QuestionAlert, null=True,blank=True)
+	 advisor_request = models.ForeignKey(AdvisorRequest, null=True,blank=True)
+	 friend_request = models.ForeignKey(FriendShipRequest,related_name="doctor_friend_request_notification", null=True,blank=True)
+	 friend_accept = models.ForeignKey(FriendShipRequest,related_name="doctor_friend_accept_notification", null=True,blank=True)
+	 friend_reject = models.ForeignKey(FriendShipRequest,related_name="doctor_friend_reject_notification", null=True,blank=True)
+	 def __unicode__(self):
+		 return "doctor %s notification %d"%(self.doctor.name,self.id)
+		
+class EditChecklistNotification(models.Model):
+	to_patient = models.ForeignKey(Patient)
+	from_doctor = models.ForeignKey(Doctor)
+	checklist = models.ForeignKey(CheckList)
+	created = models.DateTimeField(auto_now_add=True)
+	viewed_by_patient = models.BooleanField(default=False)
+	
+	def __unicode__(self):
+		return "doctor %s checklist %s add to patient %s"%(self.from_doctor.name,self.checklist.id,self.to_patiet.name)
+
+class AddChecklistNotification(models.Model):
+	to_patient = models.ForeignKey(Patient)
+	from_doctor = models.ForeignKey(Doctor)
+	checklist = models.ForeignKey(CheckList)
+	created = models.DateTimeField(auto_now_add=True)
+	viewed_by_patient = models.BooleanField(default=False)
+	
+	def __unicode__(self):
+		return "doctor %d checklist %s edit to patient %s"%(self.from_doctor.name,self.checklist.id,self.to_patiet.name)		
+		
+class PatientNotification(models.Model):
+	 patient = models.ForeignKey(Patient)
+	 
+	 add_topic_follow_topic = models.ForeignKey(AddTopicFollowNotification,null=True,blank=True)
+	 edit_topic_follow_topic = models.ForeignKey(EditTopicFollowNotification,null=True,blank=True)
+	 add_question_follow_topic = models.ForeignKey(AddQuestionTopicFollowNotification,null=True,blank=True)
+	 add_answer_follow_topic = models.ForeignKey(AddAnswerTopicFollowNotification,null=True,blank=True)
+	 add_topic = models.ForeignKey(AddTopicNotification, null=True,blank=True)
+	 edit_topic = models.ForeignKey(EditTopicNotification, null=True,blank=True)
+	 add_checklist = models.ForeignKey(AddChecklistNotification, null=True,blank=True)
+	 edit_checklist = models.ForeignKey(EditChecklistNotification, null=True,blank=True)
+	 answer_doctor_follow = models.ForeignKey(AnswerNotification, null=True,blank=True) 
+	 answer_alert = models.ForeignKey(AnswerAlert, null=True,blank=True)
+	 advisor_reject = models.ForeignKey(AdvisorRequest,related_name="patient_advisor_reject", null=True,blank=True)
+	 advisor_accept = models.ForeignKey(AdvisorRequest,related_name="patient_advisor_accpet", null=True,blank=True)
+	 friend_request = models.ForeignKey(FriendShipRequest,related_name='patient_friend_request_notification', null=True,blank=True)
+	 friend_reject = models.ForeignKey(FriendShipRequest,related_name='patient_friend_reject_notification', null=True,blank=True)
+	 friend_accept = models.ForeignKey(FriendShipRequest,related_name='patient_friend_accept_notification', null=True,blank=True)
+	
+	 def __unicode__(self):
+		 return "patient %s notification %d"%(self.patient.name,self.id)
+		
+class Feedback(models.Model):
+	detail = models.TextField()
+	created = models.DateTimeField(auto_now_add=True)
+	
+	def __unicode__(self):
+		return "feedback %d created one %d"%(self.id,self.created)
+		
