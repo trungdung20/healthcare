@@ -1,0 +1,115 @@
+{% load endless %}
+{% paginate 5 history_list %}
+
+{% if history_list %}
+		
+{% for history in history_list %}
+			{% if history.is_history_topic%}
+			<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="container-fluid">
+					<div class="col-sm-2">
+					{% if history.history_topic.related_doctor.doctor_image%}
+					<img src="/media/{{history.history_topic.related_doctor.doctor_image}}/" class="img-responsive" width="50" height="50" />
+					{% endif%}
+					</div>
+					<div class="col-sm-3">
+					<p>Doctor <a href="/icare/profile/doctor/{{history.history_topic.related_doctor.used.id}}/">{{history.history_topic.related_doctor.name}}</a> has created</p>
+					</div>
+				</div>
+				
+				<div class="container-fluid">
+				<h5><a href="/icare/topic/show/{{history.history_topic.id}}/">{{history.history_topic.title}}</a>
+				</div>
+				<hr/>
+			</div>	
+			<div class="panel-body">
+			<p>In Brief</p>
+				<br/>
+			<p>{{history.history_topic.definition}}</p>
+			</div>
+			</div><br/>
+			{% endif %}
+			
+			{% if history.is_history_checklist%}
+			<div class="panel panel-info">
+			<div class="panel-heading">
+			<div class="container-fluid">
+			<div class="col-sm-3">
+			<img src="/media/{{history.history_checklist.related_doctor.doctor_image}}/" class="img-responsive" width="50" height="50" >
+			</div>
+			<div class="col-sm-6">
+			<p>Doctor <a href="/icare/profile/doctor/{{history.history_checklist.related_doctor.user.id}}/">{{history.history_checklist.related_doctor.name}}</a>'s CheckList on <h4><a href="/icare/{{history.history_checklist.related_goal.id}}/check_lists/">{{history.history_checklist.related_goal.title}}</a></h4></p>
+			<a data-toggle="collapse" data-parent="#accordion" href="#{{history.history_checklist.id}}" class="btn btn-sm btn-primary">Show</a>
+			</div>
+			
+			<div class="col-sm-3">
+				<a>{{history.history_checklist.use}}</a> usages
+				
+				<br/>
+				<a>{{history.history_checklist.likes}}</a> thanks
+				<br/>
+				
+				
+				<a>{{history.history_checklist.agree}}</a> doctor agree
+			</div>
+			</div>
+		
+			</div>
+			<div id="{{history.history_checklist.id}}" class="panel-collapse collapse">
+			<div class="panel-body">
+			<div class="container-fluid">
+				<ul>
+			{% for item in history.items %}
+				<li > <h5>{{ item.title }} </h5> <hr/> <h5><small><p class="text-muted" >{{item.frequency}}&nbsp; Priority:{{item.priority}}</p></small></h5></li>
+				<br/>
+			{% endfor %}
+				</ul> 
+			</div>
+			</div>
+				</div>
+			</div>
+			<br/>
+			{% endif%}
+			
+			{% if history.is_history_answer%}
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<div class="container-fluid">
+						<h5>
+							{{history.history_answer.related_question.title}}
+						</h5>
+						
+						</div>
+					</div>
+					<div class="panel-body">
+						<div class="container-fluid">
+							<div class="col-sm-2">
+							<img src="/media/{{history.history_answer.from_doctor.doctor_image}}/" class="img-responsive" width="50" height="50"/>
+							</div>
+							<div class="col-sm-5">
+							<p>Doctor <a href="/icare/profile/doctor/{{history.history_answer.from_doctor.user.id}}/">{{history.history_answer.from_doctor.name}}</a> has answer</p>
+							
+							</div>
+						</div>
+						<div class="container-fluid">
+						<p>{{history.history_answer.detail}}</p>
+						<a href="/icare/question/show/{{history.history_answer.related_question.id}}/">See more</a>
+						</div>
+						
+					</div>
+				</div><br/>
+			{% endif %}
+		{% endfor %}
+	{% else %}
+	<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="container-fluid">
+			There are currently no personal content present at the moment. 
+		</div>
+	</div>
+	</div>
+{% endif %}
+	
+
+{% show_more "show more"%}

@@ -2,6 +2,7 @@
 
 {% block body_block %}
 <div class="container-fluid">
+{% if list %}
 <div class="panel-group">	
 	{% for list_item in list %}
 		{% if list_item.is_unrejected_request %}
@@ -48,7 +49,7 @@
 				
 				
 				<div class="col-sm-3">
-				<a class="btn btn-sm btn-info" type="button" id="doctor_view_rejected" data-id="{{list_item.rejected_request.id}}">Mark as read</a>
+				<a class="btn btn-sm btn-danger" type="button" id="doctor_view_rejected" data-id="{{list_item.rejected_request.id}}">Delete</a>
 				
 				</div>
 			</div>
@@ -74,7 +75,7 @@
 				
 				
 				<div class="col-sm-3">
-				<a class="btn btn-sm btn-info" type="button" id="doctor_view_accepted" data-id="{{list_item.accepted_request.id}}">Mark as read</a>
+				<a class="btn btn-sm btn-danger" type="button" id="doctor_view_accepted" data-id="{{list_item.accepted_request.id}}">Delete</a>
 				
 				</div>
 			</div>
@@ -100,7 +101,7 @@
 				
 				
 				<div class="col-sm-3">
-				<a class="btn btn-sm btn-info" type="button" id="doctor_advisor_accepted" data-id="{{list_item.advisor_accepted.id}}">Mark as read</a>
+				<a class="btn btn-sm btn-danger" type="button" id="doctor_advisor_accepted" data-id="{{list_item.advisor_accepted.id}}">Delete</a>
 				
 				</div>
 			</div>
@@ -126,7 +127,7 @@
 				
 				
 				<div class="col-sm-3">
-				<a class="btn btn-sm btn-info" type="button" id="doctor_advisor_rejected" data-id="{{list_item.advisor_rejected.id}}">Mark as read</a>
+				<a class="btn btn-sm btn-danger" type="button" id="doctor_advisor_rejected" data-id="{{list_item.advisor_rejected.id}}">Delete</a>
 				
 				</div>
 			</div>
@@ -153,7 +154,7 @@
 				
 				<div class="col-sm-3">
 				
-				<a class="btn btn-sm btn-info" type="button" id="doctor_answer_alert" data-id="{{list_item.answer_alert.id}}">Mark as read</a>
+				<a class="btn btn-sm btn-danger" type="button" id="doctor_answer_alert" data-id="{{list_item.answer_alert.id}}">Delete</a>
 				
 				</div>
 			</div>
@@ -174,7 +175,7 @@
 			</div>
 			
 			<div class="col-sm-3">
-			<a class="btn btn-sm btn-info" type="button" id="doctor_answer_follow" data-id="{{list_item.answer_follow.id}}">Mark as read</a>
+			<a class="btn btn-sm btn-danger" type="button" id="doctor_answer_follow" data-id="{{list_item.answer_follow.id}}">Delete</a>
 			</div>
 			</div>
 			</div>
@@ -195,7 +196,7 @@
 			</div>
 			
 			<div class="col-sm-3">
-			<a class="btn btn-sm btn-info" type="button" id="doctor_add_topic" data-id="{{list_item.add_topic.id}}">Mark as read</a>
+			<a class="btn btn-sm btn-danger" type="button" id="doctor_add_topic" data-id="{{list_item.add_topic.id}}">Delete</a>
 			</div>
 			</div>
 			</div>
@@ -216,7 +217,7 @@
 			</div>
 			
 			<div class="col-sm-3">
-			<a class="btn btn-sm btn-info" type="button" id="doctor_edit_topic" data-id="{{list_item.edit_topic.id}}">Mark as read</a>
+			<a class="btn btn-sm btn-danger" type="button" id="doctor_edit_topic" data-id="{{list_item.edit_topic.id}}">Delete</a>
 			</div>
 			</div>
 			</div>
@@ -237,7 +238,7 @@
 			</div>
 			
 			<div class="col-sm-3">
-			<a class="btn btn-sm btn-info" type="button" id="doctor_add_checklist" data-id="{{list_item.add_checklist.id}}">Mark as read</a>
+			<a class="btn btn-sm btn-danger" type="button" id="doctor_add_checklist" data-id="{{list_item.add_checklist.id}}">Delete</a>
 			</div>
 			</div>
 			</div>
@@ -258,7 +259,7 @@
 			</div>
 			
 			<div class="col-sm-3">
-			<a class="btn btn-sm btn-info" type="button" id="doctor_edit_checklist" data-id="{{list_item.edit_checklist.id}}">Mark as read</a>
+			<a class="btn btn-sm btn-danger" type="button" id="doctor_edit_checklist" data-id="{{list_item.edit_checklist.id}}">Delete</a>
 			</div>
 			</div>
 			</div>
@@ -279,7 +280,7 @@
 				</div>
 				
 				<div class="col-sm-3">
-				<a class="btn btn-sm btn-info" type="button" id="patient_add_related_topic_follow_alert" data-id="{{list_item.add_related_topic_follow.id}}">Mark as read</a>
+				<a class="btn btn-sm btn-danger" type="button" id="patient_add_related_topic_follow_alert" data-id="{{list_item.add_related_topic_follow.id}}">Delete</a>
 				</div>
 			</div>
 		</div>
@@ -301,7 +302,7 @@
 				</div>
 				
 				<div class="col-sm-3">
-				<a class="btn btn-sm btn-info" type="button" id="patient_edit_topic_follow_alert" data-id="{{list_item.edit_topic_follow.id}}">Mark as read</a>
+				<a class="btn btn-sm btn-danger" type="button" id="patient_edit_topic_follow_alert" data-id="{{list_item.edit_topic_follow.id}}">Delete</a>
 				</div>
 			</div>
 		</div>
@@ -322,7 +323,7 @@
 				</div>
 				
 				<div class="col-sm-3">
-				<a class="btn btn-sm btn-info" type="button" id="patient_add_answer_topic_follow_alert" data-id="{{list_item.add_answer_topic_follow.id}}">Mark as read</a>
+				<a class="btn btn-sm btn-danger" type="button" id="patient_add_answer_topic_follow_alert" data-id="{{list_item.add_answer_topic_follow.id}}">Delete</a>
 				</div>
 			</div>
 		</div>
@@ -338,7 +339,7 @@
 				</div>
 				
 				<div class="col-sm-3">
-				<a class="btn btn-sm btn-info" type="button" id="patient_add_question_topic_follow_alert" data-id="{{list_item.add_question_topic_follow.id}}">Mark as read</a>
+				<a class="btn btn-sm btn-danger" type="button" id="patient_add_question_topic_follow_alert" data-id="{{list_item.add_question_topic_follow.id}}">Delete</a>
 				</div>
 			</div>
 		</div>
@@ -346,5 +347,12 @@
 		{% endif %}
 		{% endfor %}
 	</div>
+	{% else %}
+	<div class="panel panel-default">
+	<div class="panel-body">
+	<p>You have no new notification</p>
+	</div>
+	</div>
+	{% endif %}
 	</div>
 {% endblock %}

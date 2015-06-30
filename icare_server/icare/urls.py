@@ -23,7 +23,7 @@ urlpatterns = patterns('',
 		url(r'^thanks_answer/$', views.answer_thanks, name='answer_thanks'),
 		#checklist contents 
 		url(r'^category/$', views.category_show, name = 'category_show'),
-		url(r'^(?P<goal_id>\w+)/check_lists/$',page_template('icare/content/checklist_index_page.html')(views.checklist_index),{'template':'icare/content/checklist_index.html'}, name = 'checklist_index'),
+		url(r'^(?P<goal_id>\w+)/check_lists/$',page_templates({'icare/content/checklist_index_page.html':'checklist_object','icare/content/checklist_index_question_page.html':'question_object'})(views.checklist_index),{'template':'icare/content/checklist_index.html'}, name = 'checklist_index'),
 		url(r'^checklist/my_checklist/(?P<user_id>\w+)/$',page_template('icare/patient/user_checklist_index_page.html')(views.checklist_person),{'template':'icare/patient/user_checklist_index.html'}, name='checklist_person'),
 		url(r'^checklist/thanks_checklist/$', views.thanks_checklist, name="thanks_checklist"),
 		url(r'^checklist/doctor_add_checklist/(?P<topic_id>\w+)/$', views.checklist_doctor_add, name="checklist_doctor_add"),
@@ -35,7 +35,10 @@ urlpatterns = patterns('',
 		url(r'^checklist/agree_checklist/$', views.agree_checklist, name="agree_checklist"),
 		url(r'^user_checklist_item/complete/$',views.item_complete, name="item_complete"),
 		url(r'^patient_checklist/delete/$', views.checklist_delete, name="checklist_delete"),
+		#add quetion to goal 
+		url(r'^question/post/goal/(?P<goal_id>\w+)/',views.goal_question_add,name="goal_question_add"),
 		#user follow topic 
+		
 		url(r'^user/topic/follow/$',views.topic_follow,name="topic_follow"),
 		#doctor agree topic 
 		url(r'^doctor/agree_topic/$',views.agree_topic,name="agree_topic"),
@@ -70,7 +73,7 @@ urlpatterns = patterns('',
 		url(r'^register/patient/$', views.register_patient, name='register_patient'),
 		#post question in topic 
 		url(r'^question/post/topic/(?P<topic_id>\w+)/$',views.post_question_topic,name="post_question_topic"),
-		url(r'^profile/doctor/(?P<doctor_id>\w+)/$', views.profile_doctor, name='profile_doctor'),
+		url(r'^profile/doctor/(?P<doctor_id>\w+)/$', page_template("icare/doctor/doctor_profile_page.html")(views.profile_doctor),{'template':'icare/doctor/doctor_profile.html'}, name='profile_doctor'),
 		url(r'^profile/doctor/edit/(?P<doctor_record_id>\w+)/$',views.doctor_edit_profile,name='doctor_edit_profile'),
 		url(r'^profile/patient/(?P<patient_id>\w+)/$', views.profile_patient, name='profile_patient'),
 		# doctor and patient relation 

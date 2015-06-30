@@ -1,9 +1,9 @@
 {% load endless %}
-{% paginate checklist_list%}
+{% paginate checklist_list using "checklist_object"%}
 
 {% if checklist_list %}
 	
-<div class="container-fluid ">	
+
 	<div class="col-sm-10 col-sm-offset-1">
 	<div class="panel-group">
 	{% for checklist in checklist_list %}
@@ -18,7 +18,7 @@
 			<div class="col-sm-5">
 			<a href="/icare/profile/doctor/{{checklist.checklist_object.related_doctor.user.id}}/">{{checklist.checklist_object.related_doctor.name}}</a>'s CheckList
 			<br/>
-			<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{checklist.checklist_object.id}}">Show</a>
+			<a class="btn btn-sm btn-primary" data-toggle="collapse" data-parent="#accordion" href="#collapse{{checklist.checklist_object.id}}">Show</a>
 			</div>
 			
 			<div class="col-sm-4">
@@ -47,7 +47,14 @@
 		</ul> 
 		</div>
 		
+		<div class="container-fluid">
+		<div class="col-sm-8">
+		{% if checklist.checklist_object.agree %}
+			<a data-toggle="collapse" data-parent="#accordion" href="#doctor_agree_checklist">Doctor agree</a>
+		{% endif %}
+		</div>
 		
+		<div class="col-sm-4">
 		{% if checklist.is_doctor_creator %}
 		
 			<a class="btn btn-sm btn-primary" type="button" href="/icare/item/edit/{{checklist.checklist_object.id}}/">Edit</a>
@@ -61,9 +68,28 @@
 		{% if patient %}
 			{% if not  checklist.is_used %}
 			<a id ="add_checklist" data-listid="{{checklist.checklist_object.id}}" class="btn btn-sm btn-primary" type="button">Add</a>
+			&nbsp;
 			{% endif %}
 			<a id="thanks_checklist" data-listid="{{checklist.checklist_object.id}}" {% if checklist.is_thanked %}class="btn btn-sm btn-success"{% else %}class="btn btn-sm btn-primary"{% endif%} type="button">{% if checklist.is_thanked %}Thanked{% else%}Thanks{% endif%}</a>
 		{% endif %}
+		</div>
+		</div>
+		
+		<div class="panel-collapse collapse" id="doctor_agree_checklist">
+		<hr/>
+		{% for doctor_agree_checklist in checklist.agree_doctor_list %}
+			<div class="container-fluid">
+			<div class="col-sm-2">
+				<img width="30" height="30" class="img-responsive" src="/media/{{doctor_agree_checklist.doctor.doctor_image}}"/>
+			</div>
+			<div class="col-sm-4">
+				<p><a href="/icare/profile/doctor/{{doctor_agree_checklist.doctor.user.id}}/">{{doctor_agree_checklist.doctor.name}}</a></p>
+				<h5><small>{{doctor_agree_checklist.doctor.specialty}}</small></h5>
+			</div>
+			</div>
+		{% endfor%}
+		</div>
+		
 		</div>
 		</div>
 	</div>
@@ -71,7 +97,7 @@
 	{% endfor %} 
 		</div>
 		</div>
-	</div>
+	
 	
 	
 {% else %}

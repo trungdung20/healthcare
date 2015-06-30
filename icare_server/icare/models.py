@@ -524,7 +524,7 @@ class Answer(models.Model):
 	related_question = models.ForeignKey(Question, related_name='answers')
 	thanks = models.IntegerField(default=0)
 	agree = models.IntegerField(default=0)
-	
+	created_time = models.DateTimeField(auto_now_add=True)
 	def __unicode__(self):
 		return self.detail 
 		
@@ -532,7 +532,7 @@ class AnswerNotification(models.Model):
 	doctor = models.ForeignKey(Doctor)
 	to_patient = models.ForeignKey(Patient)
 	answer = models.ForeignKey(Answer)
-	created = models.DateTimeField(auto_now_add=False)
+	created = models.DateTimeField(auto_now_add=True)
 	viewed_by_patient = models.BooleanField(default=False)
 	
 	def __unicode__(self):
@@ -555,7 +555,7 @@ class AgreeAnswer(models.Model):
 class PatientRecord(models.Model):
 	patient = models.OneToOneField(Patient)
 	ethnicity = models.CharField(max_length=50,choices=ETHNICITY)
-	height = models.FloatField(default=0,blank = True)
+	height = models.FloatField(default=0,blank =True)
 	weight = models.FloatField( default=0,blank =True)
 	vaccination = models.ManyToManyField(Vaccination)
 	dietary_restriction = models.CharField( max_length=50,choices=DIETARY_RESTRICTION)

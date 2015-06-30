@@ -8,24 +8,50 @@
 {% endblock %}
 
 {% block body_block %}
+
+
 <div class="container-fluid">
 
+<ul class="nav nav-tabs" role="tablist">
+			<li class="active">
+				<a href="#checklist_detail" role="tab" data-toggle="tab">
+					<i class="fa fa-user"></i> Goal Content
+				</a>
+			</li>
+			<li>
+				<a href="#checklist_question" role="tab" data-toggle="tab">
+					<i class="fa fa-evelope"></i> Discussion 
+				</a>
+			</li>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane fade active in" id="checklist_detail">
+
 {% if doctor %}
+
 	<div class="panel panel-default">
 	<div class="panel-body">
 	<a class="btn btn-sm btn-lg" type="button" href="/icare/checklist/doctor_add_checklist/{{goal.id}}/">Add Checklist</a>
 	</div>
 	</div>
-{% endif %}
-</div>
 
-<div class="container-fluid">
+{% endif %}
+
+
 <div class="panel panel-default">	
 	<div class="panel-body">
 	<strong> {% if goal %} <p class="text-primary">{{goal.title}}</p> {% endif %} </strong>
 	</div>
 </div>
-</div>
-	{% include page_template %}
 
+	{% include "icare/content/checklist_index_page.html"%}
+</div>
+
+
+{% include "icare/content/checklist_index_question_page.html" %}
+
+</div>
+
+</div>
 {% endblock %}

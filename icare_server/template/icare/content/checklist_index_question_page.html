@@ -1,0 +1,65 @@
+{% load endless %}
+{% load bootstrap_toolkit %}
+{% paginate question_list using "question_objects" %}
+<div class="tab-pane fade" id="checklist_question">
+{% if patient%}
+<div class ="panel panel-default">
+		<div class="panel-body">
+			<h4>Post a question related to {{goal.title}}</h4>
+			<form role="form" id="question_post" method="post" action="/icare/question/post/goal/{{goal.id}}/"
+			enctype="multipart/form-data">
+			<div class="form-group">
+			{% csrf_token %}
+					{{question_form.title.errors}}
+					{{question_form|as_bootstrap}}
+			<br/>		
+			<div class="container-fluid">
+			<div class="col-sm-3 col-sm-offset-10">
+				<input class="btn btn-primary" type="submit" type="submit" name="submit" value="Post">
+			</div>
+			</div>
+			</div>
+			</form>
+		</div>
+	</div><hr/>
+{% endif %}
+{% if question_list%}
+
+<div class="panel-group">
+	{% for question in question_list %}
+	<div class="panel panel-default">
+	<div class="panel-heading">
+	<div class="container-fluid">
+		<h5>{{question.question.title}}</h5>
+		<p>{{question.answer_count}}</p> answers 
+	</div>
+	</div><hr/>
+	
+	<div class="panel-body">
+	{% if question.is_answer%}
+	<div class="container-fluid">
+	<p>Doctor <a href="/icare/profile/doctor/{{question.answer.from_doctor.user.id}}/">{{question.answer.from_doctor.name}}</a> has answer</p>
+	</div>
+	<div class="container-fluid">
+	<p>{{question.answer.detail|truncatewords:30}}</p>...<a href="/icare/question/show/{{question.id}}">Read more</a>
+	</div>
+	{% else %}
+	<div class="container-fluid">
+		<p>No answer present</p>
+		<a href="/icare/question/show/{{question.id}}">Read more</a>
+	</div>
+	{% endif %}
+	</div>
+	</div>
+	{% endfor%}
+</div>
+
+{% else %}
+<div class="panel panel-default">
+<div class="panel-body">
+<p>There are no question at the moment</p>
+</div>
+</div>
+{% endif %}
+</div>
+{% show_more %}

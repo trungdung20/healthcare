@@ -6,6 +6,7 @@ $('#ethnicity_update').click(function() {
 		var patient_record_id = $(this).attr("data-id");
 		$.get('/icare/patient/ethnicity/edit/',{patient_record_id:patient_record_id}, function(data) { 
 			$("#ethnicity_edit").html(data);
+			$("#ethnicity_update").hide();
 		});
 	});
 	
@@ -14,7 +15,7 @@ $('#ethnicity_update').click(function() {
 		var patient_record_id = $(this).attr("data-id");
 		$.get('/icare/patient/weight/edit/',{patient_record_id: patient_record_id}, function(data) { 
 			$("#weight_edit").html(data);
-			
+			$("#weight_update").hide();
 			});
 	});
 	
@@ -23,7 +24,7 @@ $('#ethnicity_update').click(function() {
 		var patient_record_id = $(this).attr("data-id");
 		$.get('/icare/patient/height/edit/',{patient_record_id:patient_record_id}, function(data) { 
 			$("#height_edit").html(data);
-			
+			$("#height_update").hide();
 		});
 		
 	});
@@ -33,6 +34,7 @@ $('#ethnicity_update').click(function() {
 		var patient_record_id = $(this).attr("data-id");
 		$.get('/icare/patient/vaccination/edit/',{patient_record_id:patient_record_id}, function(data) { 
 			$("#vaccination_edit").html(data);
+			$("#vacination_update").hide();
 		});
 		
 	});
@@ -42,6 +44,7 @@ $('#ethnicity_update').click(function() {
 		var patient_record_id = $(this).attr("data-id");
 		$.get('/icare/patient/dietary/edit/',{patient_record_id:patient_record_id}, function(data) { 
 			$("#dietary_restriction_edit").html(data);
+			$("#dietary_restriction_update").hide();
 		});
 		
 	});
@@ -51,6 +54,7 @@ $('#ethnicity_update').click(function() {
 		var patient_record_id = $(this).attr("data-id");
 		$.get('/icare/patient/alcohol/edit/',{patient_record_id:patient_record_id}, function(data) { 
 			$("#alcohol_edit").html(data);
+			$("#alcohol_update").hide();
 		});
 		
 	});
@@ -60,6 +64,7 @@ $('#ethnicity_update').click(function() {
 		var patient_record_id = $(this).attr("data-id");
 		$.get('/icare/patient/tobacco/edit/',{patient_record_id:patient_record_id}, function(data) { 
 			$("#tobacco_edit").html(data);
+			$("#tobacco_update").hide()
 		});
 		
 	});
@@ -69,6 +74,7 @@ $('#ethnicity_update').click(function() {
 		var patient_record_id = $(this).attr("data-id");
 		$.get('/icare/patient/sex/edit/',{patient_record_id:patient_record_id}, function(data) { 
 			$("#sex_edit").html(data);
+			$("sex_update").hide();
 		});
 		
 	});
@@ -77,7 +83,7 @@ $('#ethnicity_update').click(function() {
 	$("#recreational_drug_update").click(function() {
 		var patient_record_id = $(this).attr("data-id");
 		$.get('/icare/patient/recreational_drug/edit/',{patient_record_id:patient_record_id}, function(data){ 
-			
+			$("#recreational_drug_update").hide();
 			$("#recreational_drug_edit").html(data);
 		});
 		

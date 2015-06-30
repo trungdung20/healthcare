@@ -1,8 +1,33 @@
 {% extends 'icare/base_main.html' %}
 {% load bootstrap_toolkit %}
+
+{% block js %}
+  {{ block.super }}
+  <script>
+    $.endlessPaginate({paginateOnScroll: true});
+  </script>
+{% endblock %}
+
+
 {% block body_block %}
-	<div class="row-fluid">
-		
+<div class="container-fluid">
+		<!--Nav tab -->
+		<ul class="nav nav-tabs" role="tablist">
+			<li class="active">
+				<a href="#profile" role="tab" data-toggle="tab">
+					<i class="fa fa-user"></i>Profile
+				</a>
+			</li>
+			<li>
+				<a href="#history" role="tab" data-toggle="tab">
+					<i class="fa fa-evelope"></i>History
+				</a>
+			</li>
+		</ul>
+		<!--tab panes-->
+	<div class="tab-content">
+	<div class="tab-pane fade active in" id="profile">
+	
 		<div class="panel panel-info">
 		<div class="panel-heading">
 		<h4>Doctor</h4> Rating:<span class="stars">{{doctor_record.star}}</span>
@@ -26,7 +51,7 @@
 					{% if doctor.doctor_image %}
 						<img class="img-responsive"  src="/media/{{doctor.doctor_image}}"/>
 					{% else %}
-						<img width="256" height="152" src="http://lorempixel.com/256/128/people/" />
+						<img class="img-responsive" src="http://lorempixel.com/256/128/people/" />
 					{% endif %}
 					
 					
@@ -76,7 +101,7 @@
 					{% if myaccount %}
 					
 					<!-- Trigger the modal with a button -->
-					<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#doctor_edit">Edit</button>
+					<button type="button" class="btn btn-info btn-md" data-toggle="modal" data-target="#doctor_edit">Edit</button>
 
 					<!-- Modal -->
 					<div id="doctor_edit" class="modal fade" role="dialog">
@@ -149,7 +174,15 @@
 			</div>
 		</div>
 		</div>
+	</div>	
+	<!--history-->
+	<div class="tab-pane fade" id="history">
+	
+	{%include page_template %}
+	
 	</div>
+	</div>
+</div>
 {% endblock %}
 
 {% block related_block %}
@@ -157,13 +190,14 @@
 
 	<div class="panel panel-default">
 	<div class="panel-heading">
-		<h4>My Insights</h4>
+		<h4>My Insights &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#topic_add">Add</button> </h4>
 	</div>
 	
 	<div class="panel-body">
 	{% if myaccount %}
 		<div class="container-fluid">
-			<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#topic_add">Add</button>
+			
 
 					<!-- Modal -->
 					<div id="topic_add" class="modal fade" role="dialog">

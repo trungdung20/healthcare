@@ -9,22 +9,20 @@
 	{% if not notification.is_private %}
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			
-			<h6>
+			<div class="container-fluid">
+			<h5>
 			{{notification.question_object.title}} 
-			</h6>
-			<h6>
+			</h5>
+			<p>
 			<a>{{notification.answer_count}}</a> answers
-			</h6>
+			</p>
+			</div>
 			<hr/>
 		</div>
 		
 		
 		<div class="panel-body">
         {% if notification.is_answer %}
-		
-		
-		
 		<div class="container-fluid">
 		<div class="col-sm-2">
 		<h5>
@@ -37,7 +35,7 @@
 		<div class="col-sm-10">
 		<h5>
 		Doctor
-		<a>{{notification.hero.from_doctor.name}}</a> answer: 	
+		<a href="/icare/profile/doctor/{{notification.hero.from_doctor.user.id}}/">{{notification.hero.from_doctor.name}}</a> answer: 	
 		</h5> <br />
 		</div>
 		</div>
@@ -67,7 +65,7 @@
 			
 			{% if notification.topic_object.related_doctor.doctor_image %}
 			<div class="col-sm-2">
-			<img src="/media/{{notification.topic_object.related_doctor.doctor_image}}/" class="img-responsive" width="60" height="60">
+			<img src="/media/{{notification.topic_object.related_doctor.doctor_image}}/" class="img-responsive" width="50" height="50">
 			</div>
 			{% endif %}
 			{% if  notification.topic_object.related_doctor%}
@@ -105,8 +103,8 @@
 			<img src="/media/{{notification.checklist_object.related_doctor.doctor_image}}/" class="img-responsive" width="60" height="60" >
 			</div>
 			<div class="col-sm-5">
-			<a href="/icare/profile/doctor/{{notification.checklist_object.related_doctor.user.id}}/">{{notification.checklist_object.related_doctor.name}}</a>'s CheckList on <h4>{{notification.checklist_object.related_goal.title}}</h4>
-			<a data-toggle="collapse" data-parent="#accordion" href="#{{notification.checklist_object.id}}">Show</a>
+			<a href="/icare/profile/doctor/{{notification.checklist_object.related_doctor.user.id}}/">{{notification.checklist_object.related_doctor.name}}</a>'s CheckList on <h4><a href="/icare/{{notification.checklist_object.related_goal.id}}/check_lists/">{{notification.checklist_object.related_goal.title}}</h4>
+			<a class="btn btn-sm btn-primary" data-toggle="collapse" data-parent="#accordion" href="#{{notification.checklist_object.id}}">Show</a>
 			</div>
 			
 			<div class="col-sm-4">

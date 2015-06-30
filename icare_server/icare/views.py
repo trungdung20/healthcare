@@ -353,14 +353,21 @@ def question_show(request, question_id, extra_context=None, template=None):
 		if is_patient:
 			is_thanked = False
 			thank = ThanksAnswer.objects.filter(answer=answer,patient=patient)
+			agree_list = AgreeAnswer.objects.fitler(answer=answer)
+			if agree_list:
+				dict['agree_doctor_list'] = agree_list
 			if thank:
 				is_thanked = True 
 			dict['is_thanked'] = is_thanked 	
 		if is_doctor:
 			is_agreed = False
 			agree = AgreeAnswer.objects.filter(answer=answer,doctor=doctor)
+			agree_list = AgreeAnswer.objects.fitler(answer=answer)
+			if agree_list:
+				dict['agree_doctor_list'] = agree_list
 			if agree:
 				is_agreed = True 
+				
 			dict['is_agreed'] = is_agreed 	
 		list.append(dict)	
 		
@@ -586,6 +593,7 @@ def checklist_index(request, goal_id,extra_context=None, template=None):
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
+	
 	if not parameter_index['is_doctor']:
 		patient = get_patient(request.user)
 		unread_notification = PatientNotification.objects.filter(patient=patient).count()
@@ -603,17 +611,33 @@ def checklist_index(request, goal_id,extra_context=None, template=None):
 	patient = False 
 	
 	if user_doctor:
-		doctor = True 
+		doctor = True
+		
 	else: 
 		patient = True 
-		
+		context_dict['question_form'] = QuestionForm()
 	user_patient = get_patient(request.user)
 	
 	
 	
 	goal = Goal.objects.get(id = goal_id)
 	checklists =  CheckList.objects.filter(related_goal = goal_id)
-	
+	questions = Question.objects.filter(related_goal=goal)
+	question_list = []
+	for question in questions: 
+		question_dict = {} 
+		answer_count = Answer.objects.filter(related_question=question).count()
+		answers = Answer.objects.filter(related_question=question).order_by("-thanks","-agree")
+		is_answer = False 
+		if answers:
+			answer = answers[0]
+			is_answer =True 
+		question_dict['answer_count'] = answer_count 
+		question_dict['question'] = question 
+		question_dict['answer'] = answer 
+		question_dict['is_answer'] = is_answer 
+		question_list.append(question_dict)
+		
 	checklist_list = [] 
 	for checklist in checklists: 
 		checklist_dict = {} 
@@ -632,17 +656,24 @@ def checklist_index(request, goal_id,extra_context=None, template=None):
 		if doctor:
 			is_agreed = False 
 			agree = AgreeChecklist.objects.filter(checklist=checklist,doctor=user_doctor)
+			if checklist.agree:
+				agree_list = AgreeChecklist.objects.filter(checklist=checklist)
+				checklist_dict['agree_doctor_list'] = agree_list 
 			if agree:
 				is_agreed = True 
+				
 			checklist_dict['is_agreed'] = is_agreed
 		if patient:
 			is_thanked = False 
 			thank = ThanksChecklist.objects.filter(checklist=checklist,patient=user_patient)
+			if checklist.agree:
+				agree_list = AgreeChecklist.objects.filter(checklist=checklist)
+				checklist_dict['agree_doctor_list'] = agree_list 
 			if thank:
 				is_thanked = True 
 			checklist_dict['is_thanked'] = is_thanked
 		checklist_list.append(checklist_dict)
-	
+	context_dict['question_list'] = question_list 
 	context_dict['checklist_list'] = checklist_list 
 	context_dict['goal'] = goal 
 	context_dict['doctor'] = doctor
@@ -1429,7 +1460,7 @@ def post_question_topic(request,topic_id):
 			return HttpResponse(question_form.errors)
 			
 @login_required 
-def profile_doctor(request, doctor_id): 
+def profile_doctor(request, doctor_id,template=None, extra_context=None): 
 	context = RequestContext(request)
 	context_dict = {} 
 	
@@ -1454,11 +1485,44 @@ def profile_doctor(request, doctor_id):
 	
 	is_patient = True  
 	
+	
+	
 	if currdoctor:
 		is_patient = False 
 		if currdoctor.id == doctor.id:
 			myaccount = True 
-			
+	#add doctor history content 
+	history_answer_list = Answer.objects.filter(from_doctor=doctor).order_by("-created_time")
+	history_topic_list = Topic.objects.filter(created_doctor=doctor).order_by("-create_time")
+	history_checklist_list = CheckList.objects.filter(related_doctor=doctor).order_by("-create_time")
+	history_list = []
+	for history_answer,history_topic,history_checklist in itertools.izip_longest(history_answer_list,history_topic_list,history_checklist_list):
+		history_dict ={}
+		is_history_answer = False 
+		is_public = False 
+		if history_answer:
+			if not history_answer.related_question.privacy:
+				is_public = True
+		if history_answer and is_public:
+			is_history_answer = True 
+			history_dict['history_answer'] = history_answer 
+		history_dict['is_history_answer'] = is_history_answer
+		
+		is_history_topic = False 
+		if history_topic:
+			is_history_topic = True 
+			history_dict['history_topic'] = history_topic 
+		history_dict['is_history_topic'] = is_history_topic 
+		
+		is_history_checklist = False 
+		if history_checklist:
+			is_history_checklist= True 
+			history_dict['history_checklist'] = history_checklist 
+			items = ListItem.objects.filter(related_checklist=history_checklist)
+			history_dict['items'] = items
+		history_dict['is_history_checklist'] = is_history_checklist 
+		history_list.append(history_dict)
+		
 	doctor_record = DoctorRecord.objects.get(doctor=doctor)
 	topics = Topic.objects.filter(created_doctor=doctor)
 	topic_list = [] 
@@ -1511,9 +1575,13 @@ def profile_doctor(request, doctor_id):
 	doctor_record_form = DoctorRecordForm(instance=doctor_record)
 	topic_form = TopicForm()
 	doctor_image_form = DoctorImageForm(instance=currdoctor)
-	context_dict = {'is_friend':is_friend,'is_advisor': is_advisor,'can_be_advisor':can_be_advisor,'doctor': doctor, 'doctor_record': doctor_record, 'myaccount': myaccount, 'can_request': can_request,'topic_list':topic_list,'doctor_record_form':doctor_record_form,'topic_form':topic_form,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor'],'doctor_image_form':doctor_image_form,'unread_notification':unread_notification}
 	
-	return render_to_response('icare/doctor/doctor_profile.html',context_dict, context)
+	context_dict = {'is_friend':is_friend,'is_advisor': is_advisor,'can_be_advisor':can_be_advisor,'doctor': doctor, 'doctor_record': doctor_record, 'myaccount': myaccount, 'can_request': can_request,'topic_list':topic_list,'doctor_record_form':doctor_record_form,'topic_form':topic_form,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor'],'doctor_image_form':doctor_image_form,'unread_notification':unread_notification,'history_list':history_list}
+	
+	if extra_context is not None:
+		context_dict.update(extra_context)
+		
+	return render_to_response(template,context_dict, context)
 	
 def profile_patient(request, patient_id): 
 	context = RequestContext(request)
@@ -1943,14 +2011,14 @@ def doctor_friend_accept(request): #  patient accept friend request from doctor
 		
 	patient_user = User.objects.get(username = request.user)
 	doctor_user = Doctor.objects.get(id = int(doctorid))
-	
+	patient = get_patient(request.user)
 	f_request = FriendShipRequest.objects.get(from_user = doctor_user.user, to_user = patient_user)
 	f_request.accepted = True 
 	f_request.viewed_by_patient = True
 	f_request.save() 
 	doctor_friend_accept_notification = DoctorNotification(doctor=doctor_user,friend_accept=f_request)
 	doctor_friend_accept_notification.save()
-	patient_friend_request_notification = PatientNotification.objects.get(patient=patient_user,friend_request=f_request)
+	patient_friend_request_notification = PatientNotification.objects.get(patient=patient,friend_request=f_request)
 	patient_friend_request_notification.delete()
 	if f_request.viewed_by_doctor:
 		f_request.delete()
@@ -2848,7 +2916,7 @@ def doctor_edit_profile(request,doctor_record_id):
 	else:
 		doctor_record_form = DoctorRecordForm(instance=doctor_record)
 		context_dict['doctor_record_form'] = doctor_record_form
-		return render_to_response('icare/doctor/doctor_profile.html',context_dict,context)
+		return render_to_response('icare/doctor/doctor_profiledoctor_profile.html',context_dict,context)
 
 def get_user_list(curruser):
 	try:	
@@ -3480,3 +3548,20 @@ def agree_topic(request):
 		topic_agree = TopicAgree.objects.get_or_create(doctor=doctor,topic=topic)
 	
 	return HttpResponse("success")
+	
+#ask question related to goal health 
+def goal_question_add(request,goal_id):
+	context = RequestContext(request)
+	goal = Goal.objects.get(id=int(goal_id))
+	
+	if request.method == "POST":
+		question_form = QuestionForm(data=request.POST)
+		if question_form.is_valid():
+			question = question_form.save(commit=False)
+			question.related_goal = goal 
+			question.save()
+			
+			return HttpResponse('/icare/' +str(goal_id)+'/check_lists/')
+	else:
+		return HttpResponse('/icare/' +str(goal_id)+'/checks_lists/')
+		

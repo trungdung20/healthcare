@@ -13,7 +13,7 @@
 		{% endif %}
 		</div>
 		<div class="col-sm-10">
-		<p>doctor <a>{{answer.answer.from_doctor.name}}</a> has answered</p>
+		<p>doctor <a href="/icare/profile/doctor/{{answer.answer.from_doctor.user.id}}/">{{answer.answer.from_doctor.name}}</a> has answered</p>
 		</div>
 		</div>
 		</div>
@@ -29,25 +29,43 @@
 		{% endif %}
 		
 		
-		<div class="row-fluid">
+		<div class="container-fluid">
+			<div class="col-sm-2">
+			{% if answer.answer.agree %}
+			<a data-toggle="collapse" data-parent="#accordion" href="#doctor_answer_agree_list">doctor agree</a>
+			{% endif%}
+			</div>
 			<div class="col-sm-2">
 				
-
 				<p ><a id="answer_agree_count{{answer.answer.id}}">{{answer.answer.agree}}</a> agreed </p>
+				
 			</div>
 			<div class="col-sm-2">
 				<p ><a id="answer_thanks_count{{answer.answer.id}}">{{answer.answer.thanks}}</a> thanks</p>
 			</div>
+			<div class="col-sm-2">
+			{% if is_doctor%}
+				<a {% if answer.is_agreed %}class="btn btn-sm btn-success"{% else %}class="btn btn-sm btn-primary"{% endif%} type="button" id ="answer_agree" data-answeragreeid="{{answer.answer.id}}"> {% if answer.is_agreed %}Agreed {% else %}Agree {% endif%}</a>
+			{% endif %}
+		
+			{% if is_patient %}
+				<a {% if answer.is_thanked %}class="btn btn-sm btn-success"{% else %}class="btn btn-sm btn-primary "{% endif%} type="button" id="answer_thanks" data-answerthankid="{{answer.answer.id}}">{% if answer.is_thanked%} Thanked{% else %}Thanks{% endif%}</a>
+				{% endif %}
+			</div>
 		</div>
-		<div class="row-fluid">
-		{% if is_doctor%}
-		<a {% if answer.is_agreed %}class="btn btn-sm btn-success"{% else %}class="btn btn-sm btn-primary"{% endif%} type="button" id ="answer_agree" data-answeragreeid="{{answer.answer.id}}"> {% if answer.is_agreed %}Agreed {% else %}Agree {% endif%}</a>
-		{% endif %}
-		
-		{% if is_patient %}
-		<a {% if answer.is_thanked %}class="btn btn-sm btn-success"{% else %}class="btn btn-sm btn-primary "{% endif%} type="button" id="answer_thanks" data-answerthankid="{{answer.answer.id}}">{% if answer.is_thanked%} Thanked{% else %}Thanks{% endif%}</a>
-		{% endif %}
-		
+		<div class="panel-collapse collapse" id="doctor_answer_agree_list">
+		<hr/>
+			{% for doctor_agree_answer in answer.agree_doctor_list %}
+			<div class="container-fluid">
+			<div class="col-sm-2">
+				<img width="30" height="30" class="img-responsive" src="/media/{{doctor_agree_answer.doctor.doctor_image}}"/>
+			</div>
+			<div class="col-sm-4">
+				<p><a href="/icare/profile/doctor/{{doctor_agree_answer.doctor.user.id}}/">{{doctor_agree_answer.doctor.name}}</a></p>
+				<h5><small>{{doctor_agree_answer.doctor.specialty}}</small></h5>
+			</div>
+			</div>
+			{% endfor%}
 		</div>
 		</div>
 	</div><br/>

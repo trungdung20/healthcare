@@ -2,12 +2,12 @@
 
 {% block body_block %}
 	<div class="container-fluid">
-		<h4>Doctor <a>{{doctor.name}}</a>'s patient care list:</h4>
+		<h4>Doctor <a href="/icare/profile/doctor/{{doctor.user.id}}/">{{doctor.name}}</a>'s patient care list:</h4>
 		<div class="panel-group">
 		{% for user in user_friend_list %}
 		<div class="container-fluid">
 			<div class="col-sm-8">
-				<div class ="panel panel-info">
+				<div class ="panel panel-default">
 				<div class="panel-body">
 					<div class="container-fluid">
 						<div class="col-sm-4">
@@ -31,7 +31,7 @@
 				</div>
 				</div>
 			</div>
-		</div>
+		</div><br/>
 		{% endfor %}
 		</div>
 	</div>

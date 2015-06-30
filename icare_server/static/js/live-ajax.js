@@ -12,6 +12,7 @@ $(document.body).on('submit','#patient_weight_submit', function(event) {
 			success: function(response){
 				$("#weight").html(response);
 				$("#weight_edit").empty();
+				$("#weight_update").show();
 			}
 		});
 	
@@ -28,6 +29,7 @@ $(document.body).on('submit','#patient_height_submit', function(event) {
 				$("#height").html(response);
 				//alert("submitted");
 				$("#height_edit").empty();
+				$("#height_update").show();
 			}
 		});
 	
@@ -46,6 +48,7 @@ $(document.body).on('submit','#patient_ethnicity_submit', function(event) {
 				$("#ethnicity").html(response);
 				//alert("ethnicity");
 				$("#ethnicity_edit").empty();
+				$("#ethnicity_update").show();
 			}
 		});
 	
@@ -64,6 +67,7 @@ $(document.body).on('submit','#patient_vaccination_submit', function(event) {
 				$("#vaccination").html(response);
 				//alert("ethnicity");
 				$("#vaccination_edit").empty();
+				$("#vaccination_update").show();
 			}
 		});
 	
@@ -81,6 +85,7 @@ $(document.body).on('submit','#dietary_submit', function(event) {
 				$("#dietary_restriction").html(response);
 				//alert("ethnicity");
 				$("#dietary_restriction_edit").empty();
+				$("#dietary_restriction_update").show();
 			}
 		});
 	
@@ -99,6 +104,7 @@ $(document.body).on('submit','#alcohol_submit', function(event) {
 				$("#alcohol").html(response);
 				//alert("alcohol");
 				$("#alcohol_edit").empty();
+				$("#alcohol_update").show();
 			}
 		});
 	
@@ -117,6 +123,7 @@ $(document.body).on('submit','#tobacco_submit', function(event) {
 				$("#tobacco").html(response);
 				//alert("ethnicity");
 				$("#tobacco_edit").empty();
+				$("#tobacco_update").show();
 			}
 		});
 	
@@ -135,6 +142,7 @@ $(document.body).on('submit','#sex_submit', function(event) {
 				$("#sex").html(response);
 				//alert("ethnicity");
 				$("#sex_edit").empty();
+				$("#sex_update").show();
 			}
 		});
 	
@@ -153,6 +161,7 @@ $(document.body).on('submit','#recreational_drug_submit', function(event) {
 				$("#recreational_drug").html(response);
 				//alert("ethnicity");
 				$("#recreational_drug_edit").empty();
+				$("#recreational_drug_update").show();
 			}
 		});
 	

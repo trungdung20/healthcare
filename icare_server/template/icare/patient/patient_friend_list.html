@@ -3,7 +3,7 @@
 {% block body_block %}
 	<div class="container-fluid">
 	<div class="panel-group">
-		<h4>{{patient.name}}'s care list:</h4>
+		<h5>{{patient.name}}'s care list:</h5>
 		{% for user in user_friend_list %}
 		<div class="panel panel-default">
 		<div class="panel-body">
@@ -39,7 +39,7 @@
 			</div>
 		</div>
 		</div>
-		</div >
+		</div ><br/>
 		{% endfor %}
 	</div>
 </div>	
