@@ -1,0 +1,89 @@
+{% extends 'icare/base_main.html' %}
+{% block body_block%}
+<div class="container-fluid">
+
+	{% if search_result_list %}
+	<p>Found {{result_count}} result(s)</p>
+	<div class="panel-group">
+	{% for search_result in search_result_list %}
+	
+	{% if search_result.is_doctor_result %}
+		<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="container-fluid">
+			<div class="col-sm-3">
+			
+			<img class="img-responsive" height="60" width="60"  src="/media/{{search_result.doctor_result.doctor_image}}">
+			</div>
+			
+			<div class="col-sm-9">
+			<h4><a href="/icare/profile/doctor/{{search_result.doctor_result.user.id}}/">Dr.{{search_result.doctor_result.name}}</a></h4> 
+			<p class="text-muted">{{search_result.doctor_result.specialty}}</p>
+			<p class="text-muted">Active since {{search_result.doctor_result.year}}</p>
+			<span class="stars">{{search_result.doctor_result.doctorrecord.star}}</span>
+			</div>
+			</div>
+		</div>
+		</div>
+	</div>
+	{% endif %}
+	
+	{% if search_result.is_patient_result %}
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="container-fluid">
+				 <div class="col-sm-3">
+				 <img class="img-responsive" height="60" width="60"  src="/media/{{search_result.patient_result.patient_image}}">
+				 </div>
+				 <div class="col-sm-9">
+				 <h4><a href="/icare/profile/patient/{{search_result.patient_result.user.id}}/">{{search_result.patient_result.name}}</a></h4>
+				 </div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	
+	{% if search_result.is_topic_result %}
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="container-fluid">
+					<div class="col-sm-2">
+					
+					</div>
+					<div class="col-sm-9">
+					<h4><a href="/icare/topic/show/{{search_result.topic_result.id}}/">{{search_result.topic_result.title}}</a></h4>{% if search_result.topic_result.condition %}<p class="text-muted">Condition</p> {% endif %} {% if search_result.topic_result.medication %} <p class="text-muted">Medication</p>{% endif %} {% if search_result.topic_result.procedure %} <p class="text-muted">Procedure</p>{% endif%} {% if search_result.topic_result.symptom%} <p class="text-muted">Symptom</p>{% endif%}
+					<p>{{search_result.topic_result.definition|truncatewords:50}}</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	
+	{% if search_result.is_question_result %}
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="container-fluid">
+				<div class="col-sm-2">
+				
+				</div>
+				<div class="col-sm-9">
+					<h4>{{search_result.question_result}}</h4> <p class="text-muted"> {{search_result.answer_count}} answers</p>
+					{% if search_result.answer_count %}
+					<p>{{search_result.answer_most.detail|truncatewords:30}}</p>
+					{% endif %}
+					<a href="/icare/question/show/{{search_result.question_result.id}}/">Show more</a>
+				</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	
+	{% endfor %}
+	
+	{% else %}
+	
+	<p>Sorry. There are no results at moment</p>
+	
+	{% endif %}
+</div>
+{% endblock%}

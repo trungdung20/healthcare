@@ -1,13 +1,13 @@
 {% load bootstrap_toolkit %}
+<div class="row-fluid">
+<div class="col-sm-10">
 <form class="form-signin" id="recreational_drug_submit" method="post" action="/icare/patient/recreational_drug/edit_submit/{{patient_record_id}}/"
 	enctype="multipart/form-data">
 	{% csrf_token%}
-	<div class="row-fluid">
-		<div class="col-sm-10">
+	
 			{{patient_record_form|as_bootstrap}}
-		</div>
-		<div class="col-sm-2">
-		<input class="btn btn-primary"  type="submit" value="Save" />
-		</div>
-	</div>
+		<br/>
+		<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-save"></span></button>
 </form>
+</div>
+</div>

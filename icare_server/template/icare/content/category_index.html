@@ -47,3 +47,22 @@
 			
 	</div>
 {% endblock%}
+
+{% block related_block%}
+	<div class="container-fluid">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+		<h5>Suggested Goal</h5>
+		</div>
+		
+		<div class="panel-body">
+		{% for suggested_goal in suggested_goal_list %}
+			<div class="container-fluid">
+				<a href="/icare/{{suggested_goal.id}}/check_lists/">{{suggested_goal.title}}</a><br/>
+				<small><p class="text-muted">{{suggested_goal.count_checklist}} checklist</p></small>
+			</div>
+		{%endfor %}	
+		</div>
+	</div>
+	</div>
+{% endblock%}

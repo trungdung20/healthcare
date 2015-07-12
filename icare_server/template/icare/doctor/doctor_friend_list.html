@@ -2,18 +2,24 @@
 
 {% block body_block %}
 	<div class="container-fluid">
-		<h4>Doctor <a href="/icare/profile/doctor/{{doctor.user.id}}/">{{doctor.name}}</a>'s patient care list:</h4>
+	<div class="panel panel-default">
+	<div class="panel-body">
+		<h4><a href="/icare/profile/doctor/{{doctor.user.id}}/">Dr.{{doctor.name}}</a>'s patient care list:</h4>
+	</div>	
+	</div>	
+	
+	
 		<div class="panel-group">
 		{% for user in user_friend_list %}
 		<div class="container-fluid">
-			<div class="col-sm-8">
 				<div class ="panel panel-default">
+				
 				<div class="panel-body">
-					<div class="container-fluid">
+					
 						<div class="col-sm-4">
 							
 							{% if user.patient.patient_image %}
-								<img src="/media/{{user.patient.patient_image}}" width="60" height="70" class="img-responsive" alt="{{user.patient.name}}" class="img-response"/>
+								<img src="/media/{{user.patient.patient_image}}" width="90" height="90" class="img-responsive" alt="{{user.patient.name}}" class="img-response"/>
 							{% else %}
 								<img width="196" height="196" src="http://lorempixel.com/196/{{demo.id|add:196}}/abstract/" />
 							{% endif %}
@@ -22,17 +28,19 @@
 						
 						<div class="col-sm-8">
 							<h5>
-							<a href="/icare/profile/patient/{{user.id}}/">Patient:{{user.patient.name}}</a>
-							
+							<p>Name: <a href="/icare/profile/patient/{{user.id}}/">{{user.patient.name}}</a></p>
+							<p>Day of Birth: {{user.patient.birthday}}</p>
+							<p>Gender: {{user.patient.gender}}</p>
 							</h5>
 							<a class="btn btn-mini btn-primary" type="button" href="/icare/profile/patient/{{user.id}}/">View</a>
 						</div>
 					</div>
 				</div>
-				</div>
 			</div>
-		</div><br/>
+			
+		<br/>
 		{% endfor %}
 		</div>
+		
 	</div>
 {% endblock%}

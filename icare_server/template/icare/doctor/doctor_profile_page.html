@@ -1,5 +1,5 @@
 {% load endless %}
-{% paginate 5 history_list %}
+{% paginate history_list %}
 
 {% if history_list %}
 		
@@ -7,39 +7,42 @@
 			{% if history.is_history_topic%}
 			<div class="panel panel-default">
 			<div class="panel-heading">
+			<div class="row">
 				<div class="container-fluid">
 					<div class="col-sm-2">
-					{% if history.history_topic.related_doctor.doctor_image%}
-					<img src="/media/{{history.history_topic.related_doctor.doctor_image}}/" class="img-responsive" width="50" height="50" />
+					{% if history.history_topic.created_doctor.doctor_image %}
+					<img src="/media/{{history.history_topic.created_doctor.doctor_image}}" class="img-responsive" width="50" height="50" />
 					{% endif%}
 					</div>
-					<div class="col-sm-3">
-					<p>Doctor <a href="/icare/profile/doctor/{{history.history_topic.related_doctor.used.id}}/">{{history.history_topic.related_doctor.name}}</a> has created</p>
+					<div class="col-sm-4">
+					<p><a href="/icare/profile/doctor/{{history.history_topic.created_doctor.user.id}}/">Dr.{{history.history_topic.created_doctor.name}}</a> created</p>
 					</div>
 				</div>
-				
-				<div class="container-fluid">
-				<h5><a href="/icare/topic/show/{{history.history_topic.id}}/">{{history.history_topic.title}}</a>
-				</div>
 				<hr/>
+				<div class="container">
+				
+				<h5><a href="/icare/topic/show/{{history.history_topic.id}}/">{{history.history_topic.title}}</a>
+				
+				</div>
+				</div>
 			</div>	
 			<div class="panel-body">
 			<p>In Brief</p>
-				<br/>
+				
 			<p>{{history.history_topic.definition}}</p>
 			</div>
-			</div><br/>
+			</div>
 			{% endif %}
 			
 			{% if history.is_history_checklist%}
 			<div class="panel panel-info">
 			<div class="panel-heading">
 			<div class="container-fluid">
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 			<img src="/media/{{history.history_checklist.related_doctor.doctor_image}}/" class="img-responsive" width="50" height="50" >
 			</div>
-			<div class="col-sm-6">
-			<p>Doctor <a href="/icare/profile/doctor/{{history.history_checklist.related_doctor.user.id}}/">{{history.history_checklist.related_doctor.name}}</a>'s CheckList on <h4><a href="/icare/{{history.history_checklist.related_goal.id}}/check_lists/">{{history.history_checklist.related_goal.title}}</a></h4></p>
+			<div class="col-sm-7">
+			<p><a href="/icare/profile/doctor/{{history.history_checklist.related_doctor.user.id}}/">Dr.{{history.history_checklist.related_doctor.name}}</a>'s CheckList on <h4><a href="/icare/{{history.history_checklist.related_goal.id}}/check_lists/">{{history.history_checklist.related_goal.title}}</a></h4></p>
 			<a data-toggle="collapse" data-parent="#accordion" href="#{{history.history_checklist.id}}" class="btn btn-sm btn-primary">Show</a>
 			</div>
 			
@@ -69,7 +72,7 @@
 			</div>
 				</div>
 			</div>
-			<br/>
+			
 			{% endif%}
 			
 			{% if history.is_history_answer%}
@@ -84,21 +87,22 @@
 					</div>
 					<div class="panel-body">
 						<div class="container-fluid">
-							<div class="col-sm-2">
+							<div class="col-sm-1">
 							<img src="/media/{{history.history_answer.from_doctor.doctor_image}}/" class="img-responsive" width="50" height="50"/>
 							</div>
 							<div class="col-sm-5">
-							<p>Doctor <a href="/icare/profile/doctor/{{history.history_answer.from_doctor.user.id}}/">{{history.history_answer.from_doctor.name}}</a> has answer</p>
+							<p><a href="/icare/profile/doctor/{{history.history_answer.from_doctor.user.id}}/">Dr.{{history.history_answer.from_doctor.name}}</a> has answer</p>
 							
 							</div>
 						</div>
+						<hr/>
 						<div class="container-fluid">
 						<p>{{history.history_answer.detail}}</p>
 						<a href="/icare/question/show/{{history.history_answer.related_question.id}}/">See more</a>
 						</div>
 						
 					</div>
-				</div><br/>
+				</div>
 			{% endif %}
 		{% endfor %}
 	{% else %}

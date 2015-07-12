@@ -1,17 +1,23 @@
+
 <div class="panel panel-default">
-	<div class="panel-body">
+		<div class="panel-body">
 		<div class="row-fluid">
-			<div class="span12">
 			<h5>
-			question title: {{new_question.title}} 
+			{{new_question.title}} 
 			</h5>
-			
-			</div>
-		</div><hr />
+			<p>
+			<a>{{new_question.answer_count}}</a> answers
+			</p>
+		</div>
+			<hr/>
+       
 		
-        <div class="row-fluid">
+        <div class="container-fluid">
             <a href="/icare/question/show/{{new_question.id}}">Read more</a>
         </div>
-      
-	</div>	
-	</div > <br/>
+		
+        
+		</div>
+	
+	</div > 
+	<br/>

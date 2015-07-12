@@ -1,4 +1,5 @@
 {% extends 'icare/base_main.html' %}
+{% load bootstrap_toolkit %}
 
 {% block js %}
   {{ block.super }}
@@ -32,7 +33,9 @@
 
 	<div class="panel panel-default">
 	<div class="panel-body">
+	<div class="row-fluid">
 	<a class="btn btn-sm btn-lg" type="button" href="/icare/checklist/doctor_add_checklist/{{goal.id}}/">Add Checklist</a>
+	</div>
 	</div>
 	</div>
 
@@ -41,7 +44,9 @@
 
 <div class="panel panel-default">	
 	<div class="panel-body">
+	<div class="row-fluid">
 	<strong> {% if goal %} <p class="text-primary">{{goal.title}}</p> {% endif %} </strong>
+	</div>
 	</div>
 </div>
 
@@ -54,4 +59,81 @@
 </div>
 
 </div>
+{% endblock %}
+
+{% block related_block %}
+<br/>
+<br/>
+	<div class="container-fluid">
+	 <div class="panel panel-default">
+		<div class="panel-body">
+		
+		<div class="row">
+			<div class="container-fluid">	
+			<div class="col-sm-8">
+			<h5>Related topic</h5>
+			</div>
+			<div class="col-sm-2">
+			{% if doctor %}
+				<a class="btn btn-sm btn-primary" type="button" data-toggle="modal" data-target="#topic_add">Add</a>
+				
+			{% endif %}	
+			</div>
+			
+			</div>
+		
+		<hr/>		
+		{%if topic_list%}
+			{% for topic in topic_list %}
+			<div class="container-fluid">
+			<a href="/icare/topic/show/{{topic.topic.id}}/">{{topic.topic.title}}</a>	
+			<p class="text-muted">{{topic.topic.topicfollow_set.count}} follower</p>
+			</div>
+			{% endfor %}
+		{% else %}
+		<strong>No related topics present</strong>
+		{% endif%}
+		</div>
+		
+		</div>
+	 </div>
+	</div>
+	
+	<div id="topic_add" class="modal fade" role="dialog">
+							<div class="modal-dialog">
+
+					<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+										<h4 class="modal-title">Topic edit form</h4>
+								</div>
+								<div class="modal-body">
+									
+									<form role="form" method="post" action="/icare/topic/add/goal_related/{{goal.id}}/">
+									<div class="form-group">
+										{% csrf_token %}
+										{{topic_form|as_bootstrap}}
+										
+										<label>Select topic categories</label>
+										<select class="form-control" name="select_category">
+											<option value="condition">condition</option>
+											<option value="medication">medication</option>
+											<option value="symptom">symptom</option>
+											<option value="procedure">procedure</option>
+											<option value="other">other</option>
+										</select>
+										
+										<br/>
+										<input class="btn btn-primary" type="submit" name="submit" value="edit"/>
+									</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
+								</div>
+							</div>
+
+							</div>
+	</div>
 {% endblock %}

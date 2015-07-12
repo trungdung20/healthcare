@@ -42,7 +42,15 @@ GENDER_CHOICES = (
 	('Female','Female'),
 	)
 
-
+INSURANCE = (
+	('Uninsured','Uninsured'),
+	('Medicare','Medicare'),
+	('Medicaid','Medicaid'),
+	('Veteran Administration','Veteran Administration'),
+	('CHAMPUS','CHAMPUS'),
+	('Insurance Company','Insurance Company'),
+	
+)
 ETHNICITY = (
 	('Caucasian','Caucasian'),
 	('African Ameracan','African American'),
@@ -133,14 +141,15 @@ class Patient(models.Model):
 		
 class DoctorRecord(models.Model):
 	doctor = models.OneToOneField(Doctor)
-	doctor_information = models.TextField()
+	doctor_information = models.TextField(null=True,blank=True)
 	doctor_recommendation = models.IntegerField(default=0)
 	patient_recommendation = models.IntegerField(default=0)
 	language = models.CharField(max_length=500)
 	number_answer = models.IntegerField(default=0)
 	number_create_item_checklist = models.IntegerField(default=0)
 	number_create_topic = models.IntegerField(default=0)
-	
+	office_hour = models.TextField(null=True,blank=True) 
+	url = models.URLField(null=True,blank=True)
 	def _point_caculation(self):
 		return (self.doctor_recommendation*20 + self.patient_recommendation*8 + self.number_answer*40 + self.number_create_item_checklist*20 + self.number_create_topic*90)
 	
@@ -373,17 +382,25 @@ class Topic(models.Model):
 	definition = models.TextField()
 	image = models.ImageField(null= True , blank = True, upload_to='topic_images')
 	image_description = models.CharField(max_length=500,null= True , blank = True)
-	related_goal = models.ManyToManyField(Goal,blank=True)
 	created_doctor = models.ForeignKey(Doctor,blank=True, null=True)
 	create_time = models.DateTimeField(auto_now_add=True)
 	agree = models.IntegerField(default=0)
+	viewed = models.IntegerField(default=0)
 	def __unicode__(self):
 		return self.title 
+
+class TopicAndGoal(models.Model):
+	topic = models.ForeignKey(Topic)
+	goal  = models.ForeignKey(Goal)
+	
+	def __unicode__(self):
+		return "topic %d and goal %d"%(self.topic.title, self.goal.title)
 		
 class TopicFollow(models.Model):
 	user = models.ForeignKey(User)
 	topic = models.ForeignKey(Topic)
 	created = models.DateTimeField(auto_now_add=True)
+	
 	def __unicode__(self):
 		return "user %s follow topic %s"%(self.user.username,self.topic.title)
 		
@@ -511,11 +528,22 @@ class Question(models.Model):
 	related_goal = models.ForeignKey(Goal,related_name = 'goal_questions',null=True,blank=True)
 	created_time = models.DateTimeField(auto_now_add = True)
 	to_doctor = models.ForeignKey(Doctor,null=True,blank=True)
-	
+	viewed = models.IntegerField(default=0)
 	privacy = models.BooleanField(default=False)
+	def _count_answer(self):
+		answer_count = self.answers.count() 
+		return answer_count
+	answer_count = property(_count_answer)
 	
 	def __unicode__(self):
 		return self.title
+		
+class QuestionRelate(models.Model):
+	question = models.ForeignKey(Question,related_name="main_question")
+	question_related = models.ForeignKey(Question,related_name="related_question")
+	
+	def __unicode__(self):
+		return "question %s and question %s"%(self.question.id,self.question_related.id)
 		
 class Answer(models.Model):
 	detail = models.TextField() 
@@ -552,6 +580,37 @@ class AgreeAnswer(models.Model):
     def __unicode__(self):
         return self.doctor.name 
 
+class PatientMedication(models.Model):
+	patient = models.ForeignKey(Patient)
+	medication = models.CharField(max_length=50)
+	active = models.BooleanField(default=False)
+	def __unicode__(self):
+		return self.patient.name
+		
+class PatientCondition(models.Model):
+	patient = models.ForeignKey(Patient)
+	condition = models.CharField(max_length=50)
+	active = models.BooleanField(default=False)
+	
+	def __unicode__(self):
+		return self.patient.name
+		
+class PatientFamilyHistory(models.Model):
+	patient = models.ForeignKey(Patient)
+	member = models.CharField(max_length=50)
+	condition = models.CharField(max_length=50)
+	
+	def __unicode__(self):
+		return self.patient.name
+
+class PatientAllergy(models.Model):
+	patient = models.ForeignKey(Patient)
+	allergy = models.CharField(max_length=50)
+	active = models.BooleanField(default=False)
+	
+	def __unicode__(self):
+		return self.patient.name 
+		
 class PatientRecord(models.Model):
 	patient = models.OneToOneField(Patient)
 	ethnicity = models.CharField(max_length=50,choices=ETHNICITY)
@@ -581,7 +640,7 @@ class Notification(models.Model):
 	topic = models.OneToOneField(Topic,null=True,blank=True)
 	
 	def __unicode__(self):
-		return "Create on %d" % self.date_time
+		return "Create on %s" % self.date_time
 #add related topic follow notification 
 class AddTopicFollowNotification(models.Model):
 	user = models.ForeignKey(User)
@@ -708,7 +767,7 @@ class EditChecklistNotification(models.Model):
 	viewed_by_patient = models.BooleanField(default=False)
 	
 	def __unicode__(self):
-		return "doctor %s checklist %s add to patient %s"%(self.from_doctor.name,self.checklist.id,self.to_patiet.name)
+		return "doctor %s checklist %d add to patient %s"%(self.from_doctor.name,self.checklist.id,self.to_patient.name)
 
 class AddChecklistNotification(models.Model):
 	to_patient = models.ForeignKey(Patient)
@@ -718,7 +777,7 @@ class AddChecklistNotification(models.Model):
 	viewed_by_patient = models.BooleanField(default=False)
 	
 	def __unicode__(self):
-		return "doctor %d checklist %s edit to patient %s"%(self.from_doctor.name,self.checklist.id,self.to_patiet.name)		
+		return "doctor %s checklist %d edit to patient %s"%(self.from_doctor.name,self.checklist.id,self.to_patient.name)		
 		
 class PatientNotification(models.Model):
 	 patient = models.ForeignKey(Patient)
@@ -749,3 +808,10 @@ class Feedback(models.Model):
 	def __unicode__(self):
 		return "feedback %d created one %d"%(self.id,self.created)
 		
+
+class QuestionAndTopic(models.Model):
+	question = models.ForeignKey(Question)
+	topic = models.ForeignKey(Topic)
+	
+	def __unicode__(self):
+		return self.id

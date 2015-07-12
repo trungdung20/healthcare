@@ -10,7 +10,7 @@
 	<h5>{{question.question.title}}</h5>
 	</div>
 	<div class="panel-body">
-			<form role="form" id="answer_post" method="POST" action="/icare/question/answer_unanswer_question/{{question.question.id}}/"
+			<form role="form" method="POST" action="/icare/question/answer_unanswer_question/{{question.question.id}}/"
 				enctype="multipart/form-data">
 			{% csrf_token %}
 			<div class="form-group">

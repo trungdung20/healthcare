@@ -7,8 +7,10 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
+
     <link href="{% static 'css/bootstrap.min.css'%} " rel="stylesheet" media="screen">
 	<link href="{% static 'css/dashboard.css'%} " rel="stylesheet" media="screen">
+	 
     <title>Internet healthcare</title>
 	<style type="text/css">
 		span.stars, span.stars span {
@@ -26,6 +28,11 @@
 	.background-condition {
      background: url(https://www.google.hu/images/srpr/logo4w.png) no-repeat center center fixed;
     background-size: cover;
+}
+
+.col-centered{
+    
+    margin: 0 auto;
 }
 
 .checkmark {
@@ -67,17 +74,19 @@
 	
 	</style>
 	<style type="text/css">
-   body { background:#F0F0F0;}
+   body { background:#F4F0F2;}
 	</style>
 
 <style>
 body { padding-top: 55px; }
+
 hr {
     border: 0;
     height: 1px;
     background: #333;
     background-image: linear-gradient(to right, #ccc, #333, #ccc);
 }
+
 div {
     
     word-wrap: break-word;
@@ -99,8 +108,61 @@ div {
     box-shadow: inset 0 0 0 0 rgba(0,0,0,.4),-2px -3px 5px -2px rgba(0,0,0,.4);
 }
 
+.search-form .form-group {
+  float: right !important;
+  transition: all 0.35s, border-radius 0s;
+  width: 32px;
+  height: 32px;
+  background-color: #fff;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+}
+.search-form .form-group input.form-control {
+  padding-right: 20px;
+  border: 0 none;
+  background: transparent;
+  box-shadow: none;
+  display:block;
+}
+.search-form .form-group input.form-control::-webkit-input-placeholder {
+  display: none;
+}
+.search-form .form-group input.form-control:-moz-placeholder {
+  /* Firefox 18- */
+  display: none;
+}
+.search-form .form-group input.form-control::-moz-placeholder {
+  /* Firefox 19+ */
+  display: none;
+}
+.search-form .form-group input.form-control:-ms-input-placeholder {
+  display: none;
+}
+.search-form .form-group:hover,
+.search-form .form-group.hover {
+  width: 100%;
+  border-radius: 4px 25px 25px 4px;
+}
+.search-form .form-group span.form-control-feedback {
+  position: absolute;
+  top: -1px;
+  right: -2px;
+  z-index: 2;
+  display: block;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  color: #3596e0;
+  left: initial;
+  font-size: 14px;
+}
 
-
+.col-centered{
+    float: none;
+    margin: 0 auto;
+}
 </style>
 </head>
 	
@@ -110,7 +172,7 @@ div {
   <div class="container-fluid">
     <div class="navbar-inner">
         
-		
+		<!--nav collapse>
 			<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -118,39 +180,57 @@ div {
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
             </button>
-			<ul class="nav pull-right">
-            <p class="navbar-text">Hello,{{user.username}}!</p>
-			</ul>
-        
-			
+			<-->
 		
-	  <div class="nav-collapse collapse">
-      <!-- Right Nav Section -->
-      <ul class="nav pull-left">
+		
+		<a class="navbar-brand" href="/icare/index/"> Icare Project</a>
+         <p class="navbar-text">Hello {{user.username}}!</p>
+			<div class="col-md-5">
 			
-<footer>
-    <div class="container">
-        <p>&copy; Online Healthcare project: Alpha build version</p>
-    </div>
-</footer>
-				{% if user.is_authenticated %}
-                    
-                    
+			
+			<form action="/icare/search/grand_content/" method="GET" class="navbar-form navbar-right">
+			
+                <div class="form-group has-feedback">
+					
+            		<label for="search" class="sr-only">Search</label>
+            		<input type="text" class="form-control" name="search_main" id="search_main" placeholder="Quick Search">
+              		<span class="glyphicon glyphicon-search form-control-feedback"></span>
+            	</div>
+            </form>
+			
+			</div>
+			
+			
+			
+			
+
+			
+			<ul class="nav navbar-nav navbar-right">
+					{% if user.is_authenticated %}
                     <li><a href="/icare/index/">Feed</a></li>
 					<li><a href="/icare/search/">Search</a></li>
-					<li ><a href="/icare/category/">To Do List</a></li>
+					<li><a href="/icare/category/">To Do List</a></li>
 					
 					<li><a href="/icare/logout/">Sign Out</a></li>
-				{% endif %}
+					{% endif %}
                        
-        <li><a href="/icare/about/">About</a></li>
-      </ul>
-
+					<li><a href="/icare/about/">About</a></li>
+			</ul>
+			
+		
+			
+        
+			
+		<!--comment>
+	
+	  <-->
+      <!-- Right Nav Section -->
+		
+	</div>
     </div>
-		</div>
-     </div>
  </nav>
-    <div class="row-fluid">
+ 
+    <div class="container-fluid">
 		
 			<div div class="col-sm-3 col-md-2 sidebar">
 				
@@ -174,8 +254,6 @@ div {
 					<li id="active_toggle"><a href="/icare/health_care_list/patient_list/">Patient Care List</a></li>
 					<br/>
 					<li id="active_toggle"><a href="/icare/question/unanswer/">Unanswer Question</a></li>
-				
-					
 					<br/>
 					{% else %}
 					<li id="active_toggle"><a href="/icare/profile/patient/{{curruserid}}/">Profile</a></li>
@@ -184,19 +262,25 @@ div {
 					<br/>
 					<li id="active_toggle"><a href="/icare/health_care_list/doctor_list/">Doctor Care List</a></li>
 					<br/>
-					
 					<li id="active_toggle"><a href="/icare/checklist/my_checklist/{{curruserid}}/">My Health Plan</a></li>
 					<br/>
 					{% endif %}
 					<li id="active_toggle"><a href ="/icare/account_setting/">Account Setting</a></li>
 					<br/>
-				
+					<br/>
+			<hr/>		
+				<footer>
+			<div class="container-fluid">
+				<p>&copy; Online Healthcare project. Alpha build version</p>
+			</div>
+			</footer>
+			<hr/>
 				</ul>
 			</div>	
 			</div>
 		
 		
-		<div id="content">
+	<div id="content">
        <div class="col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 main">
 			{% block body_block %}
 			{% endblock %}
@@ -215,10 +299,12 @@ div {
     <script src="{% static 'js/jquery-2.0.3.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
 	<script src="{% static 'js/endless-pagination.js'%}"></script>
-	<script src="{% static 'js/add-newajax.js'%}"></script>
+	<script src="{% static 'js/newajax.js'%}"></script>
+	
 	<script src="{% static 'js/live-ajax.js'%}"></script>
  </body>
  <script>
+ 
  //patient weight submit handle
 var url = window.location;
 // Will only work if string in href matches with location

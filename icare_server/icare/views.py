@@ -3,12 +3,13 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidde
 from django.template import RequestContext ,loader, Context
 from django.shortcuts import render_to_response, get_object_or_404, render 
 from django.contrib.auth import authenticate, login, logout 
-from models import Patient, Doctor, PatientRecord, DoctorRecord, FriendShipRequest, Friend, Category, Goal, CheckList,ThanksChecklist, AgreeChecklist, ListItem, UserCheckList, UserListItem, Topic, Vaccination, Condition, Riskfactor, Symptom, Procedure,Medication,Question,Answer, ThanksAnswer, AgreeAnswer,AnswerAlert,QuestionAlert,AdvisorRequest,Notification,UserChecklistIndex,TopicFollow, AnswerNotification, AddTopicNotification, EditTopicNotification, DoctorNotification, PatientNotification,AddChecklistNotification,EditChecklistNotification,AddTopicFollowNotification,EditTopicFollowNotification,AddAnswerTopicFollowNotification,AddQuestionTopicFollowNotification,ThankChecklistNotification,ThankAnswerNotification,AgreeAnswerNotification,AgreeChecklistNotification,Feedback,TopicAgree
-from forms import UserForm, PatientForm,  PatientRecordWeightForm, PatientRecordHeightForm, PatientRecordEthnicityForm,PatientRecordVaccinationForm, PatientRecordDietaryForm, PatientRecordAlcoholForm, PatientRecordTobaccoForm, PatientRecordSexForm, PatientRecordDrugForm, DoctorForm, DoctorRecordForm, QuestionForm, AnswerForm, TopicForm, ItemListForm,DoctorImageForm,FeedbackForm
+from models import Patient, Doctor, PatientRecord, DoctorRecord, FriendShipRequest, Friend, Category, Goal, CheckList,ThanksChecklist, AgreeChecklist, ListItem, UserCheckList, UserListItem, Topic, Vaccination, Condition, Riskfactor, Symptom, Procedure,Medication,Question,Answer, ThanksAnswer, AgreeAnswer,AnswerAlert,QuestionAlert,AdvisorRequest,Notification,UserChecklistIndex,TopicFollow, AnswerNotification, AddTopicNotification, EditTopicNotification, DoctorNotification, PatientNotification,AddChecklistNotification,EditChecklistNotification,AddTopicFollowNotification,EditTopicFollowNotification,AddAnswerTopicFollowNotification,AddQuestionTopicFollowNotification,ThankChecklistNotification,ThankAnswerNotification,AgreeAnswerNotification,AgreeChecklistNotification,Feedback,TopicAgree,PatientAllergy, PatientCondition, PatientMedication, PatientFamilyHistory,QuestionRelate,QuestionAndTopic,TopicAndGoal
+from forms import UserForm, PatientForm,  PatientRecordWeightForm, PatientRecordHeightForm, PatientRecordEthnicityForm,PatientRecordVaccinationForm, PatientRecordDietaryForm, PatientRecordAlcoholForm, PatientRecordTobaccoForm, PatientRecordSexForm, PatientRecordDrugForm, DoctorForm, DoctorRecordForm, QuestionForm, AnswerForm, TopicForm, ItemListForm,DoctorImageForm,FeedbackForm, PatientAllergyForm, PatientConditionForm, PatientMedicationForm, PatientFamilyHistoryForm
 from endless_pagination.decorators import page_template 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
+from random import sample 
 #return list of parameter for navbar
 import itertools
 import time	
@@ -175,7 +176,7 @@ def user_logout(request):
 	logout(request)
 	return HttpResponseRedirect('/icare/')
 
-@login_required		
+
 
 def index(request,extra_context=None, template=None):
 	context = RequestContext(request)
@@ -195,7 +196,13 @@ def index(request,extra_context=None, template=None):
 		patient = get_patient(user)
 	except:
 		patient = None 
-	if patient: 	
+	if patient:
+	
+		count = Doctor.objects.all().count() 
+		if count > 5:
+			rand_ids = sample(xrange(1,count),5)
+			doctor_suggestion_list = Doctor.objects.filter(id__in=rand_ids)
+			context_dict['doctor_suggestion_list'] = doctor_suggestion_list 
 		unread_notification = PatientNotification.objects.filter(patient=patient).count()
 	else:	
 		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count()
@@ -205,6 +212,7 @@ def index(request,extra_context=None, template=None):
 	list = []
 	for notification in notifications:
 		dict = {} 
+		dict['notification_object'] = notification
 		#add question
 		question = notification.question 
 		is_question = False 
@@ -311,7 +319,7 @@ def question_post(request):
 			ask_form = QuestionForm() 
 			context_dict['ask_form'] = ask_form 
 			context_dict['unread_notification'] = unread_notification 
-			return render_to_reponse('icare/content/question_index.html', context_dict, context)
+			return render_to_response('icare/content/question_index.html', context_dict, context)
 	
 @login_required 
 def question_show(request, question_id, extra_context=None, template=None): 
@@ -343,8 +351,16 @@ def question_show(request, question_id, extra_context=None, template=None):
 	already_answer = False 
 	question = Question.objects.get(id=question_id)
 	answers = Answer.objects.filter(related_question = question).order_by('-thanks','-agree')
-	
+	question.viewed +=  1 
+	question.save()
 	list = []
+	if doctor:
+		if not already_answer:
+			can_answer = True 
+		is_doctor = True
+	if patient:
+		is_patient = True
+		
 	for answer in answers:
 		dict = {} 
 		dict['answer'] = answer 
@@ -353,7 +369,7 @@ def question_show(request, question_id, extra_context=None, template=None):
 		if is_patient:
 			is_thanked = False
 			thank = ThanksAnswer.objects.filter(answer=answer,patient=patient)
-			agree_list = AgreeAnswer.objects.fitler(answer=answer)
+			agree_list = AgreeAnswer.objects.filter(answer=answer)
 			if agree_list:
 				dict['agree_doctor_list'] = agree_list
 			if thank:
@@ -361,23 +377,29 @@ def question_show(request, question_id, extra_context=None, template=None):
 			dict['is_thanked'] = is_thanked 	
 		if is_doctor:
 			is_agreed = False
-			agree = AgreeAnswer.objects.filter(answer=answer,doctor=doctor)
-			agree_list = AgreeAnswer.objects.fitler(answer=answer)
+			curr_doctor = get_doctor(request.user)
+			agree = AgreeAnswer.objects.filter(answer=answer,doctor=curr_doctor)
+			agree_list = AgreeAnswer.objects.filter(answer=answer)
+			
 			if agree_list:
 				dict['agree_doctor_list'] = agree_list
 			if agree:
 				is_agreed = True 
-				
+			
 			dict['is_agreed'] = is_agreed 	
+			
 		list.append(dict)	
 		
 	if doctor:
 		if not already_answer:
 			can_answer = True 
-		is_doctor = True
-	if patient:
-		is_patient = True
 		
+	
+	question_related = QuestionRelate.objects.filter(question=question)
+	#topic_related = QuestionAndTopic.objects.filter(question=question)
+	question_form = QuestionForm()
+	context_dict['question_related_list'] = question_related 
+	context_dict['question_form'] = question_form  
 	context_dict['can_answer'] = can_answer
 	context_dict['question']= question
 	context_dict['answers'] = list 
@@ -396,7 +418,6 @@ def question_show(request, question_id, extra_context=None, template=None):
 
 @login_required 
 #doctor answer normal question 
-
 def question_answer(request,question_id):
 	
 	context = RequestContext(request)
@@ -431,7 +452,7 @@ def question_answer(request,question_id):
 				#handles user follow topic 
 				related_topic = question.related_topic
 				users_topic_follow = TopicFollow.objects.filter(topic=related_topic)
-				for user_topic_follow in user_topic_follow:
+				for user_topic_follow in users_topic_follow:
 					user = user_topic_follow.user 
 					answer_topic_follow_notification = AddAnswerTopicFollowNotification(user=user,answer=answer,from_doctor=doctor,topic=related_topic)
 					answer_topic_follow_notification.save()
@@ -443,16 +464,23 @@ def question_answer(request,question_id):
 						doctor_follow_topic = get_doctor(user)
 						doctor_notification = DoctorNotification(doctor=doctor_follow_topic,add_answer_follow_topic=answer_topic_follow_notification)
 						doctor_notification.save()
-				answer_notification = AnswerNotification(doctor=doctor,answer=answer)
-				answer_notification.save()
+				patient = question.created_patient		
+				
+				if patient:
+					answer_notification = AnswerNotification(doctor=doctor,answer=answer,to_patient=patient)
+					answer_notification.save()
+					patient_ask_answer_notification = PatientNotification(patient=patient,answer_doctor_follow=answer_notification)
+					patient_ask_answer_notification.save()
 				friends = Friend.objects.filter(to_user=doctor.user)
 				#handles patient follow doctor
 				for friend in friends:
 					patient_friend = get_patient(friend.from_user)
-					patient_notification = AnswerNotification(doctor=doctor,to_patient=patient_friend,answer=answer_notification)
-					patient_notification.save()
-					patient_answer_follow_notification = PatientNotification(patient=patient_friend,answer_doctor_follow=patient_notification)
-					patient_answer_follow_notification.save()
+					if patient_friend != patient:
+						patient_notification = AnswerNotification(doctor=doctor,to_patient=patient_friend,answer=answer)
+						patient_notification.save()
+						patient_answer_follow_notification = PatientNotification(patient=patient_friend,answer_doctor_follow=patient_notification)
+						patient_answer_follow_notification.save()
+						
 				doctor_record.number_answer = doctor_record.number_answer + 1
 				doctor_record.save()
 				
@@ -463,7 +491,7 @@ def question_answer(request,question_id):
 			answer_form = AnswerForm()
 			
 			context_dict['answer_form'] = answer_form 
-			return render_to_reponse('icare/content/question_show.html',context_dict,context)
+			return render_to_response('icare/content/question_show.html',context_dict,context)
 			
 	return HttpResponseRedirect('/icare/question/show/'+str(question_id)+'/')
 
@@ -571,7 +599,11 @@ def category_show(request):
 	context_dict['unread_notification'] = unread_notification 
 		
 	category_list = []
-	
+	goal_count = Goal.objects.all().count() 
+	if goal_count > 5: 
+		rand_ids = sample(xrange(0,goal_count),5)
+		suggested_goal_list = Goal.objects.filter(id__in=rand_ids)
+		context_dict['suggested_goal_list'] = suggested_goal_list
 	for category in Category.objects.all():
 		category_dict = {} 
 		category_dict['category'] = category 
@@ -581,7 +613,6 @@ def category_show(request):
 	
 	context_dict['category_list'] = category_list 
 	return render_to_response('icare/content/category_index.html',context_dict, context)
-
 
 @login_required 
 def checklist_index(request, goal_id,extra_context=None, template=None):
@@ -618,9 +649,8 @@ def checklist_index(request, goal_id,extra_context=None, template=None):
 		context_dict['question_form'] = QuestionForm()
 	user_patient = get_patient(request.user)
 	
-	
-	
 	goal = Goal.objects.get(id = goal_id)
+	topic_list = TopicAndGoal.objects.filter(goal=goal)
 	checklists =  CheckList.objects.filter(related_goal = goal_id)
 	questions = Question.objects.filter(related_goal=goal)
 	question_list = []
@@ -631,10 +661,11 @@ def checklist_index(request, goal_id,extra_context=None, template=None):
 		is_answer = False 
 		if answers:
 			answer = answers[0]
+			question_dict['answer'] = answer 
 			is_answer =True 
 		question_dict['answer_count'] = answer_count 
 		question_dict['question'] = question 
-		question_dict['answer'] = answer 
+		
 		question_dict['is_answer'] = is_answer 
 		question_list.append(question_dict)
 		
@@ -673,6 +704,9 @@ def checklist_index(request, goal_id,extra_context=None, template=None):
 				is_thanked = True 
 			checklist_dict['is_thanked'] = is_thanked
 		checklist_list.append(checklist_dict)
+	topic_form = TopicForm()
+	context_dict['topic_list'] = topic_list
+	context_dict['topic_form'] = topic_form
 	context_dict['question_list'] = question_list 
 	context_dict['checklist_list'] = checklist_list 
 	context_dict['goal'] = goal 
@@ -696,7 +730,7 @@ def checklist_doctor_add(request,topic_id):
 		doctor = get_doctor(request.user)
 	except:
 		doctor = None 
-	
+	doctor_record = DoctorRecord.objects.get(doctor=doctor)
 	goal = Goal.objects.get(id = int(topic_id))
 	if doctor:
 		checklist = CheckList() 
@@ -712,8 +746,9 @@ def checklist_doctor_add(request,topic_id):
 			add_checklist_notification.save()
 			patient_notification = PatientNotification(patient=patient_friend,add_checklist=add_checklist_notification)
 			patient_notification.save()
+			
 	else:	
-		return HttpReponse('You need to be a doctor to add a new checklist')
+		return HttpResponse('You need to be a doctor to add a new checklist')
 	
 	return HttpResponseRedirect('/icare/' +str(goal.id)+'/check_lists/')
 	
@@ -954,7 +989,10 @@ def checklist_delete(request):
 		user_checklist_id = request.GET['user_checklist_id']
 	user_checklist = UserCheckList.objects.get(id=int(user_checklist_id))
 	patient = user_checklist.related_patient 
-	index = UserChecklistIndex.objects.get(user=patient, checklist=user_checklist)
+	doctor = user_checklist.related_doctor 
+	goal = user_checklist.related_goal 
+	checklist = CheckList.objects.get(related_doctor=doctor,related_goal=goal)
+	index = UserChecklistIndex.objects.get(user=patient,checklist=checklist)
 	
 	user_checklist.delete()
 	index.delete()
@@ -1044,17 +1082,19 @@ def search_condition_result(request,extra_context=None, template=None):
 	context_dict['unread_notification'] = unread_notification 
 	
 	done = False
+	
 	if request.method == 'GET':
 		condition = request.GET['condition']
 		done = True 
 	if done: 
 		#page_template = result_template 
-		result_list = Condition.objects.filter(title__icontains=condition).order_by('-topic__title')
+		result_list = Topic.objects.filter(title__icontains=condition).order_by('title')
 	
 	context_dict['result_list'] = result_list 
 	
 	if extra_context is not None:
 		context_dict.update(extra_context)
+		
 	return render_to_response(template,context_dict, context)
 	
 def search_symptom(request,extra_context=None, template=None):
@@ -1341,7 +1381,8 @@ def topic_show(request, topic_id , template=None, extra_context=None):
 	context_dict = {} 
 	topic_id = int(topic_id)
 	topic_main = Topic.objects.get(id=topic_id)
-	
+	topic_main.viewed += 1 
+	topic_main.save()
 	parameter_index = get_user_list(request.user)
 	context_dict['curruserid'] = parameter_index['curruserid']
 	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
@@ -1435,11 +1476,13 @@ def topic_show(request, topic_id , template=None, extra_context=None):
 def post_question_topic(request,topic_id):
 	context = RequestContext(request)
 	topic = Topic.objects.get(id=int(topic_id))
+	patient_post = get_patient(request.user)
 	users_follow_topic = TopicFollow.objects.filter(topic=topic)
 	if request.method == 'POST':
 		question_form = QuestionForm(data=request.POST)
 		if question_form.is_valid():
 			question = question_form.save(commit=False)
+			question.created_patient = patient_post 
 			question.save() 
 			question.related_topic=topic 
 			question.save() 
@@ -1448,6 +1491,7 @@ def post_question_topic(request,topic_id):
 				question_topic_follow_notification = AddQuestionTopicFollowNotification(user=user,question=question,topic=topic)
 				question_topic_follow_notification.save()
 				patient_follow_topic = get_patient(user)
+				
 				if patient_follow_topic:
 					patient_notification = PatientNotification(patient=patient_follow_topic,add_question_follow_topic=question_topic_follow_notification)
 					patient_notification.save()
@@ -1480,13 +1524,12 @@ def profile_doctor(request, doctor_id,template=None, extra_context=None):
 	currdoctor = get_doctor(request.user)
 	
 	doctor_user = User.objects.get(id = int(doctor_id))
+	
+	doctor_friend_count = Friend.objects.filter(to_user=doctor_user).count()
 	doctor = Doctor.objects.get(user = doctor_user)
+	
 	myaccount = False 
-	
 	is_patient = True  
-	
-	
-	
 	if currdoctor:
 		is_patient = False 
 		if currdoctor.id == doctor.id:
@@ -1577,7 +1620,7 @@ def profile_doctor(request, doctor_id,template=None, extra_context=None):
 	doctor_image_form = DoctorImageForm(instance=currdoctor)
 	
 	context_dict = {'is_friend':is_friend,'is_advisor': is_advisor,'can_be_advisor':can_be_advisor,'doctor': doctor, 'doctor_record': doctor_record, 'myaccount': myaccount, 'can_request': can_request,'topic_list':topic_list,'doctor_record_form':doctor_record_form,'topic_form':topic_form,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor'],'doctor_image_form':doctor_image_form,'unread_notification':unread_notification,'history_list':history_list}
-	
+	context_dict['friend_count'] = doctor_friend_count
 	if extra_context is not None:
 		context_dict.update(extra_context)
 		
@@ -1610,22 +1653,24 @@ def profile_patient(request, patient_id):
 	is_friend = False 
 	is_request = False 
 	
-	friend = Friend.objects.filter(to_user = request.user , from_user = patient.user)
-	friend_re = Friend.objects.filter(to_user = patient.user, from_user = request.user)
+	friend = Friend.objects.filter(to_user = request.user , from_user = patient_user)
+	friend_re = Friend.objects.filter(to_user = patient_user, from_user = request.user)
 	if friend or friend_re:	
 		is_friend = True
+	user = request.user
+	request = FriendShipRequest.objects.filter(to_user =user, from_user = patient_user)
 	
-	request = FriendShipRequest.objects.filter(to_user = request.user, from_user = patient.user)
-	try:
-		request_re = FriendShipRequest.objects.filter(to_user = patient.user, from_user = request.user)
-	except:
-		request_re = None 
+	request_re = FriendShipRequest.objects.filter(to_user = patient_user, from_user =user)
+	
+		
 	if request or request_re:
 		is_request = True 
 		
+	print "friend ship request",is_request	
 	can_request = False 
 	if is_doctor and not myaccount and not is_friend and not is_request: 
 		can_request = True
+		
 	print "patient" ,can_request
 	vaccinations = patient_record.vaccination.all()
 	user_checklist = UserCheckList.objects.filter(related_patient=patient)
@@ -1645,9 +1690,37 @@ def profile_patient(request, patient_id):
 		is_slightly = True 
 	else: 
 		is_overweight = True 
-		
-	context_dict = {'topics_follow':topics_follow,'patient':patient ,'is_underweight':is_underweight,'is_healthy':is_healthy,'is_slightly':is_slightly,'is_overweight':is_overweight ,'patient_record': patient_record, 'myaccount': myaccount, 'can_request' : can_request,'vaccinations':vaccinations,'user_checklist':user_checklist,'curruserid':parameter_index['curruserid'],'is_navbar_doctor':parameter_index['is_doctor'],'unread_notification':unread_notification}
+	current_medication_list = PatientMedication.objects.filter(patient=patient,active=True)
+	past_medication_list = PatientMedication.objects.filter(patient=patient,active=False)
 	
+	current_condition_list = PatientCondition.objects.filter(patient=patient,active=True)
+	past_condition_list = PatientCondition.objects.filter(patient=patient,active=False)
+	
+	current_allergy_list = PatientAllergy.objects.filter(patient=patient,active=True)
+	past_allergy_list = PatientAllergy.objects.filter(patient=patient,active=False)
+	
+	current_family_list = PatientFamilyHistory.objects.filter(patient=patient)
+	context_dict['current_medication_list'] = current_medication_list
+	context_dict['past_medication_list'] = past_medication_list 
+	context_dict["current_condition_list"] = current_condition_list
+	context_dict['past_condition_list'] = past_condition_list 
+	context_dict['current_allergy_list'] = current_allergy_list 
+	context_dict['past_allergy_list'] = past_allergy_list 
+	context_dict['current_family_list'] = current_family_list 
+	context_dict['topics_follow'] = topics_follow 
+	context_dict['patient'] = patient 
+	context_dict['is_underweight'] = is_underweight 
+	context_dict['is_healthy'] = is_healthy 
+	context_dict['is_slightly'] = is_slightly 
+	context_dict["is_overweight"] = is_overweight 
+	context_dict["patient_record"] = patient_record
+	context_dict["myaccount"] = myaccount 
+	context_dict["can_request"] = can_request
+	context_dict["vaccinations"] = vaccinations 
+	context_dict["user_checklist"] = user_checklist 
+	context_dict["curruserid"] = parameter_index['curruserid']
+	context_dict["is_navbar_doctor"] = parameter_index['is_doctor']
+	context_dict["unread_notification"] = unread_notification
 	return render_to_response('icare/patient/patient_profile.html', context_dict, context)
 
 #send advisor request to doctor
@@ -1780,7 +1853,7 @@ def patient_notification_request(request): # display friend request from doctor 
 		
 		is_add_related_topic_follow = False 
 		if add_related_topic_follow:
-			is_add_related_topic_follo = True 
+			is_add_related_topic_follow = True 
 			dict['add_related_topic_follow'] = add_related_topic_follow
 		dict["is_add_related_topic_follow"] = is_add_related_topic_follow 
 		
@@ -2241,7 +2314,7 @@ def doctor_view_accepted_request(request):
 	doctor_friend_accept_notification.delete()
 	if f_request.viewed_by_patient:
 		f_request.delete()
-	return HttpReponse('success ')
+	return HttpResponse('success ')
 	
 	#doctor view patient rejected request
 def doctor_view_rejected_request(request):
@@ -2263,7 +2336,7 @@ def doctor_view_rejected_request(request):
 	if f_request.viewed_by_patient:
 		f_request.delete()
 		
-	return HttpReponse('success ')	
+	return HttpResponse('success ')	
 	
 #doctor accept advisor request 
 def doctor_view_advisor_accept(request):
@@ -2435,6 +2508,89 @@ def patient_edit_submit_height(request, patient_record_id):
 			print patient_record_form.errors 
 			
 			return HttpResponse(patient_record_form.errors)
+			
+#seach for all database 
+def main_search(request):
+	context = RequestContext(request)
+	context_dict = {}
+	
+	parameter_index = get_user_list(request.user)
+	context_dict['curruserid'] = parameter_index['curruserid']
+	context_dict['is_navbar_doctor'] = parameter_index['is_doctor']
+	try:
+		patient = get_patient(request.user)
+	except:
+		patient = None 
+	try:
+		doctor = get_doctor(request.user)
+	except:
+		doctor = None 
+	if patient:
+		unread_notification = PatientNotification.objects.filter(patient=patient).count()
+	else:
+		unread_notification = DoctorNotification.objects.filter(doctor=doctor).count() 
+	context_dict['unread_notification'] = unread_notification	
+	search_content = None 
+	if request.method == "GET":
+		search_index = request.GET['search_main']
+		
+	patient = get_patient(request.user) 
+	doctor = get_doctor(request.user)
+	if patient:
+		doctor_result_list = Doctor.objects.filter(Q(name__icontains=search_index)|Q(specialty__icontains=search_index))
+		doctor_result_count = Doctor.objects.filter(Q(name__icontains=search_index)|Q(specialty__icontains=search_index)).count()
+	else: 
+		doctor_result_list = []
+		doctor_result_count = 0 
+	if doctor:
+		patient_result_list = Patient.objects.filter(name__icontains=search_index)
+		patient_result_count = Patient.objects.filter(name__icontains=search_index).count()
+	else:
+		patient_result_list = [] 
+		patient_result_count = 0 
+	topic_result_list = Topic.objects.filter(title__icontains=search_index)
+	topic_result_count = Topic.objects.filter(title__icontains=search_index).count()
+	question_result_list = Question.objects.filter(title__icontains=search_index,privacy=False)
+	question_result_count = Question.objects.filter(title__icontains=search_index,privacy=False).count()
+	
+	result_count = question_result_count + topic_result_count + patient_result_count + doctor_result_count 
+	list = []
+	for doctor_result, patient_result, topic_result, question_result in itertools.izip_longest(doctor_result_list,patient_result_list,topic_result_list,question_result_list):
+		dict = {}
+		is_doctor_result = False 
+		if doctor_result:
+			is_doctor_result = True 
+			dict['doctor_result'] = doctor_result 
+		dict['is_doctor_result'] = is_doctor_result
+		
+		is_patient_result = False 
+		if patient_result: 
+			is_patient_result = True 
+			dict['patient_result'] = patient_result 
+		dict['is_patient_result'] = is_patient_result
+		
+		is_topic_result = False 
+		if topic_result:
+			is_topic_result = True 
+			dict['topic_result'] = topic_result 
+		dict['is_topic_result'] = is_topic_result 
+		
+		is_question_result = False 
+		if question_result:
+			is_question_result = True 
+			dict['question_result'] = question_result 
+			answer_count = Answer.objects.filter(related_question=question_result).count()
+			answer = Answer.objects.filter(related_question=question_result).order_by('-thanks','-agree')
+			if answer:
+				answer_most = answer[0]
+				dict['answer_most'] = answer_most 
+			dict['answer_count'] = answer_count 
+			
+		dict['is_question_result'] = is_question_result 
+		list.append(dict)
+	context_dict['result_count'] = result_count
+	context_dict['search_result_list'] = list 
+	return render_to_response('icare/search/search_main.html',context_dict,context)
 # patient ethnicity 
 
 def patient_edit_ethnicity(request):
@@ -2661,7 +2817,315 @@ def patient_edit_submit_sex(request, patient_record_id):
 			html = new_template.render(c)
 			return HttpResponse(html)
 		else:
-			print patient_record_form.errors 	
+			print patient_record_form.errors 
+#patient add allergy 
+def patient_add_allergy(request):
+	context = RequestContext(request)
+	
+	patient_id = None 
+	if request.method == 'GET':
+		patient_id = request.GET['patient_id']
+	patient = Patient.objects.get(id=int(patient_id))
+	
+	if patient.user != request.user:
+		return HttpResponseForbidden() 
+	patient_allergy_form = PatientAllergyForm() 
+	
+	new_template = loader.get_template('icare/patient_edit/patient_allergy_form.html')
+	c = RequestContext(request,{'patient_allergy_form':patient_allergy_form,'patient_id':patient_id,'add':True})
+	html = new_template.render(c)
+	
+	return HttpResponse(html)
+#patient submit allergy 
+def patient_submit_add_allergy(request,patient_id):
+	context = RequestContext(request)
+	patient = Patient.objects.get(id=int(patient_id))
+	
+	if patient.user != request.user:
+		return HttpResponseForbidden() 
+	if request.method == "POST":
+		patient_allergy_form = PatientAllergyForm(data=request.POST)
+		if patient_allergy_form.is_valid():
+			patient_allergy = patient_allergy_form.save(commit=False)
+			patient_allergy.patient = patient 
+			patient_allergy.save() 
+			current_allergy_list = PatientAllergy.objects.filter(patient=patient,active=True)
+			past_allergy_list = PatientAllergy.objects.filter(patient=patient,active=False)
+			new_template = loader.get_template('icare/patient_recall_object/patient_new_allergy.html')
+			c = RequestContext(request,{'current_allergy_list':current_allergy_list,'past_allergy_list':past_allergy_list})
+			html=new_template.render(c)
+			return HttpResponse(html)
+		else:
+			print patient_allergy_form.errors 
+			
+#patient edit allergy 
+def patient_edit_allergy(request):
+	context = RequestContext(request)
+	patient_allergy_id = None 
+	
+	if request.method == "GET":
+		patient_allergy_id = request.GET['patient_allergy_id']
+	patient_allergy = PatientAllergy.objects.get(id=int(patient_allergy_id))
+	
+	if patient_allergy.patient.user != request.user:
+		return HttpResponseForbidden() 
+	patient_allergy_form = PatientAllergyForm(instance=patient_allergy)	
+	new_template = loader.get_template('icare/patient_edit/patient_allergy_form.html')
+	c = RequestContext(request,{'patient_allergy_form':patient_allergy_form,'allergy_id':patient_allergy_id})
+	html = new_template.render(c)
+	
+	return HttpResponse(html)
+	
+#patient submit edit allergy 
+def patient_submit_edit_allergy(request,patient_allergy_id):
+	context = RequestContext(request)
+	patient_allergy = PatientAllergy.objects.get(id=int(patient_allergy_id))
+	patient = patient_allergy.patient
+	if request.method == "POST":
+		patient_allergy_form = PatientAllergyForm(data=request.POST, instance=patient_allergy)
+		if patient_allergy_form.is_valid():
+			patient_allergy = patient_allergy_form.save() 
+			current_allergy_list = PatientAllergy.objects.filter(patient=patient,active=True)
+			past_allergy_list = PatientAllergy.objects.filter(patient=patient,active=False)
+			new_template = loader.get_template('icare/patient_recall_object/patient_new_allergy.html')
+			c = RequestContext(request,{'past_allergy_list':past_allergy_list,'current_allergy_list':current_allergy_list})
+			html = new_template.render(c)
+			return HttpResponse(html)
+		else:
+			print patient_allergy_form.errors 
+#patient add condition or symptom 
+def patient_add_condition(request):
+	context = RequestContext(request)
+	
+	patient_id = None 
+	if request.method == 'GET':
+		patient_id = request.GET['patient_id']
+	patient = Patient.objects.get(id=int(patient_id))
+	
+	if patient.user != request.user:
+		return HttpResponseForbidden() 
+	patient_condition_form = PatientConditionForm() 
+	
+	new_template = loader.get_template('icare/patient_edit/patient_condition_form.html')
+	c = RequestContext(request,{'patient_condition_form':patient_condition_form,'patient_id':patient_id,'add':True})
+	html = new_template.render(c)
+	
+	return HttpResponse(html)
+	
+#patient submit add condition 
+def patient_submit_add_condition(request,patient_id):	
+	context = RequestContext(request)
+	patient = Patient.objects.get(id=int(patient_id))
+	
+	if patient.user != request.user:
+		return HttpResponseForbidden() 
+	if request.method == "POST":
+		patient_condition_form = PatientConditionForm(data=request.POST)
+		if patient_condition_form.is_valid():
+			patient_condition = patient_condition_form.save(commit=False)
+			patient_condition.patient = patient 
+			patient_condition.save() 
+			current_condition_list = PatientCondition.objects.filter(patient=patient,active=True)
+			past_condition_list = PatientCondition.objects.filter(patient=patient,active=False)
+			new_template = loader.get_template('icare/patient_recall_object/patient_new_condition.html')
+			c = RequestContext(request,{'current_condition_list':current_condition_list,'past_condition_list':past_condition_list})
+			html=new_template.render(c)
+			return HttpResponse(html)
+		else:
+			print patient_condition_form.errors 
+			
+#patient edit allergy 
+def patient_edit_condition(request):
+	context = RequestContext(request)
+	patient_condition_id = None 
+	
+	if request.method == "GET":
+		patient_condition_id = request.GET['patient_condition_id']
+	print "Hello", patient_condition_id
+	patient_condition = PatientCondition.objects.get(id=int(patient_condition_id))
+	
+	if patient_condition.patient.user != request.user:
+		return HttpResponseForbidden() 
+	patient_condition_form = PatientConditionForm(instance=patient_condition)	
+	new_template = loader.get_template('icare/patient_edit/patient_condition_form.html')
+	c = RequestContext(request,{'patient_condition_form':patient_condition_form,'condition_id':patient_condition_id})
+	html = new_template.render(c)
+	
+	return HttpResponse(html)
+	
+#patient submit edit condition
+def patient_submit_edit_condition(request,patient_condition_id):
+	context = RequestContext(request)
+	patient_condition = PatientCondition.objects.get(id=int(patient_condition_id))
+	patient = patient_condition.patient
+	if request.method == "POST":
+		patient_condition_form = PatientConditionForm(data=request.POST, instance=patient_condition)
+		if patient_condition_form.is_valid():
+			patient_condition = patient_condition_form.save() 
+			current_condition_list = PatientCondition.objects.filter(patient=patient,active=True)
+			past_condition_list = PatientCondition.objects.filter(patient=patient,active=False)
+			new_template = loader.get_template('icare/patient_recall_object/patient_new_condition.html')
+			c = RequestContext(request,{'past_condition_list':past_condition_list,'current_condition_list':current_condition_list})
+			html = new_template.render(c)
+			return HttpResponse(html)
+		else:
+			print patient_allergy_form.errors  
+
+#patient edit medication  
+def patient_edit_medication(request):
+	context = RequestContext(request)
+	patient_medication_id = None 
+	
+	if request.method == "GET":
+		patient_medication_id = request.GET['patient_medication_id']
+	
+	patient_medication = PatientMedication.objects.get(id=int(patient_medication_id))
+	
+	if patient_medication.patient.user != request.user:
+		return HttpResponseForbidden() 
+	patient_medication_form = PatientMedicationForm(instance=patient_medication)	
+	new_template = loader.get_template('icare/patient_edit/patient_medication_form.html')
+	c = RequestContext(request,{'patient_medication_form':patient_medication_form,'medication_id':patient_medication_id})
+	html = new_template.render(c)
+	
+	return HttpResponse(html)
+	
+#patient submit edit medication 
+def patient_submit_edit_medication(request,patient_medication_id):
+	context = RequestContext(request)
+	patient_medication = PatientMedication.objects.get(id=int(patient_allergy_id))
+	patient = patient_medication.patient
+	if request.method == "POST":
+		patient_medication_form = PatientMedicationForm(data=request.POST, instance=patient_medication)
+		if patient_medication_form.is_valid():
+			patient_medication = patient_medication_form.save() 
+			current_medication_list = PatientMedication.objects.filter(patient=patient,active=True)
+			past_medication_list = PatientMedication.objects.filter(patient=patient,active=False)
+			new_template = loader.get_template('icare/patient_recall_object/patient_new_medication.html')
+			c = RequestContext(request,{'past_medication_list':past_medication_list,'current_medication_list':current_medication_list})
+			html = new_template.render(c)
+			return HttpResponse(html)
+		else:
+			print patient_medication_form.errors  
+			
+#patient add medication 
+def patient_add_medication(request):
+	context = RequestContext(request)
+	
+	patient_id = None 
+	if request.method == 'GET':
+		patient_id = request.GET['patient_id']
+	patient = Patient.objects.get(id=int(patient_id))
+	
+	if patient.user != request.user:
+		return HttpResponseForbidden() 
+	patient_medication_form = PatientMedicationForm() 
+	
+	new_template = loader.get_template('icare/patient_edit/patient_medication_form.html')
+	c = RequestContext(request,{'patient_medication_form':patient_medication_form,'patient_id':patient_id,'add':True})
+	html = new_template.render(c)
+	
+	return HttpResponse(html)
+	
+#patient submit medication 
+def patient_submit_add_medication(request,patient_id):	
+	context = RequestContext(request)
+	patient = Patient.objects.get(id=int(patient_id))
+	
+	if patient.user != request.user:
+		return HttpResponseForbidden() 
+	if request.method == "POST":
+		patient_medication_form = PatientMedicationForm(data=request.POST)
+		if patient_medication_form.is_valid():
+			patient_medication = patient_medication_form.save(commit=False)
+			patient_medication.patient = patient 
+			patient_medication.save() 
+			current_medication_list = PatientMedication.objects.filter(patient=patient,active=True)
+			past_medication_list = PatientMedication.objects.filter(patient=patient,active=False)
+			new_template = loader.get_template('icare/patient_recall_object/patient_new_medication.html')
+			c = RequestContext(request,{'current_medication_list':current_medication_list,'past_medication_list':past_medication_list})
+			html=new_template.render(c)
+			return HttpResponse(html)
+		else:
+			print patient_medication_form.errors 
+
+#patient edit allergy 
+def patient_edit_family(request):
+	context = RequestContext(request)
+	patient_family_id = None 
+	
+	if request.method == "GET":
+		patient_family_id = request.GET['patient_family_id']
+	patient_family = PatientFamilyHistory.objects.get(id=int(patient_family_id))
+	
+	if patient_family.patient.user != request.user:
+		return HttpResponseForbidden() 
+	patient_family_form = PatientFamilyHistoryForm(instance=patient_family)	
+	new_template = loader.get_template('icare/patient_edit/patient_family_form.html')
+	c = RequestContext(request,{'patient_family_form':patient_family_form,'family_id':patient_family_id})
+	html = new_template.render(c)
+	
+	return HttpResponse(html)
+	
+#patient submit edit allergy 
+def patient_submit_edit_family(request,patient_family_id):
+	context = RequestContext(request)
+	patient_family = PatientFamilyHistory.objects.get(id=int(patient_family_id))
+	patient = patient_family.patient
+	if request.method == "POST":
+		patient_family_form = PatientFamilyHistoryForm(data=request.POST, instance=patient_family)
+		if patient_family_form.is_valid():
+			patient_family = patient_family_form.save() 
+			current_family_list = PatientFamilyHistory.objects.filter(patient=patient)
+			#past_allergy_list = PatientAllergy.objects.filter(patient=patient,active=False)
+			new_template = loader.get_template('icare/patient_recall_object/patient_new_family.html')
+			c = RequestContext(request,{'current_allergy_list':current_allergy_list})
+			html = new_template.render(c)
+			return HttpResponse(html)
+		else:
+			print patient_family_form.errors
+
+  			
+#patient add family 
+def patient_add_family(request):
+	context = RequestContext(request)
+	patient_id = None 
+	if request.method == 'GET':
+		patient_id = request.GET['patient_id']
+		
+	patient = Patient.objects.get(id=int(patient_id))
+	#patient = get_patient(request.user)
+	
+	patient_family_form = PatientFamilyHistoryForm() 
+	
+	new_template = loader.get_template('icare/patient_edit/patient_family_form.html')
+	c = RequestContext(request,{'patient_family_form':patient_family_form,'patient_id':patient_id,'add':True})
+	html = new_template.render(c)
+	
+	return HttpResponse(html)
+	
+#patient submit family
+def patient_submit_add_family(request,patient_id):	
+	context = RequestContext(request)
+	patient = Patient.objects.get(id=int(patient_id))
+	
+	if patient.user != request.user:
+		return HttpResponseForbidden() 
+	print "patient submit family"
+	if request.method == "POST":
+		patient_family_form = PatientFamilyHistoryForm(data=request.POST)
+		if patient_family_form.is_valid():
+			patient_family = patient_family_form.save(commit=False)
+			patient_family.patient = patient 
+			patient_family.save() 
+			current_family_list = PatientFamilyHistory.objects.filter(patient=patient)
+			new_template = loader.get_template('icare/patient_recall_object/patient_new_family.html')
+			c = RequestContext(request,{'current_family_list':current_family_list})
+			html=new_template.render(c)
+			return HttpResponse(html)
+		else:
+			print patient_family_form.errors  	
+			
 #patient drug 
 def patient_edit_drug(request):	
 	context = RequestContext(request)
@@ -2682,7 +3146,7 @@ def patient_edit_drug(request):
 	c = RequestContext(request,{'patient_record_form':patient_record_form,'patient_record_id':patient_record_id})
 	
 	html = new_template.render(c)
-	print html
+	#print html
 	return HttpResponse(html)
 
 def patient_edit_submit_drug(request, patient_record_id):
@@ -2750,7 +3214,7 @@ def topic_add(request):
 					patient_add_topic_notification = PatientNotification(patient=patient,add_topic=add_topic_notification)
 					patient_add_topic_notification.save()
 				doctor_record.number_create_topic = doctor_record.number_create_topic + 1 
-				
+				doctor_record.save()
 				return HttpResponseRedirect('/icare/topic/show/'+str(topic.id)+'/')
 			else:
 				print topic_form.errors 
@@ -2826,6 +3290,7 @@ def add_related_topic(request,topic_id):
 						doctor_notification = DoctorNotification(add_topic_follow_topic=add_topic_related_notification,doctor=doctor_follow_topic)
 						doctor_notification.save()
 				doctor_record.number_create_topic = doctor_record.number_create_topic + 1 
+				doctor_record.save()
 				
 				return HttpResponseRedirect('/icare/topic/show/'+str(related_topic.id)+'/')
 			else:
@@ -2901,14 +3366,9 @@ def doctor_edit_profile(request,doctor_record_id):
 	
 	if request.method == 'POST':
 		doctor_record_form = DoctorRecordForm(request.POST, instance=doctor_record)
-		doctor_image_form = DoctorImageForm(request.FILES,instance=doctor)
-		if doctor_record_form.is_valid() and doctor_image_form.is_valid():	
+		#doctor_image_form = DoctorImageForm(request.FILES,instance=doctor)
+		if doctor_record_form.is_valid():	
 			doctor_record_form.save() 
-			doctor_image = doctor_image_form.save(commit=False)
-			if 'doctor_image' in request.FILES:
-				doctor_image.doctor_image = request.FILES['doctor_image']
-
-			doctor_image.save()
 			
 			return HttpResponseRedirect('/icare/profile/doctor/'+str(doctor.user.id)+'/')
 		else:
@@ -3186,8 +3646,24 @@ def topic_follow(request):
 	
 	topic_follow = TopicFollow(user=user,topic=topic)
 	topic_follow.save()
+	count = TopicFollow.objects.filter(topic=topic).count()
+	return HttpResponse(count)
 
-	return HttpResponse('Success')
+def topic_unfollow(request):
+	context = RequestContext(request)
+	print "Hello"
+	topic_id = None 
+	if request.method == "GET":
+		topic_id = request.GET['topic_id']
+		
+	user =request.user 
+	topic = Topic.objects.get(id=int(topic_id))
+	
+	topic_follow = TopicFollow.objects.get(user=user,topic=topic)
+	topic_follow.delete()
+	count = TopicFollow.objects.filter(topic=topic).count()
+	
+	return HttpResponse(count)
 	
 def answer_follow_handles(request):
 	context = RequestContext(request)
@@ -3284,7 +3760,7 @@ def unanswer_question(request,extra_context=None,template=None):
 		dict = {}
 		answered = Answer.objects.filter(related_question=question)
 		if not answered: 
-			print question.title
+		
 			dict['question'] = question 
 			list.append(dict)
 		
@@ -3309,7 +3785,44 @@ def answer_first_time(request,question_id):
 			answer.from_doctor = doctor 
 			answer.related_question = question 
 			answer.save()
-			return HttpResponseRedirect('/icare/question/unanswer_question/')
+			doctor_record = doctor.doctorrecord 
+			doctor_record.number_answer += 1
+			doctor_record.save()
+			
+			#handles user follow topic 
+			related_topic = question.related_topic
+			users_topic_follow = TopicFollow.objects.filter(topic=related_topic)
+			for user_topic_follow in users_topic_follow:
+				user = user_topic_follow.user 
+				answer_topic_follow_notification = AddAnswerTopicFollowNotification(user=user,answer=answer,from_doctor=doctor,topic=related_topic)
+				answer_topic_follow_notification.save()
+				patient_follow_topic = get_patient(user)
+				if patient_follow_topic:
+					patient_notification = PatientNotification(patient=patient_follow_topic,add_answer_follow_topic=answer_topic_follow_notification)
+					patient_notification.save()
+				else:
+					doctor_follow_topic = get_doctor(user)
+					doctor_notification = DoctorNotification(doctor=doctor_follow_topic,add_answer_follow_topic=answer_topic_follow_notification)
+					doctor_notification.save()
+			patient = question.created_patient		
+				
+			if patient:
+				answer_notification = AnswerNotification(doctor=doctor,answer=answer,to_patient=patient)
+				answer_notification.save()
+				patient_ask_answer_notification = PatientNotification(patient=patient,answer_doctor_follow=answer_notification)
+				patient_ask_answer_notification.save()
+			friends = Friend.objects.filter(to_user=doctor.user)
+				
+				#handles patient follow doctor
+			for friend in friends:
+				patient_friend = get_patient(friend.from_user)
+				if patient_friend != patient:
+					patient_notification = AnswerNotification(doctor=doctor,to_patient=patient_friend,answer=answer)
+					patient_notification.save()
+					patient_answer_follow_notification = PatientNotification(patient=patient_friend,answer_doctor_follow=patient_notification)
+					patient_answer_follow_notification.save()
+						
+			return HttpResponseRedirect('/icare/question/unanswer/')
 		
 		else:
 			print answer_form.errors 
@@ -3561,7 +4074,61 @@ def goal_question_add(request,goal_id):
 			question.related_goal = goal 
 			question.save()
 			
-			return HttpResponse('/icare/' +str(goal_id)+'/check_lists/')
+			return HttpResponseRedirect('/icare/' +str(goal_id)+'/check_lists/')
 	else:
-		return HttpResponse('/icare/' +str(goal_id)+'/checks_lists/')
-		
+		return HttpResponseRedirect('/icare/' +str(goal_id)+'/checks_lists/')
+
+def add_topic_related_goal(request,goal_id):
+	goal = Goal.objects.get(id=int(goal_id))
+	doctor = get_doctor(request.user)
+	if request.method == "POST":
+		category = request.POST['select_category']
+		topic_form = TopicForm(data=request.POST)
+		if topic_form.is_valid():
+			topic = topic_form.save(commit=False)
+			topic.created_doctor = doctor 
+			topic.save() 
+			topic_and_goal = TopicAndGoal.objects.get_or_create(topic=topic,goal=goal)
+			
+			if category == "condition":
+				condition = Condition(topic=topic) 
+				condition.save()
+			elif category == "medication":
+				medication = Medication(topic=topic)
+				medication.save()
+			elif category == "symptom":
+				symptom = Symptom(topic=topic)
+				symptom.save()
+			elif category == "procedure": 
+				procedure = Procedure(topic=topic)
+				procedure.save() 
+			else:
+				pass 
+			notification = Notification(topic=topic)
+			notification.save()
+			doctor_record = DoctorRecord.objects.get(doctor=doctor)
+			doctor_record.number_create_topic += 1 
+			doctor_record.save()
+			return HttpResponseRedirect('/icare/'+str(goal_id)+'/check_lists/')
+		else:
+			print topic_form.errors 
+
+def add_question_related(request,question_id):
+	question_related = Question.objects.get(id=int(question_id))
+	patient = get_patient(request.user)
+	if request.method == "POST":
+		print "Hello"
+		question_form = QuestionForm(request.POST)
+		if question_form.is_valid():
+			print "Success"
+			question = question_form.save(commit=False)
+			question.create_patient = patient 
+			question.save()
+			relation1 = QuestionRelate.objects.get_or_create(question=question,question_related=question_related)
+			relation2 = QuestionRelate.objects.get_or_create(question=question_related,question_related=question)
+			
+			return HttpResponseRedirect('/icare/question/show/'+str(question_id)+'/')
+		else:
+			print "False"
+			print question_form.errors 
+			

@@ -15,13 +15,34 @@ urlpatterns = patterns('',
 		url(r'^login/$', views.intro_login, name='login'),
 		url(r'^logout/$', views.user_logout, name='logout'),
 		url(r'^index/$',page_template('icare/content/question_index_page.html')(views.index),{'template':'icare/content/question_index.html'},name='index'),
-		#question contetn 
+		#question content 
+		url(r'^question/post_related/(?P<question_id>\w+)/$',views.add_question_related,name="add_question_related"),
 		url(r'^question/post/$', views.question_post, name='question_post'),
 		url(r'^question/show/(?P<question_id>\w+)/$',page_template('icare/content/question_show_page.html')(views.question_show),{'template':'icare/content/question_show.html'}, name='question'),
 		url(r'^question/answer/(?P<question_id>\w+)/$',views.question_answer, name='question_answer'),
 		url(r'^agree_answer/$', views.answer_agree, name='answer_agree'),
 		url(r'^thanks_answer/$', views.answer_thanks, name='answer_thanks'),
-		#checklist contents 
+		#add topic related to goal 
+		url(r'^topic/add/goal_related/(?P<goal_id>\w+)/',views.add_topic_related_goal,name="add_topic_related_goal"),
+		#patient add new profile 
+		url(r'^patient/add_allergy/$',views.patient_add_allergy,name="patient_add_allergy"),
+		url(r'^patient/submit_add_allergy/(?P<patient_id>\w+)/$',views.patient_submit_add_allergy,name="patient_submit_add_allergy"),
+		url(r'^patient/add_condition/$',views.patient_add_condition,name="patient_add_condition"),
+		url(r'^patient/submit_add_condition/(?P<patient_id>\w+)/$',views.patient_submit_add_condition,name="patient_submit_add_condition"),
+		url(r'^patient/add_medication/$',views.patient_add_medication,name="patient_add_medication"),
+		url(r'^patient/submit_add_medication/(?P<patient_id>\w+)/$',views.patient_submit_add_medication,name="patient_submit_add_medication"),
+		url(r'^patient/add_family/$',views.patient_add_family,name="patient_add_family"),
+		url(r'^patient/submit_add_family/(?P<patient_id>\w+)/$',views.patient_submit_add_family,name="patient_submit_add_family"),
+		
+		url(r'^patient/edit_allergy/$',views.patient_edit_allergy,name="patient_edit_allergy"),
+		url(r'^patient/submit_edit_allergy/(?P<patient_allergy_id>\w+)/$',views.patient_submit_edit_allergy,name="patient_submit_edit_allergy"),
+		url(r'^patient/edit_condition/$',views.patient_edit_condition,name="patient_edit_condition"), 
+		url(r'^patient/submit_edit_condition/(?P<patient_condition_id>\w+)/$',views.patient_submit_edit_condition,name="patient_submit_edit_condition"),
+		url(r'^patient/edit_medication/$',views.patient_edit_medication,name="patient_edit_medication"),
+		url(r'^patient/submit_edit_medication/(?P<patient_medication_id>\w+)/$',views.patient_submit_edit_medication,name="patient_submit_edit_medication"),
+		url(r'^patient/edit_family/$',views.patient_edit_family,name="patient_edit_family"),
+		url(r'^patient/submit_edit_family/(?P<patient_family_id>\w+)/$',views.patient_submit_edit_family,name="patient_submit_edit_family"),
+		#check-list contents 
 		url(r'^category/$', views.category_show, name = 'category_show'),
 		url(r'^(?P<goal_id>\w+)/check_lists/$',page_templates({'icare/content/checklist_index_page.html':'checklist_object','icare/content/checklist_index_question_page.html':'question_object'})(views.checklist_index),{'template':'icare/content/checklist_index.html'}, name = 'checklist_index'),
 		url(r'^checklist/my_checklist/(?P<user_id>\w+)/$',page_template('icare/patient/user_checklist_index_page.html')(views.checklist_person),{'template':'icare/patient/user_checklist_index.html'}, name='checklist_person'),
@@ -35,11 +56,12 @@ urlpatterns = patterns('',
 		url(r'^checklist/agree_checklist/$', views.agree_checklist, name="agree_checklist"),
 		url(r'^user_checklist_item/complete/$',views.item_complete, name="item_complete"),
 		url(r'^patient_checklist/delete/$', views.checklist_delete, name="checklist_delete"),
-		#add quetion to goal 
+		#add question to goal 
 		url(r'^question/post/goal/(?P<goal_id>\w+)/',views.goal_question_add,name="goal_question_add"),
 		#user follow topic 
 		
 		url(r'^user/topic/follow/$',views.topic_follow,name="topic_follow"),
+		url(r'^user/topic/unfollow/$',views.topic_unfollow,name="topic_unfollow"),
 		#doctor agree topic 
 		url(r'^doctor/agree_topic/$',views.agree_topic,name="agree_topic"),
 		#link for topics 
@@ -47,7 +69,8 @@ urlpatterns = patterns('',
 		url(r'topic/add/new/$',views.topic_add, name='topic_add'),
 		url(r'topic/add/related_topic/(?P<topic_id>\w+)/$',views.add_related_topic,name="add_related_topic"),
 		url(r'topic/edit/(?P<topic_id>\w+)/$', views.topic_edit,name='topic_edit'),
-		#link for seach index 
+		#link for search index 
+		url(r'^search/grand_content/$',views.main_search,name="main_search"),
 		url(r'^search/$', views.search_index , name='search_index'),
 		url(r'^search/condition/result/$',page_template('icare/search/search_condition_page.html')(views.search_condition_result),{'template':'icare/search/search_condition.html'}, name='search_condition_result'),
 		url(r'^search/condition/$', page_template('icare/search/search_condition_all_page.html')(views.search_condition),{'template':'icare/search/search_condition.html'}, name='search_condition'),
@@ -61,7 +84,7 @@ urlpatterns = patterns('',
 		url(r'^search/doctor/result/$',page_template('icare/search/search_doctor_page.html')(views.search_doctor_result),{'template':'icare/search/search_doctor.html'}, name='search_doctor_result'),
 		url(r'^search/patient/$',page_template('icare/search/search_patient_all_page.html')(views.search_patient),{'template':'icare/search/search_patient.html'}, name='search_patient'),
 		url(r'^search/patient/result/$',page_template('icare/search/search_patient_page.html')(views.search_patient_result),{'template':'icare/search/search_patient.html'}, name='search_patient_result'),
-		#account seeting 
+		#account setting 
 		url(r'^account_setting/$',views.user_changepass,name="user_changepass"),
 		
 		url(r'^thank_checklist/$',views.thanks_checklist, name='thank_checklist'),

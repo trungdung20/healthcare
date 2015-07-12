@@ -7,18 +7,21 @@
 		
 		<div class="panel panel-info">
 		<div class="panel-heading">
-		<a class="btn btn-sm btn-primary" type="button" id="patient_reject_advisor" data-id="{{patient.id}}">Reject Advisor </a>
-		<h4>Doctor Advisor</h4> Rating:<span>{{doctor_record.star}}</span>
+		<a class="btn btn-sm btn-danger" type="button" id="patient_reject_advisor" data-id="{{patient.id}}">Reject Advisor </a>
+		<h4>Doctor Advisor</h4> 
 		
 		
 		</div>
 		<div class="panel-body">
 			<div class="container-fluid">
 			<div class="col-sm-8">
-			<h5>Doctor name: {{advisor.name}}</h5>
+			<h5>Doctor name: <a href="/icare/profile/doctor/{{advisor.user.id}}/">{{advisor.name}}</a></h5>
+			<p class="text-muted">{{advisor.user.friends.count}} follower</p>
 			<h5>Specialty: {{advisor.specialty}}</h5>
 			<h5>Active Year: {{advisor.year}}</h5>
-			
+			<h5>Address: {{advisor.address}}</h5>
+			<h5>Rating:</h5>
+			<span class="stars">{{advisor.doctorrecord.star}}</span>
 			</div>
 			
 			<div class="col-sm-4">
@@ -42,7 +45,8 @@
 			<div class="form-group">
 			{% csrf_token %}
 					{{consult_question.title.errors}}
-					{{consult_question|as_bootstrap}}
+					{{consult_question.title}}
+				<br/>	
 				<input class="btn btn-primary" type="submit" type="submit" name="submit" value="Post">
 			</div>
 			</form>
@@ -56,7 +60,7 @@
 	
 
 {% else %}
-<div class="cotainer-fluid">
+<div class="container-fluid">
 <strong>You have no advisor</strong>
 <br/>
 </div>

@@ -13,7 +13,7 @@
 				<div class="col-sm-2">
 				
                     {% if list_item.unrejected_request.patient_image %}
-                        <img width="30" height="30" class="img-responsive" src="/media/{{list_item.unrejected_request.patient_image}}" alt="{{doctor_user.doctor.name}}" />
+                        <img width="40" height="40" class="img-responsive" src="/media/{{list_item.unrejected_request.patient_image}}" alt="{{doctor_user.doctor.name}}" />
                    
 				    {% endif %}
                   
@@ -40,7 +40,7 @@
 				<div class="col-sm-2">
 				
                     {% if list_item.rejected_request.patient_image %}
-                        <img  width="30" height="30" class="img-responsive" src="/media/{{list_item.rejected_request.patient_image}}" />
+                        <img  width="40" height="40" class="img-responsive" src="/media/{{list_item.rejected_request.patient_image}}" />
                 
 				    {% endif %}
                   
@@ -66,7 +66,7 @@
 				<div class="col-sm-2">
 				
                     {% if list_item.accepted_request.patient_image %}
-                        <img   width="30" height="30" class="img-responsive" src="/media/{{list_item.accepted_request.patient_image}}"/>
+                        <img   width="40" height="40" class="img-responsive" src="/media/{{list_item.accepted_request.patient_image}}"/>
                 
 				    {% endif %}
                   
@@ -92,7 +92,7 @@
 				<div class="col-sm-2">
 				
                     {% if list_item.advisor_request.patient_image %}
-                        <img   width="30" height="30" class="img-responsive" src="/media/{{list_item.advisor_request.patient_image}}"/>
+                        <img   width="40" height="40" class="img-responsive" src="/media/{{list_item.advisor_request.patient_image}}"/>
                   
 				    {% endif %}
                 </div>
@@ -118,13 +118,13 @@
 				<div class="col-sm-2">
 				
                     {% if list_item.question_alert.from_patient.patient_image %}
-                        <img  width="30" height="30" class="img-responsive" src="/media/{{list_item.question_alert.from_patient.patient_image}}" />
+                        <img  width="40" height="40" class="img-responsive" src="/media/{{list_item.question_alert.from_patient.patient_image}}" />
                    
 				    {% endif %}
                 </div>
 				
 				<div class="col-sm-7">
-				<p><a href="/icare/profile/patient/{{list_item.question_alert.from_patient.user.id}}/">{{list_item.question_alert.from_patient.name}}</a> has send a question</p>
+				<p>Your advised patient <a href="/icare/profile/patient/{{list_item.question_alert.from_patient.user.id}}/">{{list_item.question_alert.from_patient.name}}</a> has send question <a href="/icare/doctor/advised/patient/profile/{{list_item.question_alert.from_patient.id}}/">See more</a></p>
 				</div>
 				
 				
@@ -144,11 +144,11 @@
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				{% if list_item.thanks_answer.from_patient.patient_image %}
-					<img width="30" height="30" class="img-responsive" src="/media/{{list_item.thanks_answer.from_patient.patient_image}}"/>
+					<img width="40" height="40" class="img-responsive" src="/media/{{list_item.thanks_answer.from_patient.patient_image}}"/>
 				{% endif %}
 				</div>
 				<div class="col-sm-7">
-				<p><a href="/icare/profile/patient/{{list_item.thanks_answer.from_patient.user.id}}/">{{list_item.thanks_answer.from_patient.name}}</a> has thanks your answer in <a href="/icare/question/show/{{list_item.thanks_answer.answer.related_question.id}}/">{{list_item.thanks_answer.answer.related_question.title|truncatewords:5}}</p>
+				<p><a href="/icare/profile/patient/{{list_item.thanks_answer.from_patient.user.id}}/">{{list_item.thanks_answer.from_patient.name}}</a> has thanks your answer in <a href="/icare/question/show/{{list_item.thanks_answer.answer.related_question.id}}/">{{list_item.thanks_answer.answer.related_question.title|truncatewords:5}}</a></p>
 				</div>
 				
 				<div class="col-sm-3">
@@ -165,11 +165,11 @@
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				{% if list_item.agree_answer.from_doctor.doctor_image %}
-					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.agree_answer.from_doctor.doctor_image}}"/>
+					<img width="40" height="40" class="img-responsive"  src="/media/{{list_item.agree_answer.from_doctor.doctor_image}}"/>
 				{% endif %}
 				</div>
 				<div class="col-sm-7">
-				<p><a href="/icare/profile/doctor/{{list_item.agree_answer.from_doctor.user.id}}/">{{list_item.agree_answer.from_doctor.name}}</a> has agree your answer in <a href="/icare/question/show/{{list_item.agree_answer.answer.related_question.id}}/">{{list_item.agree_answer.answer.related_question.title|truncatewords:5}}</p>
+				<p><a href="/icare/profile/doctor/{{list_item.agree_answer.from_doctor.user.id}}/">{{list_item.agree_answer.from_doctor.name}}</a> has agree your answer in <a href="/icare/question/show/{{list_item.agree_answer.answer.related_question.id}}/">{{list_item.agree_answer.answer.related_question.title|truncatewords:5}}</a></p>
 				</div>
 				
 				<div class="col-sm-3">
@@ -186,11 +186,11 @@
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				{% if list_item.agree_checklist.from_doctor.doctor_image %}
-					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.agree_checklist.from_doctor.doctor_image}}"/>
+					<img width="40" height="40" class="img-responsive"  src="/media/{{list_item.agree_checklist.from_doctor.doctor_image}}"/>
 				{% endif %}
 				</div>
 				<div class="col-sm-7">
-				<p><a href="/icare/profile/doctor/{{list_item.agree_checklist.from_doctor.user.id}}/">{{list_item.agree_checklist.from_doctor.name}}</a> has agree your health checklist in <a href="/icare/{{list_item.agree_checklist.checklist.related_goal.id}}/check_lists/">{{list_item.agree_checklist.checklist.related_goal.title|truncatewords:5}}</p>
+				<p><a href="/icare/profile/doctor/{{list_item.agree_checklist.from_doctor.user.id}}/">{{list_item.agree_checklist.from_doctor.name}}</a> has agree your health checklist in <a href="/icare/{{list_item.agree_checklist.checklist.related_goal.id}}/check_lists/">{{list_item.agree_checklist.checklist.related_goal.title|truncatewords:5}}</a></p>
 				</div>
 				
 				<div class="col-sm-3">
@@ -207,11 +207,11 @@
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				{% if list_item.thanks_checklist.from_patient.patient_image %}
-					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.thanks_checklist.from_patient.patient_image}}"/>
+					<img width="40" height="40" class="img-responsive"  src="/media/{{list_item.thanks_checklist.from_patient.patient_image}}"/>
 				{% endif %}
 				</div>
 				<div class="col-sm-7">
-				<p><a href="/icare/profile/patient/{{list_item.thanks_checklist.from_doctor.user.id}}/">{{list_item.thanks_checklist.from_patient.name}}</a> has thanks your health checklist in <a href="/icare/{{list_item.thanks_checklist.checklist.related_goal.id}}/check_lists/">{{list_item.thanks_checklist.checklist.related_goal.title|truncatewords:5}}</p>
+				<p><a href="/icare/profile/patient/{{list_item.thanks_checklist.from_doctor.user.id}}/">{{list_item.thanks_checklist.from_patient.name}}</a> has thanks your health checklist in <a href="/icare/{{list_item.thanks_checklist.checklist.related_goal.id}}/check_lists/">{{list_item.thanks_checklist.checklist.related_goal.title|truncatewords:5}}</a></p>
 				</div>
 				
 				<div class="col-sm-3">
@@ -228,11 +228,11 @@
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				{% if list_item.add_related_topic_follow.from_doctor.doctor_image %}
-					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.add_related_topic_follow.from_doctor.doctor_image}}"/>
+					<img width="40" height="40" class="img-responsive"  src="/media/{{list_item.add_related_topic_follow.from_doctor.doctor_image}}"/>
 				{% endif %}
 				</div>
 				<div class="col-sm-7">
-				<p><a href="/icare/profile/doctor/{{list_item.add_related_topic_follow.from_doctor.user.id}}/">{{list_item.add_related_topic_follow.from_doctor.name}}</a> has add <a href="/icare/topic/show/{{list_item.add_related_topic_follow.topic.id}}/">{{list_item.add_related_topic_follow.topic.title|truncatewords:5}}</a> topic that related to <a href="/icare/topic/show/{{list_item.add_related_topic_follow.related_topic.id}}/">{{list_item.add_related_topic_follow.related_topic.title|truncatewords:5}}</p>
+				<p><a href="/icare/profile/doctor/{{list_item.add_related_topic_follow.from_doctor.user.id}}/">{{list_item.add_related_topic_follow.from_doctor.name}}</a> has add <a href="/icare/topic/show/{{list_item.add_related_topic_follow.topic.id}}/">{{list_item.add_related_topic_follow.topic.title|truncatewords:5}}</a> topic that related to <a href="/icare/topic/show/{{list_item.add_related_topic_follow.related_topic.id}}/">{{list_item.add_related_topic_follow.related_topic.title|truncatewords:5}}</a></p>
 				</div>
 				
 				<div class="col-sm-3">
@@ -250,11 +250,11 @@
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				{% if list_item.edit_topic_follow.from_doctor.doctor_image %}
-					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.edit_topic_follow.from_doctor.doctor_image}}"/>
+					<img width="40" height="40" class="img-responsive"  src="/media/{{list_item.edit_topic_follow.from_doctor.doctor_image}}"/>
 				{% endif %}
 				</div>
 				<div class="col-sm-7">
-				<p><a href="/icare/profile/doctor/{{list_item.edit_topic_follow.from_doctor.user.id}}/">{{list_item.edit_topic_follow.from_doctor.name}}</a> has edit <a href="/icare/topic/show/{{list_item.edit_topic_follow.topic.id}}/">{{list_item.edit_topic_follow.topic.title|truncatewords:5}} topic</p>
+				<p><a href="/icare/profile/doctor/{{list_item.edit_topic_follow.from_doctor.user.id}}/">{{list_item.edit_topic_follow.from_doctor.name}}</a> has edit <a href="/icare/topic/show/{{list_item.edit_topic_follow.topic.id}}/">{{list_item.edit_topic_follow.topic.title|truncatewords:5}}</a> topic</p>
 				</div>
 				
 				<div class="col-sm-3">
@@ -271,11 +271,11 @@
 			<div class="row-fluid">
 				<div class="col-sm-2">
 				{% if list_item.add_answer_topic_follow.from_doctor.doctor_image %}
-					<img width="30" height="30" class="img-responsive"  src="/media/{{list_item.add_answer_topic_follow.from_doctor.doctor_image}}"/>
+					<img width="40" height="40" class="img-responsive"  src="/media/{{list_item.add_answer_topic_follow.from_doctor.doctor_image}}"/>
 				{% endif %}
 				</div>
 				<div class="col-sm-7">
-				<p><a href="/icare/profile/doctor/{{list_item.add_answer_topic_follow.from_doctor.user.id}}/">{{list_item.add_answer_topic_follow.from_doctor.name}}</a> has add a answer to <a href="/icare/question/show/{{list_item.add_answer_topic_follow.asnwer.related_question.id}}/">{{list_item.add_answer_topic_follow.answer.related_question.title|truncatewords:7}} that related to <a href="/icare/topic/show/{{list_item.add_answer_topic_follow.topic.id}}/">{{list_item.add_answer_topic_follow.topic.title|truncatewords:3}} topic your follow</p>
+				<p><a href="/icare/profile/doctor/{{list_item.add_answer_topic_follow.from_doctor.user.id}}/">{{list_item.add_answer_topic_follow.from_doctor.name}}</a> has add a answer to <a href="/icare/question/show/{{list_item.add_answer_topic_follow.asnwer.related_question.id}}/">{{list_item.add_answer_topic_follow.answer.related_question.title|truncatewords:7}}</a> that related to <a href="/icare/topic/show/{{list_item.add_answer_topic_follow.topic.id}}/">{{list_item.add_answer_topic_follow.topic.title|truncatewords:3}}</a> topic your follow</p>
 				</div>
 				
 				<div class="col-sm-3">
@@ -291,7 +291,7 @@
 		<div class="panel-body">
 			<div class="row-fluid">
 				<div class="col-sm-9">
-				<p>A user has add question <a href="/icare/question/show/{{list_item.add_question_topic_follow.question.id}}/">{{list_item.add_question_topic_follow.question.title|truncatewords:5}}</a>that related to <a href="/icare/topic/show/{{list_item.add_question_topic_follow.topic.id}}/">{{list_item.add_quesiton_topic_follow.topic.title|truncatewords:3}} topic your follow</p>
+				<p>A user has add question <a href="/icare/question/show/{{list_item.add_question_topic_follow.question.id}}/">{{list_item.add_question_topic_follow.question.title|truncatewords:5}}</a>that related to <a href="/icare/topic/show/{{list_item.add_question_topic_follow.topic.id}}/">{{list_item.add_question_topic_follow.topic.title|truncatewords:3}}</a> topic your follow</p>
 				</div>
 				
 				<div class="col-sm-3">

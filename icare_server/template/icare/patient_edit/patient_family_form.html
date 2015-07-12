@@ -1,0 +1,13 @@
+{% load bootstrap_toolkit %}
+<div class="row-fluid">
+<div class="col-sm-10">
+<form id="{% if add %}patient_family_submit{% else %}patient_family_submit_edit{% endif %}" method="post" action="{% if add %}/icare/patient/submit_add_family/{{patient_id}}/{% else %}/icare/patient/submit_edit_family/{{family_id}}/{% endif %}"
+		enctype="multipart/form-data">
+	{% csrf_token%}
+
+	{{patient_family_form|as_bootstrap}}
+	<br/>
+	<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-save"></span></button>
+</form>
+</div>
+</div>

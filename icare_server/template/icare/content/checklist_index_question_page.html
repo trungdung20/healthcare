@@ -6,7 +6,7 @@
 <div class ="panel panel-default">
 		<div class="panel-body">
 			<h4>Post a question related to {{goal.title}}</h4>
-			<form role="form" id="question_post" method="post" action="/icare/question/post/goal/{{goal.id}}/"
+			<form role="form" method="post" action="/icare/question/post/goal/{{goal.id}}/"
 			enctype="multipart/form-data">
 			<div class="form-group">
 			{% csrf_token %}
@@ -21,32 +21,38 @@
 			</div>
 			</form>
 		</div>
-	</div><hr/>
+</div><hr/>
 {% endif %}
+
 {% if question_list%}
 
 <div class="panel-group">
 	{% for question in question_list %}
 	<div class="panel panel-default">
-	<div class="panel-heading">
-	<div class="container-fluid">
-		<h5>{{question.question.title}}</h5>
-		<p>{{question.answer_count}}</p> answers 
-	</div>
-	</div><hr/>
-	
 	<div class="panel-body">
-	{% if question.is_answer%}
-	<div class="container-fluid">
-	<p>Doctor <a href="/icare/profile/doctor/{{question.answer.from_doctor.user.id}}/">{{question.answer.from_doctor.name}}</a> has answer</p>
+	<div class="row-fluid">
+		<h5>{{question.question.title}}</h5>
+		<p class="text-muted">{{question.answer_count}} answers</p> 
 	</div>
-	<div class="container-fluid">
-	<p>{{question.answer.detail|truncatewords:30}}</p>...<a href="/icare/question/show/{{question.id}}">Read more</a>
+	
+	{% if question.is_answer%}
+	<hr/>
+	<div class="row-fluid">
+	<div class="col-sm-1">
+	<img class="img-responsive" width="30" height="30" src="/media/{{question.answer.from_doctor.doctor_image}}">
+	</div>
+	<div class="col-sm-11">
+	<p><a href="/icare/profile/doctor/{{question.answer.from_doctor.user.id}}/">Dr.{{question.answer.from_doctor.name}}</a> has answer:</p>
+	</div>
+	</div>
+	
+	<div class="row-fluid">
+	<p>{{question.answer.detail}}</p><a href="/icare/question/show/{{question.question.id}}/">Read more</a>
 	</div>
 	{% else %}
-	<div class="container-fluid">
+	<div class="row-fluid">
 		<p>No answer present</p>
-		<a href="/icare/question/show/{{question.id}}">Read more</a>
+		<a href="/icare/question/show/{{question.question.id}}">Read more</a>
 	</div>
 	{% endif %}
 	</div>

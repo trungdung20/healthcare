@@ -5,7 +5,7 @@ import django
 django.setup()
 
 from django.contrib.auth.models import User
-from icare.models import Category, Goal, Topic, Medication, Vaccination, Condition , Symptom , Procedure, Riskfactor, Doctor ,ListItem, CheckList,Notification,DoctorRecord ,Question,Answer
+from icare.models import Category, Goal, Topic, Medication, Vaccination, Condition , Symptom , Procedure, Riskfactor, Doctor ,ListItem, CheckList,Notification,DoctorRecord ,Question,Answer,QuestionAndTopic,QuestionRelate,TopicAndGoal
 
 def populate():
 	#add category 
@@ -18,7 +18,7 @@ def populate():
 	healthy_diet = goal_add("Eating a Healthy Diet", improve_health)
 	losing_weight = goal_add("Losing Weight",improve_health)
 	getting_fit = goal_add("Getting Fit",improve_health)
-	sleeping_better = goal_add("sleeping_better",improve_health)
+	sleeping_better = goal_add("Seeping Better",improve_health)
 	improving_heart_health = goal_add("Improving Heart Health", improve_health)
 	quit_smoking = goal_add("Quitting smoking",improve_health)
 	improving_relationships = goal_add("Improving Relationships",improve_health)
@@ -91,9 +91,35 @@ def populate():
 	doctor3 = add_doctor('test3',email,password,'Eva Braun','Radiation Oncology','Female',school,'123456','PharmD',2011,'Test Address') 
 	doctor4 = add_doctor('test4',email,password,'Elizabeth Smith','Pediatric Cardiology','Female',school,'12345','MBBS',2011,'Test Address') 
 	doctor5 = add_doctor('test5',email,password,'Christian Grey','Vascular Surgery','Female',school,'123455','MBBS',2011,'Test Address') 
+	doctor6 = add_doctor('test6',email,password,'Garland Martin','Infectious Disease','Male',school,'12467','EdD',2010,'Test Address')
+	doctor7 = add_doctor('test7',email,password,'Liesa Harte','Family Medicine','Female',school,'123890','DPM',2009,'Test Address')
+	doctor8 = add_doctor('test8',email,password,'Gerard Honore','Neurology','Male',school,'12398','DDS',2007,'Test Address')
+	doctor9 = add_doctor('test9',email,password,'Lori Semel','Sports Surgery','Female',school,'12346','MBBS',2006,'Test Address')
+	doctor10 = add_doctor('test10',email,password,'Peri Suzan Gunay','Obstetrics and Gynecology','Female',school,'23450','EdD',2000,'Test Address')
+	doctor11 = add_doctor('test11',email,password,'Peterson Pierre','Pediatric Cardiology','Male',school,'234457','PhD',2005,'Test Address')
 	
 	#add checklist 
 	#eatting healthy diet checklist 
+	topic1 = goal_add_sub(healthy_diet,'Low Carb Diet','A low-carb diet emphasis dietary protein and fats, but limits carbohydrates like grains, starchy vegetables and fruit.')
+	topic2 = goal_add_sub(healthy_diet,'Healthy Diet','Pregnant women should eat a balanced, nutritional diet and increase their calorie intake to meet the needs of the developing fetus and their changing bodies. Eating a range of wholesome and nutritious foods during pregnancy is one of the most important things that women can do to ensure the normal development and growth of the fetus, and it can help to prevent prematurity and low birth weight. For the mother, good nutrition helps to prevent anemia, infection, and poor healing.')
+	topic3 = goal_add_sub(healthy_diet,'Eat Healthier',"A good diet is central to overall good health. The new Healthy Eating Plate and Healthy Eating Pyramid shows the proportions and types of foods that promote healthier eating. It's all about getting back to the food basics. Look for alternatives to processed meat and other highly processed foods. Choose whole grains. Fill up your plate with colorful vegetables. Snack on fresh fruits. Your path to healthier eating can begin today.")
+	
+	question1 = add_question_goal(healthy_diet,"Is it possible that I lost 6 kg in a week? Or is the scale lying? Could it be that i'm now eating a healthy diet full of veggies and it will continue?")
+	answer1 = add_answer(question1,doctor5,"That is 13.2 pounds and even if you are quite large, that would be unusual unless diuresis for heart failure, and a few other unusual items.")
+	question1_related = add_question_sub(question1,"I am gaining weight. I need a diet plan to loose it. My weight is now 104 kg :(. I can't eat much as well, even i eat little - i feel that I am full.")
+	answer1 = add_answer(question1_related,doctor7,"I've found a low carb (no starch or sugar) ketogenic diet containing about 80+rams of protein and below 50grams of carbohydrate along with mild exercise the most effective for weight, fat and girth loss.If you get in mild ketosis which is fat burning state your hunger level will be very little and you won't be starving yourself. I would suggest avoiding exercise the first week that you start the diet but after that you can exercise as much as you tolerate which will improve your weight-los.")
+	question1_related = add_question_sub(question1,"What is the best diet pill on the market i'm exersing and eating healthy but i need a extra boost to help me lose 20 kg please?")
+	answer1 = add_answer(question1_related,doctor8,"I don't recommend any of the pharmaceutical diet pills as they can have serious side effects.Certain herbs are proven to support weight loss, but only when combined with a healthy diet ; exercise- see http://bit.Ly/178bmuf re: your diet consider dr. Fuhrman's diet: http://bit.Ly/1dhw9ht dr. Weil has useful info: http://huff.To/19ygs8y- see his 'discuss that' link in his article.")
+	answer2 = add_answer(question1_related,doctor9,"Diet pills are either ineffective or dangerous for the most part.If you are successfully losing weight (albeit slowly) on your current diet and exercise regimen, i would stick to that. This is the safest way to obtain weight loss that has the best chance of being a long-lasting phenomenon.")
+	question1_related = add_question_sub(question1,"I have lost about 15 kg i don't have a fixed diet i run about 11 km a day on an elliptical trainer, now i'm stuck on 120 kg what can I do?")
+	answer1 = add_answer(question1_related,doctor4,"Sometimes you lose inches instead of pounds as you convert fat to muscle.Keep eating a balanced diet watching portions and continue exercising. You may change up you exercise routine 1 or 2 times a week and see if this helps.")
+	question1_related = add_question_sub(question1,"Where can you find information for vegetarians on eating a healthy diet?")
+	answer1 = add_answer(question1_related,doctor8,"Internet, library, books, magazines, dietician, family doctor, county health department.")
+	question1_related = add_question_sub(question1,"Am exercising and eating a healthy diet but i can't get rid o cellulite what should I do ?")
+	answer1 = add_answer(question1_related,doctor6,"Cellulite can occur even in skinny people.Perhaps one of the newer type of laser techniques will help. Perhaps thermage will help. Very difficult to get rid of. Sometimes very superficial liposuction can help, but it i dangerous to the blood supply to the skin.")
+	
+	
+	
 	checklist_eating_healthy1 = add_checklist(healthy_diet,doctor1)
 	item1_checklist_eating_healthy1 = add_listitem(checklist_eating_healthy1,"Avoid fast food",'Normal','Once')
 	item2_checklist_eating_healthy1 = add_listitem(checklist_eating_healthy1,"Don't Drink Soda",'Normal','Once')
@@ -1057,11 +1083,24 @@ def topic_add_sub(topic_related,title,definition):
 	notification = Notification.objects.get_or_create(topic=topic)
 	return topic
 
+def goal_add_sub(goal_related,title,definition):
+	try:
+		topic = Topic.objects.get(title=title)
+	except:
+		topic = Topic(title=title, definition=definition)
+		topic.save() 
+	topic_goal = TopicAndGoal.objects.get_or_create(topic=topic, goal=goal_related)
+	
+	notification = Notification.objects.get_or_create(topic=topic)
+	
+	return topic 
+	
 def add_user(username, email,password):
 	u = User.objects.get_or_create(username=username, email=email)[0]
 	u.set_password(password)
 	u.save()
 	return u 
+	
 def add_doctor(username,email,password,name,specialty,gender,school,license,degree,year,address):
 	user = add_user(username,email,password)
 	
@@ -1090,6 +1129,22 @@ def add_answer(related_question,from_doctor,detail):
 	answer = Answer.objects.get_or_create(detail=detail,related_question=related_question,from_doctor=from_doctor)[0]
 	
 	return answer 
+
+def add_question_goal(goal,title):
+	question = Question.objects.get_or_create(title=title)[0]
+	question.related_goal = goal 
+	question.save() 
+	
+	notification = Notification.objects.get_or_create(question=question)
+	return question
+	
+def add_question_sub(question_related,title):
+	question = Question.objects.get_or_create(title=title)[0]
+	relation1 = QuestionRelate.objects.get_or_create(question=question,question_related=question_related)
+	relation2 = QuestionRelate.objects.get_or_create(question=question_related,question_related=question)
+	
+	notification = Notification.objects.get_or_create(question=question)
+	return question 
 	
 if __name__ == '__main__':
 	print "starting population script...."

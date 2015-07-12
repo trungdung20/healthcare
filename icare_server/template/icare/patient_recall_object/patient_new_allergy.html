@@ -1,0 +1,33 @@
+<div class="container-fluid">	
+				<h5>Current <span class="glyphicon glyphicon-time"></span></h5>
+					{% for current_allergy in current_allergy_list %}
+					<div id="allergy{{current_allergy.id}}">
+					<div class="row">
+						<div class="col-sm-10">
+						<h5>{{current_allergy.allergy}}</h5>
+						</div>
+						
+						<div class="col-sm-1">
+							<span class="glyphicon glyphicon-pencil" data-id="{{current_allergy.id}}" id="patient_allergy_edit"></span>
+						</div>
+					</div>
+					</div>
+					{% endfor %}
+			</div>		
+				<hr/>
+			<div class="container-fluid">	
+				<h5>Past <span class="glyphicon glyphicon-time"></span></h5>
+				
+					{% for past_allergy in past_allergy_list%}
+					<div id="allergy{{past_allergy.id}}">
+					<div class="row">
+					<div class="col-sm-10">
+						<h5>{{past_allergy.allergy}}</h5>
+					</div>
+					<div class="col-sm-1">
+						<span class="glyphicon glyphicon-pencil" id="patient_allergy_edit" id="patient_allergy_edit" data-id="{{past_allergy.id}}"></span>
+					</div>
+					</div>
+					</div>
+					{% endfor %}
+			</div>		

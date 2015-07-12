@@ -1,5 +1,5 @@
 {% load endless %}
-{% paginate list %}
+{% paginate 25 list %}
 {% if list %}
 
 <div class="panel-group">
@@ -8,87 +8,92 @@
 	{% if notification.is_question %}
 	{% if not notification.is_private %}
 	<div class="panel panel-default">
-		<div class="panel-heading">
-			<div class="container-fluid">
-			<h5>
+		<div class="panel-body">
+		<div class="row-fluid">
+		<div class="row-fluid">
+			<h4>
 			{{notification.question_object.title}} 
-			</h5>
+			</h4>
 			<p>
 			<a>{{notification.answer_count}}</a> answers
 			</p>
-			</div>
-			<hr/>
 		</div>
-		
-		
-		<div class="panel-body">
+		<hr/>
         {% if notification.is_answer %}
-		<div class="container-fluid">
+		<div class="row-fluid">
 		<div class="col-sm-2">
-		<h5>
 		
 		{% if notification.hero.from_doctor.doctor_image %}
-		<img class="img-responsive" width="60" height="60" src="/media/{{notification.hero.from_doctor.doctor_image}}"/>
+		<img class="img-responsive" width="50" height="50" src="/media/{{notification.hero.from_doctor.doctor_image}}"/>
 		{% endif %}
-		</h5>
+		
 		</div>
+		
 		<div class="col-sm-10">
 		<h5>
-		Doctor
-		<a href="/icare/profile/doctor/{{notification.hero.from_doctor.user.id}}/">{{notification.hero.from_doctor.name}}</a> answer: 	
-		</h5> <br />
+		<p><a href="/icare/profile/doctor/{{notification.hero.from_doctor.user.id}}/">Dr.{{notification.hero.from_doctor.name}}</a> answer:</p> 	
+		</h5>
+		<p class="text-muted">on {{notification.notification_object.date_time}}</p>
+		<hr/>
+		</div>
+		
+		</div>
+		
+		
+		
+		<div class="row-fluid">
+		<div class="col-sm-12">
+		<p>{{notification.hero.detail}}</p><a href="/icare/question/show/{{notification.question_object.id}}">Read more</a>
 		</div>
 		</div>
 		
-		<p>{{notification.hero.detail|truncatewords:40}}</p>.... <a href="/icare/question/show/{{notification.question_object.id}}">Read more</a>
-		
-		
-		
-        {% else %}
+		{% else %}
         <div class="container-fluid">
             <a href="/icare/question/show/{{notification.question_object.id}}">Read more</a>
         </div>
 		
         {% endif %}
 		</div>
+		</div>
 	
 	</div > 
 	<br/>
 	{% endif %}
+	
 	{% endif %}	
 	
 	{% if notification.is_topic %}
 	<div class="panel panel-default">
-	<div class="panel-heading">
-		{% if notification.topic_object.related_doctor %}
-		<div class="container-fluid">
-			
-			{% if notification.topic_object.related_doctor.doctor_image %}
-			<div class="col-sm-2">
-			<img src="/media/{{notification.topic_object.related_doctor.doctor_image}}/" class="img-responsive" width="50" height="50">
-			</div>
-			{% endif %}
-			{% if  notification.topic_object.related_doctor%}
-			<div class="col-sm-4">
-			<a href="/icare/profile/doctor/{{notification.topic_object.related_doctor.user.id}}/">{{notification.topic_object.related_doctor.name}}</a> has created
-			</div>
-			{% endif %}
-			
-			
-		</div>
-		{% endif %}
-		<div class="container-fluid">
-		<h5>
-		<a href="/icare/topic/show/{{notification.topic_object.id}}/">{{notification.topic_object.title}}</a>
-		</h5>
-		</div>
-		<hr/>
-	</div>
-	
 	<div class="panel-body">
 		
+		
+			
+			{% if notification.topic_object.created_doctor.doctor_image %}
+			<div class="container-fluid">
+			<div class="col-sm-2">
+			<img src="/media/{{notification.topic_object.created_doctor.doctor_image}}/" class="img-responsive" width="50" height="50">
+			</div>
+			
+			
+			
+			<div class="col-sm-6">
+			<a href="/icare/profile/doctor/{{notification.topic_object.created_doctor.user.id}}/">Dr.{{notification.topic_object.created_doctor.name}}</a> has created
+			<p class="text-muted">on {{notification.notification_object.date_time}}</p>
+			</div>
+			</div>
+			<hr/>
+			{% endif %}
+		
+			
+		
+		<div class="row-fluid">
+		<h4>
+		<a href="/icare/topic/show/{{notification.topic_object.id}}/">{{notification.topic_object.title}}</a> <small>{% if notification.topic_object.medication%}Medication{% endif%} {% if notification.topic_object.condition%}Condition{% endif%} {% if notification.topic_object.procedure%}Procedure{% endif%} {% if notification.topic_object.symptom%}Symptom{% endif%}</small>
+		</h4>
+		</div>
+		<hr/>
+		
 		<p>In Brief</p>
-		<br/>
 		<p>{{notification.topic_object.definition}}</p>
 	</div>
 	</div>
@@ -97,42 +102,44 @@
 	
 	{% if notification.is_checklist %}
 		<div class="panel panel-info">
+		
 		<div class="panel-heading">
 			<div class="container-fluid">
-			<div class="col-sm-3">
+			
+			<div class="col-sm-2">
 			<img src="/media/{{notification.checklist_object.related_doctor.doctor_image}}/" class="img-responsive" width="60" height="60" >
 			</div>
-			<div class="col-sm-5">
+			<div class="col-sm-6">
 			<a href="/icare/profile/doctor/{{notification.checklist_object.related_doctor.user.id}}/">{{notification.checklist_object.related_doctor.name}}</a>'s CheckList on <h4><a href="/icare/{{notification.checklist_object.related_goal.id}}/check_lists/">{{notification.checklist_object.related_goal.title}}</h4>
 			<a class="btn btn-sm btn-primary" data-toggle="collapse" data-parent="#accordion" href="#{{notification.checklist_object.id}}">Show</a>
 			</div>
 			
 			<div class="col-sm-4">
-				<a>{{notification.checklist_object.use}}</a> usages
-				
-				<br/>
-				<a>{{notification.checklist_object.likes}}</a> thanks
-				<br/>
-				
-				
-				<a>{{notification.checklist_object.agree}}</a> doctor agree
+				<p><a>{{notification.checklist_object.use}}</a> usages</p>
+				<p><a>{{notification.checklist_object.likes}}</a> thanks</p>
+				<p><a>{{notification.checklist_object.agree}}</a> doctor agree</p>
 			</div>
+			
 			</div>
-		
 		</div>
+		
 		<div id="{{notification.checklist_object.id}}" class="panel-collapse collapse">
 		<div class="panel-body">
-		<div class="container-fluid">
-		<ul>
-		{% for item in notification.items %}
-			<li > <h5>{{ item.title }} </h5> <hr/> <h5><small><p class="text-muted" >{{item.frequency}}    Priority:{{item.priority}}</p></small></h5></li>
-			<br/>
-		{% endfor %}
-		</ul> 
+		
+			<div class="container-fluid">
+			<ul>
+			{% for item in notification.items %}
+				<li > <h5>{{ item.title }} </h5> <hr/> <h5><small><p class="text-muted" >{{item.frequency}}    Priority:{{item.priority}}</p></small></h5></li>
+				<br/>
+			{% endfor %}
+			</ul> 
+			</div>
+		</div>
+		
+		
 		</div>
 		</div>
-		</div>
-		</div>
+		
 		<br/>
 	{% endif %}
 	
@@ -144,4 +151,4 @@
 	<strong>There are no feed present </strong>
 {% endif %}
 
-{% show_more %}
+{% show_more%}

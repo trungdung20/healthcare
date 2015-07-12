@@ -14,22 +14,24 @@
 						<div class="col-sm-4">
 							
 							{% if user.doctor.doctor_image %}
-								<img src="/media/{{user.doctor.doctor_image}}" width="60" height="70" class="img-responsive" alt="{{user.doctor.name}}" />
-							{% else %}
-								<img width="196" height="196" src="http://lorempixel.com/196/{{demo.id|add:196}}/abstract/" />
+								<img src="/media/{{user.doctor.doctor_image}}" width="100" height="100" class="img-responsive" alt="{{user.doctor.name}}" />
 							{% endif %}
 							
 						</div>
 						
 						<div class="col-sm-8">
+						
 							<h5>
-							Doctor
-							<a href="/icare/profile/doctor/{{user.id}}/"> {{user.doctor.name}}</a>
-							
+						
+							<a href="/icare/profile/doctor/{{user.id}}/"> Dr.{{user.doctor.name}}</a>
+							<p class="text-muted">{{user.friends.count}} follower<p>
 							</h5>
-							
+							<span class="stars">{{user.doctor.doctorrecord.star}}</span>
 							<h5>
-							<small>{{user.doctor.specialty}}</small>
+							<p class="text-muted">{{user.doctor.specialty}}</p>
+							
+							<p>Contact: {{user.email}}</p>
+							<p>Website:<a href="{{user.doctor.doctorrecord.url}}">{{user.doctor.doctorrecord.url}}</a></p>
 							</h5>
 							
 							<a class="btn btn-primary" href="/icare/profile/doctor/{{user.id}}/">View</a>

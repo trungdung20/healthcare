@@ -12,7 +12,7 @@
 			<div class="form-group">
 			{% csrf_token %}
 					{{ask_form.title.errors}}
-					{{ask_form|as_bootstrap}}
+					{{ask_form.title}}
 			<br/>		
 			<div class="container-fluid">
 			<div class="col-sm-3 col-sm-offset-10">
@@ -35,9 +35,37 @@
 </div>
 {% endblock %}
 
+{% block related_block%}
+{% if can_ask%}
+<div class="container-fluid">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+		<h5>Suggested Doctors</h5>
+		</div>
+		<div class="panel-body">
+			{% for doctor_suggestion in doctor_suggestion_list %}
+			<div class="container-fluid">
+			
+				<div class="col-sm-4">
+				<img class="img-responsive" src="/media/{{doctor_suggestion.doctor_image}}" width="40" height="40">
+				</div>
+				<div class="col-sm-8">
+				<h5><a href="/icare/profile/doctor/{{doctor_suggestion.user.id}}/">Dr.{{doctor_suggestion.name}}</h5>
+				<p class="text-muted">{{doctor_suggestion.specialty}}</p>
+				<h6><span class="stars">{{doctor_suggestion.doctorrecord.star}}</span></h6>
+				</div>
+			
+			</div>
+			<hr/>
+			{%endfor %}
+		</div>
+	</div>
+</div>
+{% endif %}
+{% endblock%}
 {% block js %}
   {{ block.super }}
   <script>
-    $.endlessPaginate({paginateOnScroll: true});
+    $.endlessPaginate({paginateOnScroll: True, paginateOnScrollMargin: 20});
   </script>
 {% endblock %}

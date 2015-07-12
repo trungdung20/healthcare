@@ -5,22 +5,22 @@
 <div class="panel-group">
 {% for answer in answers %}
 	<div class="panel panel-default">
-		<div class="panel-heading">
+		<div class="panel-body">
 		<div class="container-fluid">
 		<div class="col-sm-2">
 		{% if answer.answer.from_doctor.doctor_image %}
-		<img src="/media/{{answer.answer.from_doctor.doctor_image}}/" width="50" height="50" class="img-responsive">
+		<img src="/media/{{answer.answer.from_doctor.doctor_image}}/" width="60" height="60" class="img-responsive">
 		{% endif %}
 		</div>
 		<div class="col-sm-10">
-		<p>doctor <a href="/icare/profile/doctor/{{answer.answer.from_doctor.user.id}}/">{{answer.answer.from_doctor.name}}</a> has answered</p>
+		<p><a href="/icare/profile/doctor/{{answer.answer.from_doctor.user.id}}/">Dr.{{answer.answer.from_doctor.name}}</a> has answered</p>
+		<span class="stars">{{answer.answer.from_doctor.doctorrecord.star}}</span>
+		<p class="text-muted">On {{answer.answer.created_time}}</p>
 		</div>
 		</div>
-		</div>
+		<hr/>
 		
-		<div class="panel-body">
-		
-		<a>in brief: </a>
+		<p>In brief: </p>
 		<br/>
 		<p>{{answer.answer.detail}}</p><br/>
 		
@@ -30,9 +30,9 @@
 		
 		
 		<div class="container-fluid">
-			<div class="col-sm-2">
+			<div class="col-sm-4">
 			{% if answer.answer.agree %}
-			<a data-toggle="collapse" data-parent="#accordion" href="#doctor_answer_agree_list">doctor agree</a>
+			<a data-toggle="collapse" data-parent="#accordion" href="#doctor_answer_agree_list{{answer.answer.id}}">{{answer.answer.agree}} doctor agree</a>
 			{% endif%}
 			</div>
 			<div class="col-sm-2">
@@ -53,7 +53,7 @@
 				{% endif %}
 			</div>
 		</div>
-		<div class="panel-collapse collapse" id="doctor_answer_agree_list">
+		<div class="panel-collapse collapse" id="doctor_answer_agree_list{{answer.answer.id}}">
 		<hr/>
 			{% for doctor_agree_answer in answer.agree_doctor_list %}
 			<div class="container-fluid">
@@ -62,6 +62,7 @@
 			</div>
 			<div class="col-sm-4">
 				<p><a href="/icare/profile/doctor/{{doctor_agree_answer.doctor.user.id}}/">{{doctor_agree_answer.doctor.name}}</a></p>
+				<span class="stars">{{doctor_agree_answer.doctor.doctorrecord.star}}</span>
 				<h5><small>{{doctor_agree_answer.doctor.specialty}}</small></h5>
 			</div>
 			</div>

@@ -7,18 +7,20 @@
 	{% for question in question_list %}
 	<div class="panel panel-info">
 		<div class="panel-heading">
+		<a href="/icare/question/show/{{question.question.id}}/">
 		<h5>{{question.question.title}}</h5>
-		
+		</a>
 		<br/>
 		<div class="dropdown">
 			<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Privacy
 				<span class="caret"></span></button>
 			<ul class="dropdown-menu">
-			<li><a  data-newid="private" data-id="{{question.question.id}}">private</a></li>
-			<li><a  data-newid="public" data-id="{{question.question.id}}">public</a></li>
+			<li><a href="#" data-newid="private" data-id="{{question.question.id}}">private</a></li>
+			<li><a href="#"  data-newid="public" data-id="{{question.question.id}}">public</a></li>
 			
 			</ul>
 		</div>
+		
 		</div>
 		<div class="panel-body">
 		{% if question.is_answer %}
@@ -34,11 +36,12 @@
 		</div>
 		<div class="col-sm-5">
 		<a href="/icare/profile/doctor/{{answer.from_doctor.user.id}}/">{{answer.from_doctor.name}}</a> has answered
+		<p class="text-muted">{{answer.created_time}}</p>
 		</div>
 		
 		</div>
 		
-		<br/>
+		<hr/>
 	
 		<div class="row-fluid">
 		In brief:<br/>	
@@ -52,10 +55,10 @@
 	<strong>No answer present </strong>
 	
 	{% endif %}
+		</div>
+	
 	</div>
 	<br/>
-	</div>
-	
 	{% endfor %}
 	
 	</div>

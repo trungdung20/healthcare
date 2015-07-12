@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User 
 from django import forms 
-from models import Doctor, Patient, certification_CHOICES, GENDER_CHOICES, Question, Answer, CheckList, PatientRecord, DoctorRecord, Topic, ListItem, Vaccination, ETHNICITY, DIETARY_RESTRICTION, ALCOHOL,SEX_ACTIVE, RECREATIONAL_DRUGS, TOBACCO,Feedback
+from models import Doctor, Patient, certification_CHOICES, GENDER_CHOICES, Question, Answer, CheckList, PatientRecord, DoctorRecord, Topic, ListItem, Vaccination, ETHNICITY, DIETARY_RESTRICTION, ALCOHOL,SEX_ACTIVE, RECREATIONAL_DRUGS, TOBACCO,Feedback,PatientMedication, PatientCondition, PatientFamilyHistory,INSURANCE, PatientAllergy 
+
 from icare.list import DOCTOR_SPECIALTY, DOCTOR_DEGREE, YEAR
 from bootstrap_toolkit.widgets import BootstrapTextInput
 
@@ -17,6 +18,38 @@ class UserForm(forms.ModelForm):
 		  'password':forms.PasswordInput(attrs={'class':'form-control','placeholder':'Please enter your password'}),
         }
 		fields = ('username', 'email','password') 
+
+class PatientMedicationForm(forms.ModelForm):
+	medication = forms.CharField(widget = forms.TextInput(attrs={'class':'form-control','placeholder':'Name of Medication'}))
+	active  = forms.BooleanField(label='active',initial=True, required=False)
+	
+	class Meta:
+		model = PatientMedication 
+		exclude = ('patient',)
+
+class PatientConditionForm(forms.ModelForm):
+	condition = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Name of Condition or Symptom'}))
+	active = forms.BooleanField(label='active',initial=True, required=False)
+	
+	class Meta:
+		model = PatientCondition 
+		exclude = ('patient',)
+
+class PatientAllergyForm(forms.ModelForm):
+	allergy = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Name of allergy you have'}))
+	active = forms.BooleanField(label='active',initial=True, required=False,widget=forms.CheckboxInput(attrs={'class':'checkbox'}))
+	
+	class Meta:
+		model = PatientAllergy 
+		exclude = ('patient',)
+		
+class PatientFamilyHistoryForm(forms.ModelForm):
+	condition = forms.CharField(widget = forms.TextInput(attrs={'class':'form-control','placeholder':'Name of Condition or Symptom'}))
+	member = forms.CharField(widget = forms.TextInput(attrs={'class':'form-control','placeholder':'Name of your family member'}))
+	
+	class Meta:
+		model = PatientFamilyHistory
+		exclude = ('patient',)
 		
 class PatientForm(forms.ModelForm):
 	#name = forms.CharField('Full name')
@@ -54,6 +87,12 @@ class PatientRecordHeightForm(forms.ModelForm):
 		#'address':forms.TextInput(attrs={'class':'form-control','placeholder':'Please enter your adress'}),
 		}
 		fields = ('height',)
+
+class PatientRecordInsuranceForm(forms.ModelForm):
+	insurance = forms.ChoiceField(choices=INSURANCE, widget=forms.Select(attrs={'class':'form-control'}))		
+	class Meta:
+		model = PatientRecord
+		fields = ('insurance',)
 		
 class PatientRecordEthnicityForm(forms.ModelForm):
 	ethnicity = forms.ChoiceField(choices=ETHNICITY,widget=forms.Select(attrs={'class': 'form-control'}))
@@ -127,11 +166,13 @@ class DoctorRecordForm(forms.ModelForm):
 	class Meta: 
 		model = DoctorRecord 
 		widgets = {
-		'doctor_information': forms.Textarea(attrs={'class': 'form-control','placeholder': 'Write something to introduce about yourself'}),
+		'doctor_information': forms.Textarea(attrs={'class': 'form-control','placeholder': 'Write something to introduce about yourself','rows':6}),
 		'language': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter your spoken language'}),
+		'office_hour': forms.Textarea(attrs={'class':'form-control','placeholder':'Enter your office hour','rows':4}),
+		'url': forms.TextInput(attrs={'class':'form-control','placeholder':'Enter your addtional website link'}),
 		#'address':forms.TextInput(attrs={'class':'form-control','placeholder':'Please enter your adress'}),
 		}
-		fields = ('doctor_information','language')
+		fields = ('doctor_information','language','office_hour','url')
 		
 class DoctorImageForm(forms.ModelForm):
 	doctor_image = forms.ImageField(label='image of doctor')

@@ -10,7 +10,7 @@
 
 
 {% block body_block %}
-<div class="container-fluid">
+<div class="row-fluid">
 		<!--Nav tab -->
 		<ul class="nav nav-tabs" role="tablist">
 			<li class="active">
@@ -28,81 +28,70 @@
 	<div class="tab-content">
 	<div class="tab-pane fade active in" id="profile">
 	
-		<div class="panel panel-info">
-		<div class="panel-heading">
-		<h4>Doctor</h4> Rating:<span class="stars">{{doctor_record.star}}</span>
-		
-		</div>
+	<div class="panel panel-default">
 		<div class="panel-body">
-			<div class="container-fluid">
-			
-			</div>
-			<div class="container-fluid">
-				<div class="col-sm-6">
-					<h5>Doctor name: {{doctor.name}}</h5>
-					<h5>Specialty: {{doctor.specialty}}</h5>
-					<h5>Gender: {{doctor.gender}}</h5>
-					<h5>Active Year: {{doctor.year}}</h5>
-					
-				</div>
-				
-				<div class="col-sm-4">
-					
-					{% if doctor.doctor_image %}
-						<img class="img-responsive"  src="/media/{{doctor.doctor_image}}"/>
-					{% else %}
-						<img class="img-responsive" src="http://lorempixel.com/256/128/people/" />
-					{% endif %}
-					
-					
-				</div>
-				
-				<div class="col-sm-2">
+		
+		<div class="row-fluid">
+		
+		<div class="col-md-5 col-md-offset-3">
+			{% if doctor.doctor_image %}
+				<img class="img-responsive"  src="/media/{{doctor.doctor_image}}"/>
+			{% else %}
+				<img class="img-responsive" src="http://lorempixel.com/256/128/people/" />
+			{% endif %}
+			<hr/>
+			<h4>Dr.{{doctor.name}}</h4>
+			<span class="stars">{{doctor_record.star}}</span>
+			<p >{{doctor.specialty}}</p>
+			<p class="text-muted">{{friend_count}} follower</p>
+		</div>
+		
+		<div class="col-md-4">
 				{% if can_request %}
 					<a class="btn btn-sm btn-primary" type="button" id="add_friend_doctor" data-id="{{doctor.id}}">Add Care list</a>
-					<br/>
+					
 				{% endif %}
 				
 				{% if is_friend %}
 					<a class="btn btn-sm btn-success" type="button">Care Doctor</a>
-					<br/>
+					
 				{% endif %}
 				
 				{% if can_be_advisor %}
 					<a class="btn btn-sm btn-primary" type="button" id="add_advisor_doctor" data-id="{{doctor.id}}">Add Advisor</a>
-					<br/>
+					
 				{% endif %}
 				
 				{% if is_advisor %}
-					<a class="btn btn-sm btn-success" type="button" >Advisor</a>
-					<br/>
+					<a class="btn btn-sm btn-success" type="button">Advisor</a>
+					
 				{% endif %}
-				</div>
-				
-				
-			</div>
-			</div>
 		</div>
-		<div class="panel panel-info">
-		<div class="panel-heading">
-				<h4>About me</h4>
+		
+		</div>	
 		</div>
-		<div class="panel-body">
-			
-			<div class="container-fluid">
-				<div class="col-sm-8">
-				<p>{{doctor_record.doctor_information}}</p>
-					
-					
-				</div>
-			</div>
-				<div class="container-fluid">
+	</div>
+	
+	<div class="row">
+		<div class="col-sm-6">
+		
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="row">
+					<div class="container-fluid">
+					<strong>About me</strong>
+					</div>
+					<hr/>
+					<div class="container-fluid">
+					<p>{{doctor_record.doctor_information}}</p>
+					</div>
 					<hr/>
 					{% if myaccount %}
 					
 					<!-- Trigger the modal with a button -->
-					<button type="button" class="btn btn-info btn-md" data-toggle="modal" data-target="#doctor_edit">Edit</button>
-
+					<div class="container-fluid">
+					<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#doctor_edit">Edit</button>
+					</div>
 					<!-- Modal -->
 					<div id="doctor_edit" class="modal fade" role="dialog">
 							<div class="modal-dialog">
@@ -119,7 +108,7 @@
 									<div class="form-group">
 										{% csrf_token %}
 										{{doctor_record_form|as_bootstrap}}
-										{{doctor_image_form|as_bootstrap}}
+										
 										
 										<br/>
 										<input class="btn btn-primary" type="submit" name="submit" value="edit"/>
@@ -134,47 +123,131 @@
 							</div>
 					</div>
 					{% endif%}
+					</div>
 				</div>
-			
-			</div>	
-		</div>
-		<div class="panel panel-info">
-		<div class="panel-heading">
-				<h3>Graduated School</h3>
 			</div>
 			
-		<div class="panel-body">
-			
-			<div class="container">
-				<p>{{doctor.school}}</p>
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="row">
+					<div class="container-fluid">
+					<strong>I specialize in</strong>
+					</div>
+					<hr/>
+					<div class="container-fluid">
+					<p>{{doctor.specialty}}</p>
+					</div>
+					</div>
+				</div>
 			</div>
-		</div>	
-		</div>
-		<div class="panel panel-info">
-		<div class="panel-heading">
-				<h3>Spoken Language<h3>
-			</div>
-		<div class="panel-body">
 			
-			<div class="container-fluid">
+			<div class="panel panel-default">
+				<div class="panel-body">
+				<div class="row">
+				<div class="container-fluid">
+				<strong>Experience</strong>
+				</div>
+				<hr/>
+				<div class="container-fluid">
+				<p>I have been in practice since {{doctor.year}}</p>
+				</div>
+				</div>
+				</div>
+			</div>
+			
+			<div class="panel panel-default">
+				<div class="panel-body">
+				<div class="row">
+				<div class="container-fluid">
+				<strong>I speak</strong>
+				</div>
+				<hr/>
+				<div class="container-fluid">
 				<p>{{doctor_record.language}}</p>
+				</div>
+				</div>
+				</div>
 			</div>
-		</div>
-		</div>
-		<div class="panel panel-info">
-		<div class="panel-heading">
-				<h4>I have <h4>
-		</div>
-		<div class="panel-body">
 			
-			
-			<div class="container">
-				<p>received <a>{{doctor_record.patient_recommendation}}</a> thanks from patients</p>
-				<p>received <a>{{doctor_record.doctor_recommendation}}</a> agrees form other doctors</p>
+			<div class="panel panel-default">
+				<div class="panel-body">
+				<div class="row">
+				<div class="container-fluid">
+					<strong>My answers and insights</strong>
+				</div>	
+					<hr/>
+				<div class="container-fluid">	
+					<p>Received {{doctor_record.patient_recommendation}} thanks from patient user</p>
+					<p>Received {{doctor_record.doctor_recommendation}} agrees from doctor user</p>
+					<p>I created {{doctor_record.number_create_topic}} health topics</p>
+					<p>I created {{doctor_record.number_create_item_checklist}} health tips</p>
+					<p>I answered {{doctor_record.number_answer}} questions from user</p>
+				</div>	
+				</div>	
+				</div>
 			</div>
+		
 		</div>
+		
+		<div class="col-sm-6">
+		
+			<div class="panel panel-default">
+				<div class="panel-body">
+				<div class="row">
+				<div class="container-fluid">
+					<strong>I locate at</strong>
+				</div>	
+					<hr/>
+				<div class="container-fluid">	
+					<p>{{doctor.address}}</p>
+				</div>	
+					<hr/>
+				<div class="container-fluid">	
+					<strong>Office hours</strong>
+				</div>
+					<hr/>
+				<div class="container-fluid">	
+					<p>{{doctor_record.office_hour}}</p>
+				</div>	
+				</div>
+				</div>
+			</div>
+			
+			<div class="panel panel-default">
+				<div class="panel-body">
+				<div class="row">
+				<div class="container-fluid">
+				<strong>I educate and training at </strong>
+				</div>
+				<hr/>
+				<div class="container-fluid">
+				<strong>Medical/Graduate school</strong>
+				<p>{{doctor.school}}</p>
+				</div>
+				</div>
+				</div>
+			</div>
+			
+			<div class="panel panel-default">
+				<div class="panel-body">
+				<div class="row">
+				<div class="container-fluid">
+				<strong>Additional link</strong>
+				</div>
+				<hr/>
+				<div class="container-fluid">
+				<a href="{{doctor_record.url}}">{{doctor_record.url}}</a>
+				</div>
+				</div>
+				</div>
+			</div>
+			
 		</div>
-	</div>	
+	</div>
+	</div>
+	
+	
+	
 	<!--history-->
 	<div class="tab-pane fade" id="history">
 	
@@ -186,21 +259,85 @@
 {% endblock %}
 
 {% block related_block %}
-<div class="row-fluid">
-
+<div class="container-fluid">
+	<br/>
+	<br/>
 	<div class="panel panel-default">
 	<div class="panel-heading">
-		<h4>My Insights &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#topic_add">Add</button> </h4>
+	<div class="container-fluid">
+		<h4>My Insights &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		{% if myaccount %}
+		<span class="glyphicon glyphicon-plus-sign" data-toggle="modal" data-target="#topic_add" ></span>
+		</h4>
+		{% endif %}
+	</div>	
 	</div>
 	
 	<div class="panel-body">
+	<div class="row">
+	
+	
+		{% for topic in topic_list %}
+		<div class="row-fluid">
+		<div class="col-sm-10">
+			
+				<h5><strong><a href="/icare/topic/show/{{topic.topic.id}}/">{{topic.topic.title}}</a></strong></h5>
+				<p class="text-muted">{{topic.topic.topicfollow_set.count}} follower</p>
+			
+		</div>
+		
+		<div class="col-sm-2">
+			{% if myaccount %}
+				<span class="glyphicon glyphicon-pencil" data-toggle="modal" data-target="#topic_edit{{topic.topic.id}}"></span>
+				
+
+					<!-- Modal -->
+					<div id="topic_edit{{topic.topic.id}}" class="modal fade" role="dialog">
+							<div class="modal-dialog">
+
+					<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+										<h4 class="modal-title">Edit topic form</h4>
+								</div>
+								<div class="modal-body">
+									<div>
+									<form id="edit_topic" method="POST" action="/icare/topic/edit/{{topic.topic.id}}/" 
+										enctype="multipart/form-data">
+										
+										{% csrf_token %}
+										<div class="form-group">
+										{{topic.topic_edit_form|as_bootstrap}}
+										<br/>
+									<input class="btn btn-primary" type="submit" name="submit" value="Submit" />
+									</div>
+									</form>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
+								</div>
+							</div>
+
+							</div>
+					</div>
+			{% endif %}
+		</div>
+		
+		</div>
+		
+		{% endfor %}
+		</div>
+	</div>
+	</div>
+</div>	
 	{% if myaccount %}
 		<div class="container-fluid">
 			
 
 					<!-- Modal -->
-					<div id="topic_add" class="modal fade" role="dialog">
+			<div id="topic_add" class="modal fade" role="dialog">
 							<div class="modal-dialog">
 
 					<!-- Modal content-->
@@ -239,57 +376,4 @@
 					</div>
 		</div>
 	{% endif %}
-	
-		{% for topic in topic_list %}
-		<div class="container-fluid">
-		<div class="col-sm-9">
-			
-				<a href="/icare/topic/show/{{topic.topic.id}}/">{{topic.topic.title}}</a>
-			
-		</div>
-		
-		<div class="col-sm-3">
-			{% if myaccount %}
-				
-				<button type="button" class="btn btn-mini btn-info btn-sm" data-toggle="modal" data-target="#topic_edit{{topic.topic.id}}">Edit</button>
-
-					<!-- Modal -->
-					<div id="topic_edit{{topic.topic.id}}" class="modal fade" role="dialog">
-							<div class="modal-dialog">
-
-					<!-- Modal content-->
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal">&times;</button>
-										<h4 class="modal-title">Edit topic form</h4>
-								</div>
-								<div class="modal-body">
-									<div>
-									<form id="edit_topic" method="POST" action="/icare/topic/edit/{{topic.topic.id}}/" 
-										enctype="multipart/form-data">
-										
-										{% csrf_token %}
-										<div class="form-group">
-										{{topic.topic_edit_form|as_bootstrap}}
-										<br/>
-									<input class="btn btn-primary" type="submit" name="submit" value="Submit" />
-									</div>
-									</form>
-									</div>
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
-								</div>
-							</div>
-
-							</div>
-					</div>
-			{% endif %}
-		</div>
-		</div>
-		<br/>
-		{% endfor %}
-		</div>
-	</div>
-	</div>
 {% endblock %}

@@ -11,12 +11,13 @@
 <div class="row-fluid">
 	<div class="panel panel-default">
 	<div class="panel-heading">
-	<h5>{{question.title}}</h5>
+	<h4>{{question.title}}</h4>
 	</div>
 	</div>
 </div>
 {% if can_answer %}
-	<div class="row-fluid">
+
+<div class="row-fluid">
 	<div class="panel panel-default">
 	<div class="panel-body">
 			<form role="form" id="answer_post" method="POST" action="/icare/question/answer/{{question.id}}/"
@@ -35,6 +36,28 @@
 		</div>
 	</div>
 </div>
+</div>
+
+{% endif %}
+
+{% if is_patient %}
+<div class="row-fluid">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<form role="form"  method="POST" action="/icare/question/post_related/{{question.id}}/" 
+				enctype="multipart/form-data">
+				{% csrf_token %}
+				<label>Post a similar question</label>
+				<div class="form-group">
+					{{question_form.errors}}
+					{{question_form.title}}
+				</div>
+				<input class="btn btn-primary" type="submit" name="submit" value="Post"/>
+			</form>
+		</div>
+	</div>
+</div>
+
 {% endif %}
 
 {% include page_template %}
@@ -43,5 +66,24 @@
 {% endblock %}
 
 {% block related_block %}
+
+{% if question_related_list%}
+<div class="row-fluid">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+			<h5>Question related</h5>
+			</div>
+			
+			<div class="panel-body">
+			{% for question_related in question_related_list %}
+			<div class="row-fluid">
+			<a href="/icare/question/show/{{question_related.question_related.id}}/">{{question_related.question_related.title|truncatewords:30}}</a>
+			<p class="text-muted">{{question_related.question_related.answer_count}} answer(s)</p>
+			</div>
+			{% endfor %}
+			</div>
+		</div>
+</div>
+{% endif%}
 
 {% endblock %}

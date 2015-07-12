@@ -16,19 +16,20 @@
 	
 		<div class="panel-body">
 		<div class="col-sm-6">
-			<div class="row">
+			<div class="row-fluid">
 			<h4>{{topic.title}} &nbsp;<small>{% if topic.medication%}Medication{% endif%} {% if topic.condition%}Condition{% endif%} {% if topic.procedure%}Procedure{% endif%} {% if topic.symptom%}Symptom{% endif%}</small></h4>
+			<p class="text-muted"> <small id="new_topic_count">{{topic.topicfollow_set.count}}</small> follow</p>
 			</div>
 		</div>
 		<div class="col-sm-3">
 		
 		</div>
-		<div class="col-sm-3">
+		<div class="col-sm-3" id="follow_button">
 			
 			{% if is_follow %}
-			<button type="button" class="btn btn-md btn-info">Followed</button>
+			<button type="button" class="btn btn-md btn-info" id="topic_unfollow_button" data-topicid="{{topic.id}}" >Followed</button>
 			{% else %}
-			<button type="button" class="btn  btn-md btn-primary" data-topicid="{{topic.id}}" id="topic_follow_button">Follow</button>
+			<button type="button" class="btn  btn-md btn-primary" data-topicid="{{topic.id}}" id="topic_follow_button">Follow</button> 
 			{% endif %}
 			
 		</div>
@@ -36,9 +37,10 @@
 		</div>
 	
 	
-	<div class="panel panel-default">
+<div class="panel panel-default">
 	
 	<div class="panel-body">
+	<div class="row">
 	<div class="container-fluid">
 	{% if topic.created_doctor %}
 		<div class="container-fluid">
@@ -47,23 +49,25 @@
 		</div>
 		<div class="col-sm-4">
 		<p><a href="/icare/profile/doctor/{{topic.created_doctor.user.id}}/">{{topic.created_doctor.name}}</a> created</p>
+		<p class="text-muted">{{topic.create_time}}</p>
 		</div>
 		</div>
 		
 		<hr/>
 	{% endif %}	
-		<p>{{topic.definition}}</p><br/>
+		<p>{{topic.definition}}</p>
 		{% if topic.image %}
 			<img src="/media/{{topic.image}}" style="width:304px;height:228px">
 		{% endif %}
-		<hr/>
+		
 		
 	</div>
+	<hr/>
 	<div class="container-fluid">
 	<div class="col-sm-10">
 		{% if number_doctor_agree %}
 		
-		<a data-toggle="collapse" data-parent="#accordion" href="#doctor_agree_list">{{number_doctor_agree}} Doctor agree</a>
+		<a data-toggle="collapse" data-parent="#accordion" href="#doctor_agree_list">{{number_doctor_agree}} doctor agree</a>
 		
 		{% else %}
 		
@@ -77,23 +81,26 @@
 	</div>
 	
 	</div>
+	
 	<div id="doctor_agree_list" class="panel-collapse collapse">
 	<hr/>
 	{% for doctor_agree in doctor_agree_list %}
-	<div class="container-fluid">
+	<div class="row-fluid">
 	<div class="col-sm-2">
 		<img width="30" height="30" class="img-responsive" src="/media/{{doctor_agree.doctor.doctor_image}}"/>
 	</div>
 	<div class="col-sm-4">
 	<p><a href="/icare/profile/doctor/{{doctor_agree.doctor.user.id}}/">{{doctor_agree.doctor.name}}</a></p>
+	<span class="stars">{{doctor_agree.doctor.doctorrecord.star}}</span>
 	<h5><small>{{doctor_agree.doctor.specialty}}</small></h5>
 	</div>
 	</div>
 	{% endfor%}
 	</div>
 	</div>
+	</div>
 </div>
-
+<hr/>
 {% if is_patient %}
 	
 	<div class ="panel panel-default">
@@ -104,7 +111,7 @@
 			
 			{% csrf_token %}
 					{{question_form.errors}}
-					{{question_form|as_bootstrap}}
+					{{question_form.title}}
 					
 			<br/>
 				<input class="btn btn-primary" type="submit" type="submit" name="submit" value="Post">
@@ -178,7 +185,8 @@
 	<div class="panel-body">
 	{% for condition in condition_list %}
 		<a href="/icare/topic/show/{{condition.id}}/">{{condition.title}}</a>
-	<br/>
+		<p class="text-muted">{{condition.topicfollow_set.count}} follow</p>
+	
 	{% endfor%}
 	</div><br />
 	</div>
@@ -196,7 +204,8 @@
 	<div class="panel-body">
 	{% for symptom in symptom_list %}
 		<a href="/icare/topic/show/{{symptom.id}}/">{{symptom.title}}</a>
-	<br/>
+		<p class="text-muted">{{symptom.topicfollow_set.count}} follow</p>
+	
 	{% endfor%}
 	</div><br />
 	</div>
@@ -214,7 +223,8 @@
 	<div class="panel-body">
 	{% for medication in medication_list %}
 		<a href="/icare/topic/show/{{medication.id}}/">{{medication.title}}</a>
-	<br/>
+		<p class="text-muted">{{medication.topicfollow_set.count}} follow</p>
+	
 	{% endfor%}
 	</div><br/>
 	</div>
@@ -232,13 +242,14 @@
 	<div class="panel-body">
 	{% for procedure in procedure_list %}
 		<a href="/icare/topic/show/{{procedure.id}}/">{{procedure.title}}</a>
-	<br>
+		<p class="text-muted">{{procedure.topicfollow_set.count}} follow</p>
+	
 	{% endfor%}
 	</div><br />
 	</div>
 	</div>
 	{% endif%}
-	<br/>
+	
 	{% if other_topic_list %}
 	<div class="panel-group">
 	<div class="panel panel-info">
@@ -249,7 +260,8 @@
 	<div class="panel-body">
 	{% for other_topic in other_topic_list %}
 		<a href="/icare/topic/show/{{other_topic.id}}/">{{other_topic.title}}</a>
-	<br/>
+		<p class="text-muted">{{topic.topicfollow_set.count}} follow</p>
+	
 	{% endfor%}
 	</div><br/>
 	</div>
