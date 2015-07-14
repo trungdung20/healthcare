@@ -3,14 +3,14 @@
 {% block body_block %}
 <div class="container-fluid">
 	<!--patient profile-->
-	
+
 	<div class="panel panel-default">
 
 	<div class="panel-body">
-		
+
 	<div class="row-fluid">
-		
-		<div class="col-md-5 col-md-offset-4">
+
+		<div class="col-md-5 col-md-offset-3">
 			{% if patient.patient_image %}
 				<img class="img-responsive" src="/media/{{patient.patient_image}}"/>
 			{% else %}
@@ -20,18 +20,36 @@
 			<h5><strong>{{patient.name}}</strong></h5>
 			<p class="text-muted">{{patient.user.friends.count}} follower</p>
 		</div>
-		
-		<div class="col-md-3">
+
+		<div class="col-md-4">
 				{% if can_request %}
+				
 					<a class="btn btn-sm btn-primary" type="button" id="add_friend_patient" data-id="{{patient.id}}">Add patient</a>
-					<br/>
+				
+					
 				{% endif %}
+				<div id="patient_send_friend_request">
+				
+				</div>	
+				{% if is_friend %}
+					<a class="btn btn-sm btn-success" type="button">Care Patient</a>
+
+				{% endif %}
+
+				{% if is_advisor%}
+				    <a class="btn btn-sm btn-success" type="button">Advised</a>
+				{% endif%}
+
+				{% if is_request_re and not is_friend%}
+					
+				    <a class="btn btn-sm btn-info" type="button" id="patient_reject_friend_request" data-id="{{patient.id}}">Request Sent</a>
+				{% endif%}
 		</div>
-		
-	</div>	
-	</div>	
-	
-	
+
+	</div>
+	</div>
+
+
 	</div>
 <div class="row">
 <div class="col-sm-6">
@@ -40,25 +58,25 @@
 		<div class="row">
 		<div class="container-fluid">
 			<strong>About</strong>
-		</div>	
+		</div>
 			<hr/>
-		<div class="container-fluid">	
+		<div class="container-fluid">
 			<h5><strong>Date of birth:</strong> {{patient.birthday}}</h5>
 			<h5><strong>Gender: {{patient.gender}}</strong></h5>
 			<h5><strong>Address:</strong> {{patient.address}}</h5>
 			<h5><strong>Email:</strong> {{patient.user.email}}</h5>
 		</div>
-		
-		</div>	
+
+		</div>
 		</div>
 	</div>
-	
+
 	<div class="panel panel-default">
 		<div class="panel-body">
 		<div class="row">
 		<div class="container-fluid">
 			<h5><strong>Information</strong></h5>
-		</div>	
+		</div>
 			<hr/>
 			<div class="row-fluid">
 				<div class="col-sm-10">
@@ -67,18 +85,18 @@
 				<div class="col-sm-1">
 				{% if myaccount%}
 				<span class="glyphicon glyphicon-pencil" id="height_update" data-id="{{patient_record.id}}"></span>
-				
+
 				{% endif%}
 				</div>
 			</div>
-			
+
 			<div class="row-fluid" id="height_edit">
-			
+
 			</div>
-			
+
 			<div class="row-fluid">
 				<div class="col-sm-10">
-				<h5><strong>Weight:</strong> <a id="weight">{{patient_record.weight}}</a></h5> 
+				<h5><strong>Weight:</strong> <a id="weight">{{patient_record.weight}}</a></h5>
 				</div>
 				<div class="col-sm-1">
 				{% if myaccount%}
@@ -87,18 +105,18 @@
 				</div>
 			</div>
 			<div class="row-fluid" id="weight_edit">
-			
+
 			</div>
-			
+
 			<div class="row-fluid">
 				<div class="col-sm-10">
-				<h5><strong>BMI:</strong> <a id="bmi">{{patient_record.bmi}} {% if is_underweight %}<span class="label label-info">underweight</span>{% endif %} {% if is_healthy %}<span class="label label-success">healthy</span>{% endif %} {% if is_slightly %}<span class="label label-warning">slightly overweight</span>{% endif %} {% if is_overweight %}<span class="label label-danger">overweight</span>{% endif %} </a></h5> 
+				<h5><strong>BMI:</strong> <a id="bmi">{{patient_record.bmi}} {% if is_underweight %}<span class="label label-info">underweight</span>{% endif %} {% if is_healthy %}<span class="label label-success">healthy</span>{% endif %} {% if is_slightly %}<span class="label label-warning">slightly overweight</span>{% endif %} {% if is_overweight %}<span class="label label-danger">overweight</span>{% endif %} </a></h5>
 				</div>
 			</div>
-			
+
 			<div class="row-fluid">
 				<div class="col-sm-10">
-				<h5><strong>Ethnicity:</strong> <a id="ethnicity">{{patient_record.ethnicity}}</a></h5> 
+				<h5><strong>Ethnicity:</strong> <a id="ethnicity">{{patient_record.ethnicity}}</a></h5>
 				</div>
 				{% if myaccount%}
 				<div class="col-sm-1">
@@ -107,106 +125,106 @@
 				{% endif%}
 			</div>
 			<div class="row-fluid" id="ethnicity_edit">
-			
+
 			</div>
-			
+
 		</div>
 		</div>
 	</div>
-	
+
 	<div class="panel panel-default">
 		<div class="panel-body">
 		<div class="row">
 		<div class="container-fluid">
 			<h5><strong>Life style</strong></h5>
-		</div>	
+		</div>
 			<hr/>
-			
+
 		<div class="row-fluid">
 			<div class="col-sm-10">
-			<h5><strong>Dietary restrictions:</strong> </h5> 
-			<a id="dietary_restriction">{{patient_record.dietary_restriction}}</a> 
+			<h5><strong>Dietary restrictions:</strong> </h5>
+			<a id="dietary_restriction">{{patient_record.dietary_restriction}}</a>
 			</div>
-			
+
 			<div class="col-sm-1">
 			{% if myaccount %}
 				<span class="glyphicon glyphicon-pencil" id="dietary_restriction_update" data-id="{{patient_record.id}}"></span>
-				
+
 			{% endif%}
 			</div>
-		</div>	
-		<div class="row-fluid" id="dietary_restriction_edit">
-		
 		</div>
-		
+		<div class="row-fluid" id="dietary_restriction_edit">
+
+		</div>
+
 		<div class="row-fluid">
 			<div class="col-sm-10">
-			<h5><strong>Alcohol:</strong> <a id="alcohol">{{patient_record.alcohol}}</a> </h5> 
+			<h5><strong>Alcohol:</strong> <a id="alcohol">{{patient_record.alcohol}}</a> </h5>
 			</div>
-			
+
 			<div class="col-sm-1">
 			{% if myaccount %}
 				<span class="glyphicon glyphicon-pencil" id="alcohol_update" data-id="{{patient_record.id}}"></span>
-				
+
 			{% endif%}
 			</div>
 		</div>
-		
+
 		<div class="row-fluid" id="alcohol_edit">
-		
+
 		</div>
 
 		<div class="row-fluid">
 			<div class="col-sm-10">
 			<h5><strong>Tobacco:</strong> <a id="tobacco">{{patient_record.tobacco}}</a></h5>
 			</div>
-			
+
 			<div class="col-sm-1">
 			{% if myaccount %}
 				<span class="glyphicon glyphicon-pencil" id="tobacco_update" data-id="{{patient_record.id}}"></span>
-				
+
 			{% endif%}
 			</div>
-			
-		</div>	
-		
-		<div class="row-fluid" id="tobacco_edit">
-		
+
 		</div>
-		
+
+		<div class="row-fluid" id="tobacco_edit">
+
+		</div>
+
 		<div class="row-fluid">
 			<div class="col-sm-10">
 			<h5><strong>Sexually active:</strong> <a id="sex">{{patient_record.sexually_active}}</a> </h5>
 			</div>
-			
+
 			<div class="col-sm-1">
 			{% if myaccount %}
 				<span class="glyphicon glyphicon-pencil" id="sex_update" data-id="{{patient_record.id}}"></span>
-				
+
 			{% endif%}
 			</div>
-		</div>		
-		
-		<div class="row-fluid" id="sex_edit">
-		
 		</div>
-		
+
+		<div class="row-fluid" id="sex_edit">
+
+		</div>
+
 		<div class="row-fluid">
 			<div class="col-sm-10">
-			<h5><strong>Recreational Drugs:</strong> <a id="recreational_drug">{{patient_record.recreational_drug}}</a></h5> 
+			<h5><strong>Recreational Drugs:</strong> <a id="recreational_drug">{{patient_record.recreational_drug}}</a></h5>
 			</div>
-			
+
 			<div class="col-sm-1">
 			{% if myaccount %}
 				<span class="glyphicon glyphicon-pencil" id="recreational_drug_update" data-id="{{patient_record.id}}"></span>
 			{% endif%}
 			</div>
-		</div>	
-		<div class="row-fluid" id="recreational_drug_edit">
-		
 		</div>
-			
-		</div>	
+		<div class="row-fluid" id="recreational_drug_edit">
+
+		</div>
+
+		</div>
 		</div>
 	</div>
 	<div class="panel panel-default">
@@ -214,10 +232,10 @@
 			<div class="row">
 			<div class="container-fluid">
 				<strong>Medication</strong>
-			</div>	
+			</div>
 				<hr/>
 				<div id="main_medication">
-			<div class="container-fluid">	
+			<div class="container-fluid">
 				<h5>Current  <span class="glyphicon glyphicon-time"></span></h5>
 					{% for current_medication in current_medication_list %}
 					<div id="medication{{Current_medication.id}}">
@@ -233,11 +251,11 @@
 						</div>
 					</div>
 					{% endfor %}
-			</div>		
+			</div>
 				<hr/>
-			<div class="container-fluid">	
+			<div class="container-fluid">
 				<h5>Past <span class="glyphicon glyphicon-time"></span></h5>
-				
+
 					{% for past_medication in past_medication_list%}
 					<div id="medication{{past_medication.id}}">
 					<div class="row">
@@ -247,12 +265,12 @@
 						<div class="col-sm-1">
 						{% if myaccount %}
 							<span class="glyphicon glyphicon-pencil" id="patient_medication_edit" data-id="{{past_medication.id}}"></span>
-						{% endif%}	
+						{% endif%}
 						</div>
 					</div>
 					</div>
 					{% endfor %}
-				</div>	
+				</div>
 				</div>
 				<div id="new_patient_medication">
 
@@ -264,7 +282,7 @@
 				</div>
 				</div>
 				{% endif %}
-				
+
 			</div>
 		</div>
 	</div>
@@ -276,19 +294,19 @@
 		<div class="row">
 		<div class="container-fluid">
 			<strong>Vaccination</strong>
-		</div>	
+		</div>
 			<hr/>
-		<div class="container-fluid">		
+		<div class="container-fluid">
 		<div id="vaccination">
 		{% for vaccination in vaccinations %}
 			<div class="row-fluid">
 				<div class="col-sm-10">
-				
+
 				<p>{{vaccination.medication.topic.title}}</p>
-				
+
 				</div>
 		</div>
-		
+
 		{% endfor %}
 		</div>
 		</div>
@@ -300,24 +318,24 @@
 			</div>
 			{% endif %}
 			<div class="container-fluid" id="vaccination_edit">
-			
+
 			</div>
-			
+
 		</div>
 		</div>
 	</div>
-	
+
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="row">
-			
+
 			<div class="container-fluid">
 			<strong>Condition and Symptom</strong>
 			</div>
-			
+
 			<hr/>
-			
-			
+
+
 			<div id="main_condition">
 			<div class="container-fluid">
 			<h5>Current <span class="glyphicon glyphicon-time"></span> </h5>
@@ -336,18 +354,18 @@
 			</div>
 			{% endfor %}
 			</div>
-			
+
 			<hr/>
-			
+
 			<div class="container-fluid">
 			<h5>Past <span class="glyphicon glyphicon-time"></span></h5>
-			
+
 			{% for past_condition in past_condition_list%}
 			<div id="condition{{past_condtion.id}}">
 			<div class="row">
 				<div class="col-sm-10">
 				<h5>{{past_condition.condition}}</h5>
-				
+
 				</div>
 				<div class="col-sm-1">
 				{% if myaccount %}
@@ -359,14 +377,14 @@
 			{% endfor %}
 			</div>
 			</div>
-			
-			
-			
-			
+
+
+
+
 			<div id="new_patient_condition">
-			
+
 			</div>
-			
+
 			{% if myaccount %}
 			<div class="container-fluid">
 			<div class="col-sm-3 col-sm-offset-2">
@@ -377,18 +395,18 @@
 			</div>
 		</div>
 	</div>
-	
 
-	
+
+
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="row">
 			<div class="container-fluid">
 				<strong>Allergies</strong>
-			</div>	
+			</div>
 				<hr/>
 				<div id="main_allergy">
-			<div class="container-fluid">	
+			<div class="container-fluid">
 				<h5>Current <span class="glyphicon glyphicon-time"></span></h5>
 					{% for current_allergy in current_allergy_list %}
 					<div id="allergy{{current_allergy.id}}">
@@ -396,20 +414,20 @@
 						<div class="col-sm-10">
 						<h5>{{current_allergy.allergy}}</h5>
 						</div>
-						
+
 						<div class="col-sm-1">
 						{% if myaccount %}
 							<span class="glyphicon glyphicon-pencil" data-id="{{current_allergy.id}}" id="patient_allergy_edit"></span>
-						{% endif%}	
+						{% endif%}
 						</div>
 					</div>
 					</div>
 					{% endfor %}
-			</div>		
+			</div>
 				<hr/>
-			<div class="container-fluid">	
+			<div class="container-fluid">
 				<h5>Past <span class="glyphicon glyphicon-time"></span></h5>
-				
+
 					{% for past_allergy in past_allergy_list%}
 					<div id="allergy{{past_allergy.id}}">
 					<div class="row">
@@ -424,12 +442,12 @@
 					</div>
 					</div>
 					{% endfor %}
-			</div>		
-				</div>	
+			</div>
+				</div>
 				<div id="new_patient_allergy">
 
 				</div>
-				
+
 				{% if myaccount %}
 				<div class="container-fluid">
 				<div class="col-sm-3 col-sm-offset-3">
@@ -440,7 +458,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="row">
@@ -458,19 +476,19 @@
 			<div class="col-sm-1">
 			{% if myaccount %}
 				 <span class="glyphicon glyphicon-pencil" id="patient_family_edit" data-id="{{current_family.id}}"></span>
-				{% endif %} 
+				{% endif %}
 			</div>
 			</div>
 			{% endfor %}
-			</div>	
+			</div>
 			</div>
 			<div id="new_patient_family">
 
 			</div>
-				
+
 			{% if myaccount %}
 			<div class="container-fluid">
-			
+
 			<div class="col-sm-3 col-sm-offset-3">
 			<a class="btn btn-sm btn-primary" type="button" id="add_patient_family" data-id="{{patient.id}}">Add family history</a>
 			 </div>
@@ -480,7 +498,7 @@
 		</div>
 	</div>
 </div>
-</div>		
+</div>
 </div>
 {% endblock %}
 
@@ -498,18 +516,18 @@
 		<p class="text-muted">{{topic_follow.topic.topicfollow_set.count}} follower</p>
 		</div>
 		{% endfor %}
-		
-		
-		
+
+
+
 		</div>
 	</div>
-	
+
 	<div class="panel panel-default">
 	<div class="panel-heading">
 	<h5>Related Topic</h5>
-	
+
 	</div>
-	
+
 	<div class="panel-body">
 		{% for vaccination in vaccinations%}
 		<div class="row-fluid">
@@ -517,14 +535,14 @@
 		<p class="text-muted">{{vaccination.medication.topic.topicfollow_set.count}} follower</p>
 		</div>
 		{% endfor%}
-		
+
 		{%for checklist in user_checklist%}
 		<div class="row-fluid">
 		<h5><strong><a href="/icare/topic/show/{{checklist.related_topic.id}}/">{{checklist.related_topic.title}}</a></strong></h5>
 		<p class="text-muted">{{checklist.related_topic.topicfollow_set.count}}</p>
 		</div>
 		{% endfor %}
-		
+
 	</div>
 	</div>
 	</div>

@@ -240,10 +240,10 @@ div {
 				
 					{% if is_navbar_doctor %}
 					
-					<li id="active_toggle"><a href="/icare/notification/doctor/">Notification {% if unread_notification %}<span class="label label-danger">{{unread_notification}}</span>{% else %}{% endif %}</a></li>
+					<li id="active_toggle"><a href="/icare/notification/doctor/">Notification {% if unread_notification %}<span class="label label-danger" id="doctor_notification_count">{{unread_notification}}</span>{% else %}{% endif %}</a></li>
 					<br/>
 					{% else %}
-					<li id="active_toggle"><a href="/icare/notification/patient/">Notification{% if unread_notification %}<span class="label label-danger">{{unread_notification}}</span>{% else %}{% endif %}</a></li>
+					<li id="active_toggle"><a href="/icare/notification/patient/">Notification{% if unread_notification %}<span class="label label-danger" id="patient_notification_count">{{unread_notification}}</span>{% else %}{% endif %}</a></li>
 					<br/>
 					{% endif%}
 					
@@ -299,8 +299,8 @@ div {
     <script src="{% static 'js/jquery-2.0.3.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
 	<script src="{% static 'js/endless-pagination.js'%}"></script>
-	<script src="{% static 'js/newajax.js'%}"></script>
 	
+	<script src="{% static 'js/newajax.js'%}"></script>
 	<script src="{% static 'js/live-ajax.js'%}"></script>
  </body>
  <script>

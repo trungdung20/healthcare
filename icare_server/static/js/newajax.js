@@ -106,18 +106,36 @@ $('#add_friend_patient').click(function() {
 		
 		$.get('/icare/patient_care_list_request/',{patientid: patientid} , function(data) {
 			
+			$('#patient_send_friend_request').html('<a class="btn btn-sm btn-info" type="button" id="patient_reject_friend_request" data-id="'+patienid+'">Request Sent</a>');
+		
 		});
 		
 });
+$(document.body).on('click','#patient_reject_friend_request',function(){ 
+	var patientid = $(this).attr("data-id");
+	$("#patient_reject_friend_request").hide();
+	$.get('/icare/patient_reject_friend_request/',{patientid:patientid},function(data){ 
+		
 	
+	});
+});	
 $('#add_friend_doctor').click(function() { 
 		var doctorid;
 		$('#add_friend_doctor').hide();
 		doctorid = $(this).attr("data-id");
 		$.get('/icare/doctor_care_list_request/', {doctorid: doctorid} , function(data) { 
 			
-		})
+			$('#doctor_send_friend_request').html('<a class="btn btn-sm btn-info" type="button" id="doctor_reject_friend_request" data-id="'+doctorid+'">Request Sent</a>');
+		});
 });
+
+$(document.body).on('click','#doctor_reject_friend_request',function(){ 
+	var doctorid = $(this).attr("data-id");
+	$("#doctor_reject_friend_request").hide();
+	$.get('/icare/doctor_reject_friend_request/',{doctorid:doctorid},function(data){ 
+		
+	});
+});	
 
 $('#add_advisor_doctor').click(function(){ 
 	var doctorid = $(this).attr("data-id");
@@ -367,14 +385,18 @@ $('a').click(function() {
 		return;
 });	
 
-$('#topic_agree').click(function() {
+$(document.body).on('click','#topic_agree',function(){ 
 	var topic_id = $(this).attr("data-id");
 	$("#topic_agree").hide();
 	$.get('/icare/doctor/agree_topic/',{topic_id:topic_id},function(data){
-				
+		if (data.is_agreed){
+			$("#add_topic_agree_button").html('<a class="btn btn-sm btn-success" type="button" data-id="'+topic_id+'" id="topic_agree">Agreed</a>');
+		}else{
+			$("#add_topic_agree_button").html('<a class="btn btn-sm btn-primary" type="button" data-id="'+topic_id+'" id="topic_agree">Agree</a>');
+		}		
 	});
+	return; 
 });
-
 $('a').click(function() { 
 	var id = $(this).attr('id');
 	//patient view answer post by doctor 
@@ -454,28 +476,40 @@ $('a').click(function() {
 });
 
 //handle thank and agree the answer 
-$('a').click(function() {
+
+$(document.body).on('click','a',function(){
 		var id = $(this).attr("id");
 		if (id == "answer_agree"){
 			$(this).hide();
 			var answer_agree_id = $(this).attr("data-answeragreeid");
 			$.get('/icare/agree_answer',{answer_agree_id: answer_agree_id} , function(data) { 
+				if (data.is_agreed){
+					$("#add_agree_button"+answer_agree_id).html('<a class="btn btn-sm btn-success" type="button" id ="answer_agree" data-answeragreeid="'+ answer_agree_id  +'"> Agreed</a>');
+				}else{
+					$("#add_agree_button"+answer_agree_id).html('<a class="btn btn-sm btn-primary" type="button" id ="answer_agree" data-answeragreeid="'+ answer_agree_id  +'"> Agree</a>');
+				}
 				
-				$("#answer_agree_count"+answer_agree_id).html(data);
+				$("#answer_agree_count"+answer_agree_id).html(data.count);
 			});
 		}
+		
 		if (id == "answer_thanks"){ 
 			$(this).hide();
 			var answer_thanks_id = $(this).attr("data-answerthankid");
 			
 			$.get('/icare/thanks_answer/',{answer_thanks_id: answer_thanks_id}, function(data) { 
-				
-				$("#answer_thanks_count"+answer_thanks_id).html(data);
+				if (data.is_thanked){
+					$("#add_thanks_button"+answer_thanks_id).html('<a class="btn btn-sm btn-success" type="button" id ="answer_thanks" data-answerthankid="'+ answer_thanks_id +'"> Thanked</a>');
+				}else{
+					$("#add_thanks_button"+answer_thanks_id).html('<a class="btn btn-sm btn-primary" type="button" id ="answer_thanks" data-answerthankid="'+ answer_thanks_id +'"> Thanks</a>');
+				}
+					
+				$("#answer_thanks_count"+answer_thanks_id).html(data.count);
+				return;
 			});
 		}
 		return;
-	});
-	
+});	
 //handle checklist and checklist item 
 $('a').click(function(){
 		
@@ -553,7 +587,24 @@ $("#question_post").submit(function(event){
 		});
 	});
 	
-
+$("a").click(function() {
+	var id = $(this).attr("id");
+	if (id == 'mark_notification'){
+		var notification_id = $(this).attr("data-id");
+		$(this).hide();
+		$.get('/icare/patient/mark_notification/',{notification_id:notification_id},function(data) { 
+			$("#patient_notification_count").html(data);
+		});
+	}
+	if (id == 'doctor_mark_notification'){
+		var notification_id = $(this).attr("data-id");
+		$(this).hide();
+		$.get('/icare/doctor/mark_notification/',{notification_id:notification_id},function(data) { 
+			$("#doctor_notification_count").html(data);
+		});
+	}
+	
+});
 
 	
 	$("#add_new_item").click(function(){ 

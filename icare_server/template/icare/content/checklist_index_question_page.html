@@ -31,18 +31,19 @@
 	<div class="panel panel-default">
 	<div class="panel-body">
 	<div class="row-fluid">
-		<h5>{{question.question.title}}</h5>
+		<a href="/icare/question/show/{{question.question.id}}/"><h5><strong>{{question.question.title}}</strong></h5></a>
 		<p class="text-muted">{{question.answer_count}} answers</p> 
 	</div>
 	
 	{% if question.is_answer%}
 	<hr/>
 	<div class="row-fluid">
-	<div class="col-sm-1">
-	<img class="img-responsive" width="30" height="30" src="/media/{{question.answer.from_doctor.doctor_image}}">
+	<div class="col-sm-2">
+	<img class="img-responsive" width="40" height="40" src="/media/{{question.answer.from_doctor.doctor_image}}">
 	</div>
-	<div class="col-sm-11">
+	<div class="col-sm-10">
 	<p><a href="/icare/profile/doctor/{{question.answer.from_doctor.user.id}}/">Dr.{{question.answer.from_doctor.name}}</a> has answer:</p>
+	<p class="text-muted"> On {{question.answer.created_time}}</p>
 	</div>
 	</div>
 	

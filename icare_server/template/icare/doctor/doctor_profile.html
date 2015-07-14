@@ -48,14 +48,22 @@
 		
 		<div class="col-md-4">
 				{% if can_request %}
+				<div id="doctor_send_friend_request">
 					<a class="btn btn-sm btn-primary" type="button" id="add_friend_doctor" data-id="{{doctor.id}}">Add Care list</a>
-					
+				</div>	
 				{% endif %}
 				
 				{% if is_friend %}
 					<a class="btn btn-sm btn-success" type="button">Care Doctor</a>
-					
 				{% endif %}
+				
+				{% if is_request_re and not is_friend%}
+					<a class="btn btn-sm btn-info" type="button" id="doctor_reject_friend_request" data-id="{{doctor.id}}">Request Sent</a>
+				{% endif %}
+				
+				{% if is_advisor_request%}
+					<a class="btn btn-sm btn-info" type="button" id="doctor_reject_advisor_request" data-id="{{doctor.id}}">Advisor Sent</a>
+				{% endif%}
 				
 				{% if can_be_advisor %}
 					<a class="btn btn-sm btn-primary" type="button" id="add_advisor_doctor" data-id="{{doctor.id}}">Add Advisor</a>

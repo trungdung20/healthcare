@@ -90,6 +90,7 @@
 		<h4>
 		<a href="/icare/topic/show/{{notification.topic_object.id}}/">{{notification.topic_object.title}}</a> <small>{% if notification.topic_object.medication%}Medication{% endif%} {% if notification.topic_object.condition%}Condition{% endif%} {% if notification.topic_object.procedure%}Procedure{% endif%} {% if notification.topic_object.symptom%}Symptom{% endif%}</small>
 		</h4>
+		<p class="text-muted">{{notification.topic_object.topicfollow_set.count}} follower</p>
 		</div>
 		<hr/>
 		

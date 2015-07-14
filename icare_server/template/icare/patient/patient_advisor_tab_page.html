@@ -5,12 +5,14 @@
 
 	<div class="panel-group">
 	{% for question in question_list %}
-	<div class="panel panel-info">
+	<div class="panel panel-default">
 		<div class="panel-heading">
 		<a href="/icare/question/show/{{question.question.id}}/">
-		<h5>{{question.question.title}}</h5>
+		<h5><strong>{{question.question.title}}</strong></h5>
+	
 		</a>
-		<br/>
+		<p class="text-muted">on {{question.question.created_time}}</p>
+		
 		<div class="dropdown">
 			<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Privacy
 				<span class="caret"></span></button>
@@ -28,15 +30,17 @@
 		
 		{% for answer in question.answers %}
 		<div class="container-fluid">
-		<div class="col-sm-2">
+		<div class="col-sm-3">
 			{% if answer.from_doctor.doctor_image %}
-			<img width="30" height="30" class="img-responsive" src="/media/{{answer.from_doctor.doctor_image}}"/>
+			<img width="40" height="40" class="img-responsive" src="/media/{{answer.from_doctor.doctor_image}}"/>
 		
 			{% endif %}
 		</div>
-		<div class="col-sm-5">
-		<a href="/icare/profile/doctor/{{answer.from_doctor.user.id}}/">{{answer.from_doctor.name}}</a> has answered
-		<p class="text-muted">{{answer.created_time}}</p>
+		<div class="col-sm-6">
+		<p><a href="/icare/profile/doctor/{{answer.from_doctor.user.id}}/">Dr.{{answer.from_doctor.name}}</a>  {{answer.from_doctor.specialty}}</p>
+		
+		
+		<p class="text-muted"> has answered on {{answer.created_time}}</p>
 		</div>
 		
 		</div>

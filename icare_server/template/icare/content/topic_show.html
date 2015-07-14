@@ -75,8 +75,9 @@
 	</div>
 	<div class="col-sm-2">
 	{% if not is_patient%}
+		<div id="add_topic_agree_button">
 		<a {% if is_agreed %}class="btn btn-sm btn-success"{% else %}class="btn btn-sm btn-primary"{% endif%} type="button" id ="topic_agree" data-id="{{topic.id}}"> {% if is_agreed %}Agreed {% else %}Agree {% endif%}</a>
-		
+		</div>
 	{% endif %}
 	</div>
 	

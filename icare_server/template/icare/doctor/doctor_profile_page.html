@@ -16,12 +16,13 @@
 					</div>
 					<div class="col-sm-4">
 					<p><a href="/icare/profile/doctor/{{history.history_topic.created_doctor.user.id}}/">Dr.{{history.history_topic.created_doctor.name}}</a> created</p>
+					<p class="text-muted">{{history.created}}</p>
 					</div>
 				</div>
 				<hr/>
 				<div class="container">
 				
-				<h5><a href="/icare/topic/show/{{history.history_topic.id}}/">{{history.history_topic.title}}</a>
+				<h5><strong><a href="/icare/topic/show/{{history.history_topic.id}}/">{{history.history_topic.title}}</strong></a>
 				
 				</div>
 				</div>
@@ -43,6 +44,7 @@
 			</div>
 			<div class="col-sm-7">
 			<p><a href="/icare/profile/doctor/{{history.history_checklist.related_doctor.user.id}}/">Dr.{{history.history_checklist.related_doctor.name}}</a>'s CheckList on <h4><a href="/icare/{{history.history_checklist.related_goal.id}}/check_lists/">{{history.history_checklist.related_goal.title}}</a></h4></p>
+			<p class="text-muted">{{history.created}}</p>
 			<a data-toggle="collapse" data-parent="#accordion" href="#{{history.history_checklist.id}}" class="btn btn-sm btn-primary">Show</a>
 			</div>
 			
@@ -80,7 +82,7 @@
 					<div class="panel-heading">
 						<div class="container-fluid">
 						<h5>
-							{{history.history_answer.related_question.title}}
+							<strong>{{history.history_answer.related_question.title}}</strong>
 						</h5>
 						
 						</div>
@@ -92,7 +94,7 @@
 							</div>
 							<div class="col-sm-5">
 							<p><a href="/icare/profile/doctor/{{history.history_answer.from_doctor.user.id}}/">Dr.{{history.history_answer.from_doctor.name}}</a> has answer</p>
-							
+							<p class="text-muted">{{history.created}}</p>
 							</div>
 						</div>
 						<hr/>

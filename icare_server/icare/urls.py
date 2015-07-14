@@ -101,7 +101,9 @@ urlpatterns = patterns('',
 		url(r'^profile/patient/(?P<patient_id>\w+)/$', views.profile_patient, name='profile_patient'),
 		# doctor and patient relation 
 		url(r'^patient_care_list_request/$', views.patient_send_request, name='patient_send_request'),
+		url(r'^patient_reject_friend_request/$',views.patient_reject_friend_request,name='patient_reject_friend_request'),
 		url(r'^doctor_care_list_request/$', views.doctor_send_request, name='doctor_send_request'),
+		url(r'^doctor_reject_friend_request/$',views.doctor_reject_friend_request,name="doctor_reject_friend_request"),
 		url(r'^health_care_list/doctor_list/$', views.patient_friend_list, name='patient_friend_list'),
 		url(r'^health_care_list/patient_list/$', views.doctor_friend_list, name='doctor_friend_list'),
 		#change privacy question 
@@ -110,7 +112,9 @@ urlpatterns = patterns('',
 		
 		url(r'^notification/doctor/$', views.doctor_notification_request, name='doctor_notification_request'),
 		url(r'^notification/patient/$', views.patient_notification_request, name='patient_notification_request'),
-		
+		#mark notification 
+		url(r'^patient/mark_notification/$',views.patient_mark_notification,name="patient_mark_notification"),
+		url(r'^doctor/mark_notification/$',views.doctor_mark_notification,name="doctor_mark_notification"),
 		
 		url(r'^request/patient/send/advisor_request/$',views.handle_patient_advisor_request,name='handle_patient_advisor_request'),
 		url(r'^request/accept/doctor/$',views.doctor_friend_accept, name='doctor_friend_accept'), # handles friend request made by doctor accept
